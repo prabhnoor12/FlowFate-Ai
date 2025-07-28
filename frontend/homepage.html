@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowFate AI - Homepage</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f6f8fa;
+            color: #222;
+        }
+        .navbar {
+            background: #22223b;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .navbar nav a:hover {
+            color: #4ea8de;
+        }
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem 2rem 2rem;
+            background: linear-gradient(90deg, #4ea8de 0%, #22223b 100%);
+            color: #fff;
+        }
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hero-img {
+            max-width: 220px;
+            margin-bottom: 2rem;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            text-align: center;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .cta-btn {
+            background: #4ea8de;
+            color: #fff;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+        }
+        .cta-btn:hover {
+            background: #22223b;
+        }
+        .cta-btn.dark {
+            background: #22223b;
+        }
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .feature {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 2rem;
+            max-width: 320px;
+            text-align: center;
+        }
+        .feature-img {
+            height: 48px;
+            margin-bottom: 1rem;
+        }
+        .feature h3 {
+            margin-bottom: 1rem;
+            color: #4ea8de;
+        }
+        .feature p {
+            color: #444;
+        }
+        .testimonials {
+            background: #e9ecef;
+            padding: 2rem 0;
+            margin: 2rem 0;
+        }
+        .testimonials-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        .testimonial {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 1.5rem;
+            max-width: 320px;
+            text-align: center;
+        }
+        .testimonial-text {
+            font-style: italic;
+        }
+        .testimonial-author {
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        .footer {
+            background: #22223b;
+            color: #fff;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+        .footer-note {
+            font-size: 0.95rem;
+        }
+        .footer-heart {
+            color: #4ea8de;
+        }
+        @media (max-width: 800px) {
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .cta-btn.animated {
+            animation: pulse 1.2s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 #4ea8de; }
+            100% { box-shadow: 0 0 16px 4px #4ea8de44; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">FlowFate AI</div>
+        <nav>
+            <a href="login.html">Login</a>
+            <a href="signup.html">Sign Up</a>
+            <a href="aiInterface.html">AI Chat</a>
+        </nav>
+    </div>
+    <section class="hero">
+        <div class="hero-content">
+            <img src="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=400" alt="AI Automation" class="hero-img">
+            <h1>Automate Your Workflow with FlowFate AI</h1>
+            <p>Boost productivity and streamline your business processes with AI-powered automation.<br>Integrate Gmail, Notion, Slack, and more—all in one platform.</p>
+            <div class="hero-cta">
+                <a href="signup.html"><button class="cta-btn animated">Get Started</button></a>
+                <a href="aiInterface.html"><button class="cta-btn dark">Try AI Chat</button></a>
+            </div>
+        </div>
+    </section>
+    <section class="features">
+        <div class="feature">
+            <img src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&w=200" alt="Automation" class="feature-img">
+            <h3>AI Task Automation</h3>
+            <p>Let FlowFate AI handle repetitive tasks and reminders, freeing up your time for what matters most.</p>
+        </div>
+        <div class="feature">
+            <img src="https://images.pexels.com/photos/1181355/pexels-photo-1181355.jpeg?auto=compress&w=200" alt="Integrations" class="feature-img">
+            <h3>Seamless Integrations</h3>
+            <p>Connect with Gmail, Notion, Slack, and other tools to centralize your workflow.</p>
+        </div>
+        <div class="feature">
+            <img src="https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg?auto=compress&w=200" alt="Notifications" class="feature-img">
+            <h3>Smart Notifications</h3>
+            <p>Stay updated with intelligent notifications and never miss a deadline again.</p>
+        </div>
+        <div class="feature">
+            <img src="https://images.pexels.com/photos/270404/pexels-photo-270404.jpeg?auto=compress&w=200" alt="Security" class="feature-img">
+            <h3>Secure & Reliable</h3>
+            <p>Your data is protected with industry-leading security and privacy standards.</p>
+        </div>
+    </section>
+    <section class="testimonials">
+        <div class="testimonials-wrap">
+            <div class="testimonial">
+                <p class="testimonial-text">“FlowFate AI saved me hours every week. The integrations are seamless!”</p>
+                <div class="testimonial-author">— Alex, Operations Lead</div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">“The AI chat is super intuitive and actually gets things done.”</p>
+                <div class="testimonial-author">— Priya, Product Manager</div>
+            </div>
+        </div>
+    </section>
+    <div class="footer">
+        &copy; 2025 FlowFate AI. All rights reserved.<br>
+        <span class="footer-note">Made with <span class="footer-heart">&#10084;&#65039;</span> for modern teams.</span>
+    </div>
+</body>
+</html>

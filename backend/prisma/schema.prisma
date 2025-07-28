@@ -1,0 +1,143 @@
+model NotionAccount {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  workspaceId   String
+  accessToken   String
+  refreshToken  String?
+  workspaceName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id])
+  @@unique([userId, workspaceId])
+}
+
+model NotionPropertyMapping {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  workspaceId String
+  databaseId  String
+  mapping     Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+  @@unique([userId, workspaceId, databaseId])
+}
+
+model NotionAutomation {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  workspaceId String
+  trigger     Json
+  action      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+}
+model ScheduledSlackMessage {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  workspace  String   // Slack team ID
+  channel    String
+  text       String
+  sendAt     DateTime
+  sent       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+}
+model Workflow {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  definition  Json    // stores the workflow structure (triggers, actions, params)
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
+  isShared    Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserIntegration {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  provider    String   // e.g. 'notion', 'gmail'
+  accessToken String
+  refreshToken String?
+  teamId      String?  // Slack workspace/team ID
+  teamName    String?  // Slack workspace/team name
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Add more fields as needed (e.g., scope, teamId, etc.)
+  @@unique([userId, provider, teamId])
+}
+
+
+model Automation {
+  id        Int      @id @default(autoincrement())
+  trigger   String // e.g., 'new_email_subject:invoice'
+  action    String // e.g., 'forward_to_accounting'
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  createdAt DateTime @default(now())
+}
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int          @id @default(autoincrement())
+  name              String
+  email             String       @unique
+  passwordHash      String
+  profilePictureUrl String? // optional
+  preferences       Json? // for user settings
+  createdAt         DateTime     @default(now())
+  tasks             Task[]
+  Automation        Automation[]
+  workflows         Workflow[]
+  integrations      UserIntegration[]
+  scheduledSlackMessages ScheduledSlackMessage[]
+
+  notionAccounts         NotionAccount[]
+  notionPropertyMappings NotionPropertyMapping[]
+  notionAutomations      NotionAutomation[]
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  type      String // e.g., 'summarize', 'reminder', etc.
+  input     Json // input data for the AI task
+  output    Json? // AI result/output
+  status    String   @default("pending") // 'pending', 'completed', 'failed'
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+}
+
+model Reminder {
+  id           Int      @id @default(autoincrement())
+  message      String
+  dueAt        DateTime
+  sent         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model Transcript {
+  id           Int      @id @default(autoincrement())
+  text         String
+  summary      String?
+  processed    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}

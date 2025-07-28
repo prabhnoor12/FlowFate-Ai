@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowFate AI - Chat Interface</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: #f6f8fa;
+      color: #222;
+    }
+    .chat-container {
+      max-width: 600px;
+      margin: 3rem auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 60vh;
+      transition: box-shadow 0.2s;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 1.5rem;
+    }
+    .message {
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+    }
+    .message.user { justify-content: flex-end; }
+    .message.ai { justify-content: flex-start; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: #e9ecef;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: bold; margin-right: 0.8rem; margin-left: 0.8rem;
+      flex-shrink: 0;
+    }
+    .avatar.user { background: #4ea8de; color: #fff; }
+    .avatar.ai { background: #22223b; color: #fff; }
+    .bubble {
+      padding: 1rem 1.5rem; border-radius: 20px; max-width: 80vw; font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative;
+      word-break: break-word;
+    }
+    .bubble.user { background: #4ea8de; color: #fff; }
+    .bubble.ai { background: #e9ecef; color: #222; }
+    .bubble.ai a { color: #4ea8de; text-decoration: underline; font-weight: 500; cursor: pointer; transition: color 0.15s; }
+    .bubble.ai a:hover { color: #22223b; }
+    .timestamp { font-size: 0.8rem; color: #888; margin-top: 0.2rem; margin-left: 0.5rem; }
+    .footer { background: #22223b; color: #fff; text-align: center; padding: 1.5rem 0; margin-top: 3rem; }
+    .user-btn-custom { width: 40px; height: 40px; font-size: 1.2em; }
+    .dropdown-menu-custom { min-width: 140px; }
+    .navbar-custom-max { max-width: 980px; }
+    /* Responsive styles */
+    @media (max-width: 700px) {
+      .chat-container {
+        max-width: 100vw;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 1rem 0.5rem 1.5rem 0.5rem;
+        min-height: 80vh;
+      }
+      .navbar-custom-max {
+        max-width: 100vw;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .bubble {
+        font-size: 0.98rem;
+        padding: 0.8rem 1.1rem;
+        max-width: 95vw;
+      }
+      .avatar {
+        width: 32px; height: 32px; font-size: 1rem;
+        margin-right: 0.5rem; margin-left: 0.5rem;
+      }
+      .footer {
+        font-size: 0.95rem;
+        padding: 1rem 0;
+        margin-top: 2rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .chat-container {
+        padding: 0.5rem 0.1rem 1rem 0.1rem;
+        min-height: 85vh;
+      }
+      .bubble {
+        font-size: 0.95rem;
+        padding: 0.7rem 0.7rem;
+        max-width: 99vw;
+      }
+      .avatar {
+        width: 28px; height: 28px; font-size: 0.95rem;
+      }
+      .footer {
+        font-size: 0.9rem;
+        padding: 0.7rem 0;
+      }
+    }
+    /* Make navbar toggler larger and easier to tap */
+    .navbar-toggler {
+      padding: 0.6rem 1rem;
+      font-size: 1.3rem;
+      border-radius: 8px;
+    }
+    .navbar-nav .nav-link {
+      padding: 0.7rem 1.1rem;
+      font-size: 1.08rem;
+      border-radius: 8px;
+      margin-bottom: 0.2rem;
+    }
+    @media (max-width: 700px) {
+      .navbar-nav .nav-link {
+        padding: 0.9rem 1.2rem;
+        font-size: 1.13rem;
+      }
+    }
+    /* Make chat input and button more touch-friendly */
+    .chat-input input[type="text"] {
+      font-size: 1.08rem;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+    }
+    .chat-input button {
+      font-size: 1.08rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4 sticky-top">
+    <div class="container-fluid navbar-custom-max">
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="#"><i class="fa fa-bolt"></i> FlowFate AI</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="nav-menu">
+          <li class="nav-item"><a class="nav-link" href="homepage.html"><i class="fa fa-home"></i> Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fa fa-chart-line"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="aiInterface.html"><i class="fa fa-comments"></i> AI Interface</a></li>
+          <!-- Login and Sign Up removed: user must be logged in to use this page -->
+        </ul>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <a href="help.html" class="btn btn-outline-secondary" title="Help & Documentation" aria-label="Help">
+            <i class="fa fa-question-circle"></i>
+          </a>
+          <div class="dropdown d-none" id="user-dropdown">
+            <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center user-btn-custom" id="user-btn-main" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="User menu">
+              <i class="fa fa-user"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+              <li><button class="dropdown-item" id="manage-notion-sync">Manage Notion Sync</button></li>
+              <li><button class="dropdown-item" id="logout-link-main">Logout</button></li>
+            </ul>
+          </div>
+        </div>
+        <!-- Removed duplicate user profile button -->
+      </div>
+    </div>
+  </nav>
+  <!-- Notion Sync Management Modal -->
+  <div class="modal fade" id="notionSyncModal" tabindex="-1" aria-labelledby="notionSyncModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="notionSyncModalLabel"><i class="fa fa-database me-2"></i>Manage Notion Sync</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="notion-sync-list-loading" class="text-center my-3 d-none"><span class="spinner-border spinner-border-sm"></span> Loading...</div>
+          <ul class="list-group mb-3" id="notion-sync-list"></ul>
+          <div class="mb-2">
+            <label for="notion-resource-id" class="form-label">Notion Page/Database ID</label>
+            <input type="text" class="form-control" id="notion-resource-id" placeholder="e.g. 1234abcd...">
+          </div>
+          <div class="mb-2">
+            <label for="notion-resource-type" class="form-label">Type</label>
+            <select class="form-select" id="notion-resource-type">
+              <option value="database">Database</option>
+              <option value="page">Page</option>
+            </select>
+          </div>
+          <button class="btn btn-success w-100" id="add-notion-sync-btn"><i class="fa fa-plus"></i> Add to Sync</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-container card shadow-sm border-0">
+    <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
+    <div id="typing-indicator" class="d-none" aria-live="polite" style="margin-bottom:0.5rem; color:#4ea8de; font-size:0.98rem;">
+      <span class="spinner-border spinner-border-sm align-middle"></span> AI is typing...
+    </div>
+    <form class="chat-input d-flex gap-2" id="chat-form" autocomplete="off">
+      <input type="text" class="form-control" id="user-input" placeholder="Ask FlowFate AI what to do..." required aria-label="Chat input" />
+      <button type="submit" class="btn btn-primary" aria-label="Send message">Send</button>
+    </form>
+  </div>
+  <footer class="footer bg-dark text-white text-center py-4 mt-5">
+    &copy; 2025 FlowFate AI. All rights reserved.
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    // Help modal logic removed; see help.html for documentation
+  <script>
+    // Navbar auth logic
+    function updateNavbarAuth() {
+      const token = localStorage.getItem('token');
+      const loginLi = document.getElementById('login-li');
+      const signupLi = document.getElementById('signup-li');
+      const userDropdown = document.getElementById('user-dropdown');
+      if (token) {
+        if (loginLi) loginLi.classList.add('d-none');
+        if (signupLi) signupLi.classList.add('d-none');
+        if (userDropdown) userDropdown.classList.remove('d-none');
+      } else {
+        if (loginLi) loginLi.classList.remove('d-none');
+        if (signupLi) signupLi.classList.remove('d-none');
+        if (userDropdown) userDropdown.classList.add('d-none');
+      }
+    }
+    updateNavbarAuth();
+    document.getElementById('logout-link-main').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      updateNavbarAuth();
+      window.location.href = 'login.html';
+    });
+
+    // Notion Sync Management UI logic
+    const notionSyncModal = new bootstrap.Modal(document.getElementById('notionSyncModal'));
+    document.getElementById('manage-notion-sync').addEventListener('click', function() {
+      notionSyncModal.show();
+      loadNotionSyncList();
+    });
+
+    async function loadNotionSyncList() {
+      const list = document.getElementById('notion-sync-list');
+      const loading = document.getElementById('notion-sync-list-loading');
+      list.innerHTML = '';
+      loading.classList.remove('d-none');
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('https://localhost:4000/api/notion-sync/targets', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        loading.classList.add('d-none');
+        if (!Array.isArray(data.targets) || data.targets.length === 0) {
+          list.innerHTML = '<li class="list-group-item text-muted">No Notion pages or databases selected for sync.</li>';
+        } else {
+          data.targets.forEach(target => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `<span><i class="fa fa-${target.resourceType === 'database' ? 'table' : 'file'} me-2"></i>${target.resourceId}</span>` +
+              `<button class="btn btn-sm btn-danger remove-notion-sync-btn" data-id="${target.resourceId}" data-type="${target.resourceType}"><i class="fa fa-trash"></i></button>`;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) {
+        loading.classList.add('d-none');
+        list.innerHTML = '<li class="list-group-item text-danger">Failed to load sync targets.</li>';
+      }
+    }
+
+    document.getElementById('add-notion-sync-btn').addEventListener('click', async function() {
+      const resourceId = document.getElementById('notion-resource-id').value.trim();
+      const resourceType = document.getElementById('notion-resource-type').value;
+      if (!resourceId) return alert('Please enter a Notion Page or Database ID.');
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('https://localhost:4000/api/notion-sync/targets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ resourceId, resourceType })
+        });
+        if (!res.ok) throw new Error('Failed to add sync target');
+        document.getElementById('notion-resource-id').value = '';
+        loadNotionSyncList();
+      } catch (err) {
+        alert('Failed to add sync target.');
+      }
+    });
+
+    document.getElementById('notion-sync-list').addEventListener('click', async function(e) {
+      if (e.target.closest('.remove-notion-sync-btn')) {
+        const btn = e.target.closest('.remove-notion-sync-btn');
+        const resourceId = btn.getAttribute('data-id');
+        const resourceType = btn.getAttribute('data-type');
+        const token = localStorage.getItem('token');
+        if (!confirm('Remove this Notion resource from sync?')) return;
+        try {
+          const res = await fetch('https://localhost:4000/api/notion-sync/targets', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ resourceId, resourceType })
+          });
+          if (!res.ok) throw new Error('Failed to remove sync target');
+          loadNotionSyncList();
+        } catch (err) {
+          alert('Failed to remove sync target.');
+        }
+      }
+    });
+
+    // Chat logic
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    function addMessage(text, sender, timestamp = null) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      msgDiv.setAttribute('tabindex', '0');
+      // Avatar
+      const avatar = document.createElement('div');
+      avatar.className = `avatar ${sender}`;
+      avatar.setAttribute('aria-label', sender === 'user' ? 'You' : 'AI');
+      avatar.innerHTML = sender === 'user' ? '<span>🧑</span>' : '<span>🤖</span>';
+      if (sender === 'user') msgDiv.appendChild(avatar);
+      // Bubble
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${sender}`;
+      if (sender === 'ai') {
+        // If the text looks like HTML (e.g. starts with <div or <a), render as HTML
+        if (/^\s*<\w+/.test(text)) {
+          bubble.innerHTML = text;
+        } else {
+          // Convert markdown-style [text](url) links to HTML <a> tags
+          let html = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, p1, p2) {
+            let integration = '';
+            if (/notion/i.test(p2)) integration = 'notion';
+            else if (/gmail|google/i.test(p2)) integration = 'gmail';
+            return `<a href="${p2}" target="_blank" rel="noopener noreferrer"` + (integration ? ` data-integration="${integration}"` : '') + `>${p1}</a>`;
+          });
+          // Basic markdown: bold, italic, code
+          html = html.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+                     .replace(/\*([^*]+)\*/g, '<i>$1</i>')
+                     .replace(/`([^`]+)`/g, '<code>$1</code>');
+          bubble.innerHTML = html;
+        }
+        setTimeout(() => {
+          const links = bubble.querySelectorAll('a[data-integration]');
+          links.forEach(link => {
+            link.addEventListener('click', function(e) {
+              if (/\/oauth(\?|\/|$)/i.test(link.href)) {
+                e.preventDefault();
+                const integration = link.getAttribute('data-integration');
+                window.open(link.href, integration + '_oauth', 'width=600,height=700');
+              }
+            });
+          });
+        }, 0);
+      } else {
+        bubble.textContent = text;
+      }
+      msgDiv.appendChild(bubble);
+      // Timestamp
+      const ts = document.createElement('div');
+      ts.className = 'timestamp';
+      ts.textContent = timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      msgDiv.appendChild(ts);
+      if (sender === 'ai') msgDiv.insertBefore(avatar, msgDiv.firstChild);
+      // Animate new message
+      msgDiv.style.opacity = 0;
+      chatMessages.appendChild(msgDiv);
+      setTimeout(() => {
+        msgDiv.style.transition = 'opacity 0.4s';
+        msgDiv.style.opacity = 1;
+      }, 10);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    // OAuth completion handler
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'integration_oauth_complete' && event.data.integration) {
+        let msg = `✅ ${event.data.integration.charAt(0).toUpperCase() + event.data.integration.slice(1)} account connected! You can now use ${event.data.integration.charAt(0).toUpperCase() + event.data.integration.slice(1)} features.`;
+        addMessage(msg, 'ai');
+      }
+      if (event.data && event.data.type === 'notion_oauth_complete') {
+        addMessage('✅ Notion account connected! You can now use Notion features.', 'ai');
+      }
+    });
+    chatForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const prompt = userInput.value.trim();
+      if (!prompt) return;
+      addMessage(prompt, 'user');
+      userInput.value = '';
+      // Typing indicator
+      const typing = document.getElementById('typing-indicator');
+      typing.classList.remove('d-none');
+      chatForm.querySelector('button').disabled = true;
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('https://localhost:4000/api/openai', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+        typing.classList.add('d-none');
+        chatForm.querySelector('button').disabled = false;
+        let aiReply = data.message || data.data?.reply || 'No response.';
+        addMessage(aiReply, 'ai');
+      } catch (err) {
+        typing.classList.add('d-none');
+        chatForm.querySelector('button').disabled = false;
+        addMessage('Error: Could not get response from AI.', 'ai');
+      }
+    });
+  </script>
+</body>
+</html>
+
+

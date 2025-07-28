@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - FlowFate AI</title>
+  <link rel="stylesheet" href="aiInterface.html">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body { font-family: 'Roboto', Arial, sans-serif; background: #f6f8fa; color: #222; margin: 0; }
+    .container { max-width: 700px; margin: 3rem auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px #0001; padding: 2rem; }
+    h1 { color: #6366f1; }
+    h2 { margin-top: 2rem; color: #22223b; }
+    p { margin-bottom: 1.2rem; }
+    #login-message { text-align: center; margin-top: 1rem; }
+    .google-signin-container { margin: 2rem 0; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="google-signin-container">
+      <div id="g_id_onload"
+           data-client_id="1039150943893-1hqqcde9l35mnsf5bagti9r64sb06q6k.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-theme="outline"
+           data-text="sign_in_with"
+           data-shape="rect"
+           data-logo_alignment="left">
+      </div>
+    </div>
+    <script>
+      function handleCredentialResponse(response) {
+        // For production, send response.credential (JWT) to your backend for verification
+        console.log('Google ID Token:', response.credential);
+        // Example: fetch('/api/auth/google', { method: 'POST', body: JSON.stringify({ token: response.credential }) })
+      }
+    </script>
+    <h1>Privacy Policy</h1>
+    <p>Your privacy is important to us. This policy explains how FlowFate AI collects, uses, and protects your information:</p>
+    <h2>1. Information Collection</h2>
+    <p>We collect information you provide when you use our services, such as your name, email, and usage data.</p>
+    <h2>2. Use of Information</h2>
+    <p>We use your information to provide, improve, and personalize our services.</p>
+    <h2>3. Data Protection</h2>
+    <p>We implement security measures to protect your data from unauthorized access.</p>
+    <h2>4. Sharing of Information</h2>
+    <p>We do not sell or share your personal information with third parties except as required by law or to provide our services.</p>
+    <h2>5. Cookies</h2>
+    <p>We may use cookies to enhance your experience. You can disable cookies in your browser settings.</p>
+    <h2>6. Changes to Policy</h2>
+    <p>We may update this policy. Continued use of our services constitutes acceptance of the new policy.</p>
+    <h2>7. Contact</h2>
+    <p>If you have any questions about this Privacy Policy, please contact us at privacy@flowfate.ai.</p>
+  </div>
+</body>
+</html>

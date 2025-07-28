@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard | FlowFate AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f6f8fa; }
+    .navbar {
+      background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; }
+    .nav-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; color: #fff; white-space: nowrap; }
+    .nav-menu .navbar-nav { flex-direction: row; }
+    .nav-menu .nav-link {
+      color: #fff;
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-menu .nav-link.active, .nav-menu .nav-link:hover { color: #ffd700; }
+    @media (max-width: 991.98px) {
+      .nav-menu .navbar-nav { flex-direction: column; align-items: flex-start; }
+      .nav-menu .nav-link { margin-left: 0; margin-bottom: 0.7rem; }
+      .nav-inner { flex-direction: column; align-items: stretch; }
+    }
+    .dashboard-container { max-width: 1100px; background: #fff; }
+    @media (max-width: 768px) {
+      .dashboard-container { padding: 0.5rem !important; max-width: 100vw; }
+    }
+    .user-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .copy-btn, .refresh-btn { border: none; background: #e9ecef; color: #333; border-radius: 6px; padding: 0.3rem 0.7rem; margin-left: 0.2rem; transition: background 0.2s; }
+    .copy-btn:hover, .refresh-btn:hover { background: #d0d7de; color: #0d6efd; }
+    .integration-pill { display: inline-block; margin-right: 0.5rem; margin-top: 0.2rem; padding: 0.2rem 0.7rem; border-radius: 1rem; font-size: 0.95em; background: #f1f3f5; }
+    .integration-pill.connected { background: #e0f7e9; color: #198754; border: 1px solid #19875422; }
+    .integration-pill.not-connected { background: #fbeaea; color: #b91c1c; border: 1px solid #b91c1c22; }
+    .section { margin-top: 2.5rem; }
+    .section h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 1.2rem; letter-spacing: 0.5px; }
+    .card { border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s; }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .empty { color: #adb5bd; font-style: italic; }
+    .loading { color: #0d6efd; font-weight: 500; }
+    .error { color: #b91c1c; font-weight: 500; }
+    .badge.bg-light { border: 1px solid #dee2e6; }
+    .table th, .table td { vertical-align: middle; }
+    .onboarding-tip {
+      background: #e7f1ff;
+      border-left: 4px solid #0d6efd;
+      padding: 0.7rem 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.2rem;
+      color: #084298;
+      font-size: 1.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .notion-hero {
+      background: linear-gradient(90deg, #f8fafc 60%, #e7f1ff 100%);
+      border-radius: 1rem;
+      padding: 2rem 2.5rem 1.5rem 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 2px 8px rgba(13,110,253,0.04);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .notion-hero .fa { font-size: 2.5rem; color: #0d6efd; }
+    .notion-hero-content h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .notion-hero-content p { color: #495057; margin-bottom: 0; }
+    .footer {
+      background: #f1f3f5;
+      color: #6c757d;
+      text-align: center;
+      padding: 1.2rem 0 0.7rem 0;
+      font-size: 1em;
+      border-top: 1px solid #e9ecef;
+      margin-top: 3rem;
+    }
+    @media (max-width: 768px) {
+      .dashboard-container { padding: 1.2rem 0.2rem !important; max-width: 100vw; }
+      .notion-hero { flex-direction: column; padding: 1.2rem 0.7rem; gap: 1rem; }
+      .user-info { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .section { margin-top: 1.5rem; }
+      .card { min-width: 90vw; }
+      .row.g-3 > [class^='col-'] { flex: 0 0 100%; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid nav-inner">
+      <div class="nav-logo"><i class="fa fa-bolt me-2"></i> FlowFate <span style="color:#ffd700">AI</span></div>
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="padding:0.7rem 1.3rem; font-size:1.35rem; border-radius:10px;">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse nav-menu" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="homepage.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="aiInterface.html">AI Interface</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 ms-2 mt-2 mt-lg-0">
+          <a href="help.html" class="btn btn-outline-light" title="Help & Documentation" aria-label="Help" style="border-radius:50%; padding:0.45rem 0.7rem; font-size:1.25rem;">
+            <i class="fa fa-question-circle"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container dashboard-container mt-4 mb-5 p-4 rounded-4 shadow-lg bg-white">
+    <div class="notion-hero mb-4">
+      <div><i class="fa-brands fa-notion"></i></div>
+      <div class="notion-hero-content">
+        <h3>Welcome, <span id="userName">User</span>!</h3>
+        <p class="mb-1">Your unified dashboard for automations, workflows, and Notion integration.</p>
+        <div class="user-info mt-2">
+          <span id="userEmail" data-bs-toggle="tooltip" title="Your email"></span>
+          <span id="userId" data-bs-toggle="tooltip" title="Your user ID"></span>
+          <button class="copy-btn" id="copyIdBtn" title="Copy User ID"><i class="fa fa-copy"></i></button>
+          <button class="refresh-btn" id="refreshBtn"><i class="fa fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="integrations mt-2" id="integrations"></div>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <div id="gmailActions"></div>
+          <div id="calendarActions"></div>
+          <div id="driveActions"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section mb-4">
+      <h2><i class="fa fa-diagram-project me-2"></i> Your Workflows</h2>
+      <div class="row g-3" id="workflows"></div>
+    </div>
+    <div class="section mb-4">
+      <h2><i class="fa fa-list-check me-2"></i> Recent Tasks</h2>
+      <div class="row g-3" id="tasks"></div>
+    </div>
+    <div class="section mb-4">
+      <h2><i class="fa-brands fa-notion me-2"></i> Notion Property Mapping</h2>
+      <div class="onboarding-tip"><i class="fa fa-lightbulb"></i> Map your Notion database properties to app fields for seamless two-way sync. <span class="badge bg-primary ms-2">Tip</span></div>
+      <div id="notionMappingUI"></div>
+    </div>
+    <div class="section mb-4">
+      <h2><i class="fa fa-robot me-2"></i> Notion Automations</h2>
+      <div class="onboarding-tip"><i class="fa fa-magic"></i> Create automations to trigger actions when Notion data changes. Try <span class="badge bg-success">{"type":"new_page"}</span> as a trigger! <span class="badge bg-primary ms-2">Tip</span></div>
+      <div id="notionAutomationUI"></div>
+    </div>
+    <div id="dashboardStatus"></div>
+  </div>
+  <footer class="footer">
+    <div>FlowFate AI &copy; 2025 &middot; <i class="fa fa-bolt"></i> Built for productivity and creativity</div>
+  </footer>
+  <script>
+    // Enable Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
+    const statusDiv = document.getElementById('dashboardStatus');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const copyIdBtn = document.getElementById('copyIdBtn');
+    let lastUserId = null;
+
+    function setLoading(isLoading) {
+      statusDiv.innerHTML = isLoading ? '<div class="loading"><i class="fa fa-spinner fa-spin"></i> Loading dashboard...</div>' : '';
+    }
+    function setError(msg) {
+      statusDiv.innerHTML = `<div class="error"><i class="fa fa-triangle-exclamation"></i> ${msg}</div>`;
+    }
+
+    async function fetchDashboard() {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/dashboard', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to load dashboard');
+        const { data } = await res.json();
+        // User info
+        document.getElementById('userName').textContent = data.user.name || 'User';
+        document.getElementById('userEmail').textContent = data.user.email;
+        document.getElementById('userId').textContent = `ID: ${data.user.id}`;
+        lastUserId = data.user.id;
+        // Integrations
+        const integrations = data.user.integrations || {};
+        const integrationsDiv = document.getElementById('integrations');
+        integrationsDiv.innerHTML = Object.keys(integrations).length
+          ? Object.entries(integrations).map(([k, v]) => `<span class="integration-pill ${v ? 'connected' : 'not-connected'}"><i class="fa ${v ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${k}: ${v ? 'Connected' : 'Not Connected'}</span>`).join('')
+          : '<span class="empty">No integrations connected</span>';
+
+        // Gmail integration actions
+        const gmailActionsDiv = document.getElementById('gmailActions');
+        if (integrations.gmail) {
+          gmailActionsDiv.innerHTML = `<button id="sendTestEmailBtn" class="refresh-btn" aria-label="Send Test Email"><i class="fa fa-paper-plane"></i> Send Test Email</button><span id="gmailActionStatus" style="margin-left:12px;"></span>`;
+        } else {
+          gmailActionsDiv.innerHTML = `<button id="connectGmailBtn" class="refresh-btn" aria-label="Connect Gmail"><i class="fa fa-envelope"></i> Connect Gmail</button>`;
+        }
+
+        // Calendar integration actions
+        const calendarActionsDiv = document.getElementById('calendarActions');
+        if (integrations.calendar) {
+          calendarActionsDiv.innerHTML = `<button id="listEventsBtn" class="refresh-btn" aria-label="List Calendar Events"><i class="fa fa-calendar"></i> List Events</button><span id="calendarActionStatus" style="margin-left:12px;"></span>`;
+        } else {
+          calendarActionsDiv.innerHTML = `<button id="connectCalendarBtn" class="refresh-btn" aria-label="Connect Calendar"><i class="fa fa-calendar-plus"></i> Connect Calendar</button>`;
+        }
+
+        // Drive integration actions
+        const driveActionsDiv = document.getElementById('driveActions');
+        if (integrations.drive) {
+          driveActionsDiv.innerHTML = `<button id="listFilesBtn" class="refresh-btn" aria-label="List Drive Files"><i class="fa fa-folder-open"></i> List Files</button><span id="driveActionStatus" style="margin-left:12px;"></span>`;
+        } else {
+          driveActionsDiv.innerHTML = `<button id="connectDriveBtn" class="refresh-btn" aria-label="Connect Drive"><i class="fa fa-google-drive"></i> Connect Drive</button>`;
+        }
+        // Workflows
+        const workflowsDiv = document.getElementById('workflows');
+        if (data.workflows && data.workflows.length) {
+          workflowsDiv.innerHTML = data.workflows.map(w => `
+            <div class="col-md-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <strong>${w.name}</strong>
+                  <div>${w.description ? w.description : '<span class=empty>No description</span>'}</div>
+                  <div class="text-muted mt-2" style="font-size:0.95em;">ID: ${w.id}</div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          workflowsDiv.innerHTML = '<span class="text-muted fst-italic">No workflows yet.</span>';
+        }
+        // Tasks
+        const tasksDiv = document.getElementById('tasks');
+        if (data.tasks && data.tasks.length) {
+          tasksDiv.innerHTML = data.tasks.map(t => `
+            <div class="col-md-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <strong>${t.title}</strong>
+                  <div>${t.description ? t.description : '<span class=empty>No description</span>'}</div>
+                  <div class="text-muted mt-2" style="font-size:0.95em;">Due: ${t.dueDate ? new Date(t.dueDate).toLocaleString() : 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          tasksDiv.innerHTML = '<span class="text-muted fst-italic">No recent tasks.</span>';
+        }
+        // Notion Property Mapping UI
+        renderNotionMappingUI(data.user.id);
+        // Notion Automation UI
+        renderNotionAutomationUI(data.user.id);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load dashboard. Please try again.');
+      }
+    }
+    // --- Notion Property Mapping UI ---
+    async function renderNotionMappingUI(userId) {
+      const container = document.getElementById('notionMappingUI');
+      container.innerHTML = '<div class="text-center text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading Notion databases...</div>';
+      try {
+        // 1. List workspaces
+        const wsRes = await fetch(`/api/notion-auth/workspaces?userId=${userId}`);
+        const wsData = await wsRes.json();
+        if (!wsData.workspaces || !wsData.workspaces.length) {
+          container.innerHTML = '<div class="alert alert-warning">No Notion workspaces connected.</div>';
+          return;
+        }
+        // 2. Workspace select
+        let wsOptions = wsData.workspaces.map(ws => `<option value="${ws.workspaceId}">${ws.workspaceName || ws.workspaceId}</option>`).join('');
+        container.innerHTML = `
+          <div class="mb-3">
+            <label class="form-label">Workspace</label>
+            <select class="form-select" id="notionWorkspaceSelect">${wsOptions}</select>
+          </div>
+          <div class="mb-3" id="notionDatabaseSelectDiv"></div>
+          <div class="mb-3" id="notionPropertyMappingDiv"></div>
+        `;
+        document.getElementById('notionWorkspaceSelect').addEventListener('change', e => loadDatabases(userId, e.target.value));
+        loadDatabases(userId, wsData.workspaces[0].workspaceId);
+      } catch (err) {
+        container.innerHTML = '<div class="alert alert-danger">Failed to load Notion workspaces.</div>';
+      }
+    }
+
+    async function loadDatabases(userId, workspaceId) {
+      const dbDiv = document.getElementById('notionDatabaseSelectDiv');
+      dbDiv.innerHTML = '<div class="text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading databases...</div>';
+      try {
+        const dbRes = await fetch(`/api/notion-auth/databases?userId=${userId}&workspaceId=${workspaceId}`);
+        const dbData = await dbRes.json();
+        if (!dbData.databases || !dbData.databases.length) {
+          dbDiv.innerHTML = '<div class="alert alert-warning">No databases found in this workspace.</div>';
+          return;
+        }
+        let dbOptions = dbData.databases.map(db => `<option value="${db.id}">${db.title?.[0]?.plain_text || db.id}</option>`).join('');
+        dbDiv.innerHTML = `
+          <label class="form-label">Database</label>
+          <select class="form-select" id="notionDatabaseSelect">${dbOptions}</select>
+        `;
+        document.getElementById('notionDatabaseSelect').addEventListener('change', e => loadPropertyMapping(userId, workspaceId, e.target.value));
+        loadPropertyMapping(userId, workspaceId, dbData.databases[0].id);
+      } catch (err) {
+        dbDiv.innerHTML = '<div class="alert alert-danger">Failed to load databases.</div>';
+      }
+    }
+
+    async function loadPropertyMapping(userId, workspaceId, databaseId) {
+      const propDiv = document.getElementById('notionPropertyMappingDiv');
+      propDiv.innerHTML = '<div class="text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading properties...</div>';
+      try {
+        const propRes = await fetch(`/api/notion-auth/database/${databaseId}/properties?userId=${userId}&workspaceId=${workspaceId}`);
+        const propData = await propRes.json();
+        const mappingRes = await fetch(`/api/notion-mapping/property-mapping?userId=${userId}&workspaceId=${workspaceId}&databaseId=${databaseId}`);
+        const mappingData = await mappingRes.json();
+        const properties = propData.properties || {};
+        const mapping = mappingData.mapping || {};
+        // Example app fields
+        const appFields = ['title', 'description', 'dueDate', 'status'];
+        let html = `<form id="propertyMappingForm">
+          <table class="table table-bordered align-middle">
+            <thead><tr><th>Notion Property</th><th>Map to App Field</th></tr></thead>
+            <tbody>
+              ${Object.entries(properties).map(([key, prop]) => `
+                <tr>
+                  <td><b>${prop.name || key}</b> <span class="badge bg-light text-dark">${prop.type}</span></td>
+                  <td>
+                    <select class="form-select" name="${key}">
+                      <option value="">(Ignore)</option>
+                      ${appFields.map(f => `<option value="${f}" ${mapping[key] === f ? 'selected' : ''}>${f}</option>`).join('')}
+                    </select>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <button type="submit" class="btn btn-primary">Save Mapping</button>
+        </form>`;
+        propDiv.innerHTML = html;
+        document.getElementById('propertyMappingForm').onsubmit = async function(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const mapping = {};
+          for (const [k, v] of formData.entries()) if (v) mapping[k] = v;
+          const saveRes = await fetch('/api/notion-mapping/property-mapping', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, workspaceId, databaseId, mapping })
+          });
+          if (saveRes.ok) {
+            propDiv.innerHTML += '<div class="alert alert-success mt-2">Mapping saved!</div>';
+          } else {
+            propDiv.innerHTML += '<div class="alert alert-danger mt-2">Failed to save mapping.</div>';
+          }
+        };
+      } catch (err) {
+        propDiv.innerHTML = '<div class="alert alert-danger">Failed to load properties or mapping.</div>';
+      }
+    }
+
+    // --- Notion Automation UI ---
+    async function renderNotionAutomationUI(userId) {
+      const container = document.getElementById('notionAutomationUI');
+      container.innerHTML = '<div class="text-center text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading automations...</div>';
+      try {
+        // 1. List workspaces
+        const wsRes = await fetch(`/api/notion-auth/workspaces?userId=${userId}`);
+        const wsData = await wsRes.json();
+        if (!wsData.workspaces || !wsData.workspaces.length) {
+          container.innerHTML = '<div class="alert alert-warning">No Notion workspaces connected.</div>';
+          return;
+        }
+        let wsOptions = wsData.workspaces.map(ws => `<option value="${ws.workspaceId}">${ws.workspaceName || ws.workspaceId}</option>`).join('');
+        container.innerHTML = `
+          <div class="mb-3">
+            <label class="form-label">Workspace</label>
+            <select class="form-select" id="automationWorkspaceSelect">${wsOptions}</select>
+          </div>
+          <div class="mb-3" id="automationListDiv"></div>
+          <div class="mb-3" id="automationFormDiv"></div>
+        `;
+        document.getElementById('automationWorkspaceSelect').addEventListener('change', e => loadAutomations(userId, e.target.value));
+        loadAutomations(userId, wsData.workspaces[0].workspaceId);
+      } catch (err) {
+        container.innerHTML = '<div class="alert alert-danger">Failed to load Notion workspaces.</div>';
+      }
+    }
+
+    async function loadAutomations(userId, workspaceId) {
+      const listDiv = document.getElementById('automationListDiv');
+      const formDiv = document.getElementById('automationFormDiv');
+      listDiv.innerHTML = '<div class="text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading automations...</div>';
+      try {
+        const autoRes = await fetch(`/api/notion-mapping/automation?userId=${userId}&workspaceId=${workspaceId}`);
+        const autoData = await autoRes.json();
+        if (!autoData.automations || !autoData.automations.length) {
+          listDiv.innerHTML = '<div class="alert alert-warning">No automations defined yet.</div>';
+        } else {
+          listDiv.innerHTML = `<ul class="list-group mb-3">${autoData.automations.map(a => `
+            <li class="list-group-item">
+              <b>Trigger:</b> <code>${JSON.stringify(a.trigger)}</code><br>
+              <b>Action:</b> <code>${JSON.stringify(a.action)}</code>
+            </li>
+          `).join('')}</ul>`;
+        }
+        // Automation form
+        formDiv.innerHTML = `
+          <form id="automationForm">
+            <div class="mb-2">
+              <label class="form-label">Trigger (JSON)</label>
+              <textarea class="form-control" name="trigger" rows="2" required>{"type":"new_page"}</textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Action (JSON)</label>
+              <textarea class="form-control" name="action" rows="2" required>{"type":"create_task"}</textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Add Automation</button>
+          </form>
+        `;
+        document.getElementById('automationForm').onsubmit = async function(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          let trigger, action;
+          try {
+            trigger = JSON.parse(formData.get('trigger'));
+            action = JSON.parse(formData.get('action'));
+          } catch (err) {
+            formDiv.innerHTML += '<div class="alert alert-danger mt-2">Invalid JSON in trigger or action.</div>';
+            return;
+          }
+          const saveRes = await fetch('/api/notion-mapping/automation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, workspaceId, trigger, action })
+          });
+          if (saveRes.ok) {
+            formDiv.innerHTML += '<div class="alert alert-success mt-2">Automation saved!</div>';
+            loadAutomations(userId, workspaceId);
+          } else {
+            formDiv.innerHTML += '<div class="alert alert-danger mt-2">Failed to save automation.</div>';
+          }
+        };
+      } catch (err) {
+        listDiv.innerHTML = '<div class="alert alert-danger">Failed to load automations.</div>';
+      }
+    }
+        setLoading(false);
+       // Load user email
+       const userEmailRes = await fetch(`/api/user/email?userId=${userId}`);
+       const userEmailData = await userEmailRes.json();
+       if (userEmailRes.ok) {
+         document.getElementById('userEmail').textContent = userEmailData.email;
+       } else {
+         document.getElementById('userEmail').textContent = 'Unknown';
+       }
+    // Gmail connect and send email handlers
+    document.addEventListener('click', async (e) => {
+      if (e.target && e.target.id === 'connectGmailBtn') {
+        // Start Gmail OAuth flow
+        window.location.href = '/api/integrations/gmail/connect';
+      }
+      if (e.target && e.target.id === 'sendTestEmailBtn') {
+        const userEmail = document.getElementById('userEmail').textContent;
+        const gmailActionStatus = document.getElementById('gmailActionStatus');
+        gmailActionStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+        e.target.disabled = true;
+        try {
+          const res = await fetch('/gmail/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              to: userEmail,
+              subject: 'FlowFate Test Email',
+              body: '<b>This is a test email from FlowFate AI dashboard.</b>'
+            })
+          });
+          const result = await res.json();
+          if (res.ok) {
+            gmailActionStatus.innerHTML = '<span style="color:#059669"><i class="fa fa-check-circle"></i> Sent!</span>';
+            setTimeout(() => { gmailActionStatus.innerHTML = ''; e.target.disabled = false; }, 1800);
+          } else {
+            gmailActionStatus.innerHTML = `<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> ${result.error || 'Failed to send email.'}</span>`;
+            setTimeout(() => { gmailActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+          }
+        } catch (err) {
+          gmailActionStatus.innerHTML = '<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> Failed to send email.</span>';
+          setTimeout(() => { gmailActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+        }
+      }
+
+      // Calendar connect and list events
+      if (e.target && e.target.id === 'connectCalendarBtn') {
+        window.location.href = '/api/integrations/calendar/connect';
+      }
+      if (e.target && e.target.id === 'listEventsBtn') {
+        const calendarActionStatus = document.getElementById('calendarActionStatus');
+        calendarActionStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
+        e.target.disabled = true;
+        try {
+          const res = await fetch('/calendar/events', { credentials: 'include' });
+          const result = await res.json();
+          if (res.ok && result.events) {
+            calendarActionStatus.innerHTML = `<span style="color:#059669"><i class="fa fa-check-circle"></i> ${result.events.length} events loaded.</span>`;
+            setTimeout(() => { calendarActionStatus.innerHTML = ''; e.target.disabled = false; }, 1800);
+          } else {
+            calendarActionStatus.innerHTML = `<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> ${result.error || 'Failed to load events.'}</span>`;
+            setTimeout(() => { calendarActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+          }
+        } catch (err) {
+          calendarActionStatus.innerHTML = '<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> Failed to load events.</span>';
+          setTimeout(() => { calendarActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+        }
+      }
+
+      // Drive connect and list files
+      if (e.target && e.target.id === 'connectDriveBtn') {
+        window.location.href = '/api/integrations/drive/connect';
+      }
+      if (e.target && e.target.id === 'listFilesBtn') {
+        const driveActionStatus = document.getElementById('driveActionStatus');
+        driveActionStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
+        e.target.disabled = true;
+        try {
+          const res = await fetch('/drive/files', { credentials: 'include' });
+          const result = await res.json();
+          if (res.ok && result.files) {
+            driveActionStatus.innerHTML = `<span style="color:#059669"><i class="fa fa-check-circle"></i> ${result.files.length} files loaded.</span>`;
+            setTimeout(() => { driveActionStatus.innerHTML = ''; e.target.disabled = false; }, 1800);
+          } else {
+            driveActionStatus.innerHTML = `<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> ${result.error || 'Failed to load files.'}</span>`;
+            setTimeout(() => { driveActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+          }
+        } catch (err) {
+          driveActionStatus.innerHTML = '<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> Failed to load files.</span>';
+          setTimeout(() => { driveActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+        }
+      }
+    });
+
+    refreshBtn.addEventListener('click', fetchDashboard);
+    copyIdBtn.addEventListener('click', () => {
+      if (lastUserId) {
+        navigator.clipboard.writeText(lastUserId.toString());
+        copyIdBtn.innerHTML = '<i class="fa fa-check"></i>';
+        setTimeout(() => { copyIdBtn.innerHTML = '<i class="fa fa-copy"></i>'; }, 1200);
+      }
+    });
+
+    // Initial load
+    fetchDashboard();
+  </script>
+</body>
+</html>

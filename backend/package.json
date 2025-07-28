@@ -1,0 +1,53 @@
+{
+  "name": "flowfate-ai",
+  "version": "1.0.0",
+  "description": "FlowMate AI backend for personal workflow automation",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "node ./backend/app.js",
+    "dev": "nodemon ./backend/app.js",
+    "test": "vitest",
+    "prisma": "prisma",
+    "type": "module"
+  },
+  "keywords": [
+    "ai",
+    "workflow",
+    "automation",
+    "notion",
+    "gmail"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@notionhq/client": "^2.2.4",
+    "@openai/agents": "^0.0.12",
+    "@prisma/client": "^6.12.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "bullmq": "^5.56.3",
+    "cors": "^2.8.5",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "googleapis": "^154.0.0",
+    "ioredis": "^5.6.1",
+    "isomorphic-dompurify": "^2.26.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.13",
+    "redoc": "^2.5.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "prisma": "^5.22.0",
+    "vitest": "^3.2.4"
+  }
+}

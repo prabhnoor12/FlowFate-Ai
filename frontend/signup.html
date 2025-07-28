@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - FlowFate AI</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f6f8fa;
+            color: #222;
+        }
+        .navbar {
+            background: #22223b;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .navbar nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .navbar nav a:hover {
+            color: #4ea8de;
+        }
+        .signup-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .signup-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #4ea8de;
+        }
+        .signup-container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .signup-container label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .signup-container input[type="text"],
+        .signup-container input[type="email"],
+        .signup-container input[type="password"] {
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .signup-container button {
+            background: #4ea8de;
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+        }
+        .signup-container button:hover {
+            background: #22223b;
+        }
+        .signup-container .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .signup-container .login-link a {
+            color: #4ea8de;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .signup-container .login-link a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            background: #22223b;
+            color: #fff;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">FlowFate AI</div>
+        <nav>
+            <a href="homepage.html">Home</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </div>
+    <div class="signup-container">
+        <h2>Create Your Account</h2>
+        <form action="/api/signup" method="POST">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div id="signup-message" style="text-align:center;margin-top:1rem;"></div>
+        <div class="login-link">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2025 FlowFate AI. All rights reserved.
+    </div>
+    <script>
+    document.querySelector('.signup-container form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const messageDiv = document.getElementById('signup-message');
+        messageDiv.textContent = '';
+        // Use https if your backend is running with SSL
+        const backendUrl = 'https://localhost:4000/api/auth/signup';
+        try {
+            const res = await fetch(backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+            let data = {};
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                // If response is not JSON, log it
+                console.error('Signup response not JSON:', jsonErr);
+            }
+            if (res.ok) {
+                messageDiv.style.color = '#4ea8de';
+                messageDiv.textContent = 'Signup successful! Redirecting to login...';
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = data.message || 'Signup failed. Please try again.';
+                console.error('Signup error:', data);
+            }
+        } catch (err) {
+            messageDiv.style.color = 'red';
+            messageDiv.textContent = 'Network error. Please try again.';
+            console.error('Signup network error:', err);
+        }
+    });
+    </script>
+</body>
+</html>
