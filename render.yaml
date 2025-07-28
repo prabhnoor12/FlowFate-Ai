@@ -3,7 +3,7 @@ services:
     name: backend
     runtime: docker
     plan: free
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: backend/Dockerfile
     buildCommand: ""
     startCommand: ""
     envVars:
