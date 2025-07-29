@@ -26,15 +26,10 @@ import fs from 'fs';
 
 const app = express();
 // CORS must be first, before any other middleware
+const cors = require('cors');
 app.use(cors({
-  origin: [
-    'https://localhost:5500',
-    'https://127.0.0.1:5500',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'https://flowfate-ai.onrender.com'
-  ],
-  credentials: true
+  origin: 'https://flowfate-ai-1.onrender.com',
+  credentials: true // if you use cookies/auth
 }));
 app.use(requestLogger);
 app.use(rateLimiter);
