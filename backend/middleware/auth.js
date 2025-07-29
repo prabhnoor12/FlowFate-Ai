@@ -15,17 +15,23 @@ export default auth;
 export function auth(roles = []) {
   return (req, res, next) => {
     const requestId = req.headers['x-request-id'] || null;
+    let token;
+    // Support token in Authorization header or cookie
     const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn(`[Auth] Missing or invalid Authorization header. requestId=${requestId}`);
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
+    if (!token) {
+      logger.warn(`[Auth] No token provided. requestId=${requestId} ip=${req.ip}`);
       return sendResponse(res, {
         status: 'error',
         timestamp: new Date().toISOString(),
         requestId,
-        error: { code: 'AUTH_HEADER', message: 'Missing or invalid Authorization header' }
+        error: { code: 'AUTH_TOKEN', message: 'No authentication token provided' }
       }, 401);
     }
-    const token = authHeader.split(' ')[1];
     try {
       const user = jwt.verify(token, JWT_SECRET, {
         audience: process.env.JWT_AUDIENCE,

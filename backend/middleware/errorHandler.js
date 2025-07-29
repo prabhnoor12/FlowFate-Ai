@@ -1,10 +1,24 @@
 import logger from '../utils/logger.js';
 import sendResponse from '../utils/responseUtil.js';
 
+
+function normalizeError(err) {
+  if (!err || typeof err !== 'object') {
+    return { code: 'INTERNAL_ERROR', message: String(err) };
+  }
+  return {
+    code: err.code || err.name || 'INTERNAL_ERROR',
+    message: err.message || 'Internal Server Error',
+    stack: err.stack,
+    ...err
+  };
+}
+
 function errorHandler(err, req, res, next) {
-  // Log request context for traceability
+  // Normalize error and log with context
+  const errorObj = normalizeError(err);
   logger.error({
-    error: err,
+    ...errorObj,
     method: req.method,
     path: req.originalUrl,
     user: req.user?.id,
@@ -14,18 +28,17 @@ function errorHandler(err, req, res, next) {
   if (res.headersSent) {
     return next(err);
   }
-  const status = err.statusCode || err.status || 500;
+  const status = errorObj.statusCode || errorObj.status || 500;
   const requestId = req.headers['x-request-id'] || null;
-  // Mask sensitive details in production
   const showDetails = process.env.NODE_ENV === 'development';
   sendResponse(res, {
     status: 'error',
     timestamp: new Date().toISOString(),
     requestId,
     error: {
-      code: err.code || 'INTERNAL_ERROR',
-      message: err.message || 'Internal Server Error',
-      details: showDetails ? err.stack : undefined
+      code: errorObj.code || 'INTERNAL_ERROR',
+      message: errorObj.message || 'Internal Server Error',
+      details: showDetails ? errorObj.stack : undefined
     }
   }, status);
 }
