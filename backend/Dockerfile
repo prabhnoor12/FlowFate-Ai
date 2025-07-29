@@ -11,8 +11,12 @@ WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install --production
 
+
 # Copy the rest of the backend code (including prisma/)
 COPY backend/. .
+
+# Copy frontend static files
+COPY frontend ./frontend
 
 # Generate Prisma client (after code is present)
 RUN npx prisma generate
