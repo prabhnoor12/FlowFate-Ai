@@ -119,7 +119,7 @@
     </div>
     <div class="login-container">
         <h2>Login to FlowFate AI</h2>
-        <form action="/api/auth/login" method="POST">
+        <form action="https://flowfate-ai-backend.onrender.com/api/auth/login" method="POST">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required>
             <label for="password">Password</label>
@@ -156,8 +156,8 @@
         const password = document.getElementById('password').value;
         const messageDiv = document.getElementById('login-message');
         messageDiv.textContent = '';
-        // Use HTTPS for backend endpoint
-        const backendUrl = 'https://localhost:4000/api/auth/login';
+        // Use deployed Render backend endpoint
+        const backendUrl = 'https://flowfate-ai-backend.onrender.com/api/auth/login';
         try {
             const res = await fetch(backendUrl, {
                 method: 'POST',
@@ -190,7 +190,7 @@
     function handleCredentialResponse(response) {
         // For production, send response.credential (JWT) to your backend for verification
         console.log('Google ID Token:', response.credential);
-        // Example: fetch('/api/auth/google', { method: 'POST', body: JSON.stringify({ token: response.credential }) })
+        // Example: fetch('https://flowfate-ai-backend.onrender.com/api/auth/google', { method: 'POST', body: JSON.stringify({ token: response.credential }) })
     }
     </script>
 </body>
