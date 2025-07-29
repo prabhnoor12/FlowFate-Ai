@@ -26,7 +26,6 @@ import fs from 'fs';
 
 const app = express();
 // CORS must be first, before any other middleware
-const cors = require('cors');
 app.use(cors({
   origin: 'https://flowfate-ai-1.onrender.com',
   credentials: true // if you use cookies/auth
