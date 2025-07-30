@@ -7,6 +7,8 @@ import rateLimiter from './middleware/rateLimiter.js';
 import morgan from 'morgan';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import passport from './config/passport.js';
+import session from 'express-session';
 
 
 import apiRoutes from './routes/index.js';
@@ -32,6 +34,14 @@ app.use(cors({
 }));
 app.use(requestLogger);
 app.use(rateLimiter);
+// Session middleware (required for Passport if using sessions)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your_secret',
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 const PORT = process.env.PORT || 4000;
 
 // Serve static files from the frontend folder

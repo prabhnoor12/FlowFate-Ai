@@ -104,6 +104,8 @@ model User {
   profilePictureUrl String? // optional
   preferences       Json? // for user settings
   createdAt         DateTime     @default(now())
+  googleId          String?      @unique
+  avatar            String?
   tasks             Task[]
   Automation        Automation[]
   workflows         Workflow[]

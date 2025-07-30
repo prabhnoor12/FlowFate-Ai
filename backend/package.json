@@ -23,7 +23,7 @@
   "dependencies": {
     "@notionhq/client": "^2.2.4",
     "@openai/agents": "^0.0.12",
-    "@prisma/client": "^6.12.0",
+    "@prisma/client": "^6.13.0",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "bullmq": "^5.56.3",
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.0",
-    "prisma": "^5.22.0",
+    "prisma": "^6.13.0",
     "vitest": "^3.2.4"
   }
 }
