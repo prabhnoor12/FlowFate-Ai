@@ -136,8 +136,8 @@
         const password = document.getElementById('password').value;
         const messageDiv = document.getElementById('signup-message');
         messageDiv.textContent = '';
-        // Use https if your backend is running with SSL
-        const backendUrl = 'https://localhost:4000/api/auth/signup';
+        // Use deployed Render backend endpoint
+        const backendUrl = 'https://flowfate-ai.onrender.com/api/auth/signup';
         try {
             const res = await fetch(backendUrl, {
                 method: 'POST',
