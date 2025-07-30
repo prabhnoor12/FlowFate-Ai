@@ -2,13 +2,12 @@
   "name": "flowfate-ai",
   "version": "1.0.0",
   "description": "FlowMate AI backend for personal workflow automation",
-  "main": "backend/app.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node ./backend/app.js",
-    "dev": "nodemon ./backend/app.js",
+    "start": "node ./app.js",
+    "dev": "nodemon ./app.js",
     "test": "vitest",
-    "prisma": "prisma",
-    "type": "module"
+    "prisma": "prisma"
   },
   "keywords": [
     "ai",
@@ -41,6 +40,7 @@
     "node-cron": "^4.2.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.13",
+    "passport": "^0.7.0",
     "redoc": "^2.5.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
