@@ -2,7 +2,7 @@ import { Queue, Worker } from 'bullmq';
 import { PrismaClient } from '@prisma/client';
 import fetch from 'node-fetch';
 import { createNotionPage, updateNotionPage, appendNotionBlock } from '../utils/notionActions.js';
-import redis from '../config/redis.js';
+import { redis } from '../config/redis.js';
 
 import { isIntegrationConnected, getIntegrationToken } from '../services/integrationService.js';
 import { google } from 'googleapis';

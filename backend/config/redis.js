@@ -11,7 +11,14 @@ if (process.env.REDIS_PASSWORD) {
   redisOptions.password = process.env.REDIS_PASSWORD;
 }
 
+
+// Singleton Redis client for general use
 const redis = new Redis(redisUrl, redisOptions);
+
+// Factory for creating new Redis clients (for session store, etc.)
+export function createRedisClient(url = redisUrl, options = redisOptions) {
+  return new Redis(url, options);
+}
 
 redis.on('connect', () => {
   console.log('[Redis] Connected');
@@ -41,9 +48,9 @@ process.on('SIGINT', async () => {
   }
 });
 
-// Export a getter for testability
+// Export a getter for testability (ESM style)
 export function getRedisClient() {
   return redis;
 }
 
-export default redis;
+export { redis };

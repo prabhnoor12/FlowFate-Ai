@@ -9,8 +9,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import passport from './config/passport.js';
 import session from 'express-session';
-import RedisStore from 'connect-redis';
-import { createClient as createRedisClient } from 'ioredis';
+import { RedisStore } from 'connect-redis';
+import RedisPkg from 'ioredis';
+const { createClient: createRedisClient } = RedisPkg;
 
 
 import apiRoutes from './routes/index.js';
