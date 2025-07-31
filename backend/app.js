@@ -10,9 +10,10 @@ import dotenv from 'dotenv';
 import passport from './config/passport.js';
 import session from 'express-session';
 import { RedisStore } from 'connect-redis';
-import RedisPkg from 'ioredis';
-const { createClient: createRedisClient } = RedisPkg;
 
+import RedisPkg from 'ioredis';
+const { createRedisClient } = await import('../config/redis.js');
+const redisClient = createRedisClient(process.env.REDIS_URL);
 
 import apiRoutes from './routes/index.js';
 import { auth } from './middleware/auth.js';
@@ -38,7 +39,6 @@ app.use(cors({
 app.use(requestLogger);
 app.use(rateLimiter);
 // Production-ready session store using Redis
-const redisClient = new createRedisClient(process.env.REDIS_URL);
 app.use(session({
   store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET || 'your_secret',
