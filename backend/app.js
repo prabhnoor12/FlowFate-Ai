@@ -69,17 +69,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date() }));
 // Error handler (should be last)
 app.use(errorHandler);
 
-// Use HTTPS in development, HTTP in production (Render provides HTTPS at the load balancer)
-if (process.env.NODE_ENV === 'production') {
-  app.listen(PORT, () => {
-    console.log(`FlowMate AI backend running on https://localhost:${PORT}`);
-  });
-} else {
-  const sslOptions = {
-    key: fs.readFileSync(process.env.SSL_KEY_PATH || './certs/key.pem'),
-    cert: fs.readFileSync(process.env.SSL_CERT_PATH || './certs/cert.pem')
-  };
-  https.createServer(sslOptions, app).listen(PORT, () => {
-    console.log(`FlowMate AI backend running securely on https://localhost:${PORT}`);
-  });
-}
+// Start HTTP server (Render provides HTTPS at the load balancer)
+app.listen(PORT, () => {
+  console.log(`FlowMate AI backend running on http://localhost:${PORT}`);
+});
