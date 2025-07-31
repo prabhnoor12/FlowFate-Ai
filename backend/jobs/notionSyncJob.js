@@ -33,7 +33,7 @@ export async function runNotionSyncJob() {
       // Fetch property mapping for this user/workspace/database (if any)
       let propertyMapping = {};
       try {
-        const mappingRes = await axios.get('http://localhost:4000/api/notion-mapping/property-mapping', {
+        const mappingRes = await axios.get('https://localhost:4000/api/notion-mapping/property-mapping', {
           params: { userId, workspaceId: target.workspaceId, databaseId: resourceId }
         });
         propertyMapping = mappingRes.data.mapping || {};
@@ -44,7 +44,7 @@ export async function runNotionSyncJob() {
       // Fetch automations for this user/workspace
       let automations = [];
       try {
-        const autoRes = await axios.get('http://localhost:4000/api/notion-mapping/automation', {
+        const autoRes = await axios.get('https://localhost:4000/api/notion-mapping/automation', {
           params: { userId, workspaceId: target.workspaceId }
         });
         automations = autoRes.data.automations || [];
