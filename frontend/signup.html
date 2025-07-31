@@ -78,7 +78,7 @@
   </div>
 
   <h5 class="mb-2">Sign in with email</h5>
-  <p class="text-muted small mb-4">Make a new doc to bring your words, data, and teams together. For free</p>
+  <p class="text-muted small mb-4">Access your workspace and bring your words, data, and teams together.</p>
 
 
   <form id="signup-form" autocomplete="off">
@@ -108,10 +108,10 @@
   </form>
 
   <hr class="my-4">
-  <p class="text-muted small">Or sign up with</p>
+  <p class="text-muted small">Or sign in with</p>
   <div class="d-flex flex-column align-items-center">
     <button type="button" id="google-signup-btn" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 mb-2 google-btn">
-      <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google" class="google-icon"> Sign up with Google
+      <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google" class="google-icon"> Sign in with Google
     </button>
     <!-- You can add more providers here if needed -->
   </div>
@@ -221,14 +221,14 @@
     });
   });
 
-  // Google sign up (OAuth 2.0 popup)
+  // Google sign in (OAuth 2.0 popup)
   document.getElementById('google-signup-btn').addEventListener('click', function() {
     // Replace with your backend's Google OAuth endpoint
     const googleOAuthUrl = `${BACKEND_BASE_URL}/api/auth/google`; // Adjust as needed
     const width = 500, height = 600;
     const left = (window.screen.width - width) / 2;
     const top = (window.screen.height - height) / 2;
-    const popup = window.open(googleOAuthUrl, 'google_signup', `width=${width},height=${height},left=${left},top=${top}`);
+    const popup = window.open(googleOAuthUrl, 'google_signin', `width=${width},height=${height},left=${left},top=${top}`);
     // Listen for a message from the popup (optional, for OAuth completion)
     window.addEventListener('message', function(event) {
       if (event.data && event.data.type === 'google_signup_success') {
