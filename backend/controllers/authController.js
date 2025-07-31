@@ -1,3 +1,5 @@
+// Google One Tap/Sign-In
+export { googleOneTap } from './googleOneTap.js';
 // Handles user authentication (register & login)
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
