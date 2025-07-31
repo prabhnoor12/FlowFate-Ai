@@ -118,8 +118,8 @@
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem('token', data.token);
+      if (res.ok && data.data && data.data.token) {
+        localStorage.setItem('token', data.data.token);
         errorDiv.textContent = 'Login successful! Opening chat...';
         errorDiv.classList.remove('d-none');
         errorDiv.classList.remove('alert-danger');
@@ -128,7 +128,7 @@
           window.open('aiInterface.html', '_blank');
         }, 800);
       } else {
-        errorDiv.textContent = data.message || 'Login failed. Please try again.';
+        errorDiv.textContent = (data && data.error && data.error.message) || data.message || 'Login failed. Please try again.';
         errorDiv.classList.remove('d-none');
         errorDiv.classList.remove('alert-success');
         errorDiv.classList.add('alert-danger');
