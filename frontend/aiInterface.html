@@ -49,20 +49,20 @@
   </div>
 
     <!-- Chat Section -->
-    <!-- Chat Section -->
-    <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto">
-      <!-- Centered Discord-like Chat Icon -->
-      <div class="flex justify-center mt-4">
-        <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 shadow" title="Chat">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+    <!-- Small Discord-like Chat Icon as background, with centered empty message below -->
+    <div class="relative flex-1 flex flex-col">
+      <div id="chatBgIcon" class="absolute left-0 right-0 top-4 flex justify-center pointer-events-none z-0 transition-opacity duration-700 opacity-40">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 shadow" title="Chat Icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C7.03 3 3 6.58 3 11.01c0 2.13 1.06 4.07 2.82 5.5-.13.98-.56 2.36-1.7 3.13 0 0-.03.02-.03.04 0 .09.07.16.16.16.02 0 .04 0 .06-.01 1.38-.18 2.44-.95 3.13-1.5.97.28 2.01.44 3.13.44 4.97 0 9-3.58 9-8.01S16.97 3 12 3z" />
           </svg>
         </span>
       </div>
-      <div class="text-center text-gray-400 mt-8" id="emptyChatMsg">
-        <p class="text-base">Start a new conversation</p>
-        <p class="text-xs">How can FlowFate AI assist you today?</p>
-      </div>
+      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10">
+        <div class="flex flex-col items-center justify-center mt-12 mb-2" id="emptyChatMsg">
+          <p class="text-base">Start a new conversation</p>
+          <p class="text-xs">How can FlowFate AI assist you today?</p>
+        </div>
       <!-- Typing/Loading Indicator -->
       <div id="typingIndicator" class="text-center text-xs text-gray-500 mt-2 hidden flex-col items-center justify-center">
         <span class="inline-flex items-center gap-2 justify-center">
@@ -291,6 +291,18 @@
       // Simple logout: redirect to login.html (or implement your own logic)
       window.location.href = 'login.html';
     });
+    function updateChatBgIconVisibility() {
+      const chatBgIcon = document.getElementById('chatBgIcon');
+      // If chat is empty (only emptyChatMsg present), show faded icon; else, fade out
+      if (chatBox.children.length === 1 && chatBox.contains(emptyChatMsg)) {
+        chatBgIcon.style.opacity = '0.4';
+        chatBgIcon.style.pointerEvents = 'none';
+      } else {
+        chatBgIcon.style.opacity = '0';
+        chatBgIcon.style.pointerEvents = 'none';
+      }
+    }
+
     function appendMessage(text, sender = 'user') {
       // Remove empty message if present
       if (emptyChatMsg && emptyChatMsg.parentNode === chatBox) {
@@ -312,7 +324,18 @@
       }
       msg.className = `${alignClass} message ${sender} ${bgClass} text-sm p-2 my-1 rounded-xl max-w-xs shadow`;
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      msg.innerHTML = `<div>${text}</div><div class="text-xs text-right opacity-60">${time}</div>`;
+
+      // If bot and text is HTML, strip tags and decode entities, then clean up whitespace
+      let displayText = text;
+      if (sender === 'bot' && /^<div/i.test(text.trim())) {
+        const temp = document.createElement('div');
+        temp.innerHTML = text;
+        displayText = temp.textContent || temp.innerText || '';
+        // Clean up: collapse multiple spaces/newlines, trim
+        displayText = displayText.replace(/\s+/g, ' ').replace(/ +/g, ' ').trim();
+      }
+
+      msg.innerHTML = `<div>${displayText}</div><div class="text-xs text-right opacity-60">${time}</div>`;
       chatBox.appendChild(msg);
       // Notion link unfurling (only for user and bot messages)
       if (sender === 'user' || sender === 'bot') {
@@ -320,6 +343,7 @@
       }
       if (autoScrollEnabled) scrollChatToBottom();
       saveChatHistory();
+      updateChatBgIconVisibility();
     }
     const fileInput = document.getElementById('fileInput');
 
@@ -365,6 +389,7 @@
       if (emptyChatMsg) {
         chatBox.appendChild(emptyChatMsg);
       }
+      updateChatBgIconVisibility();
     });
 
     function scrollChatToBottom() {
@@ -455,6 +480,7 @@
     // Load chat history on page load
     window.addEventListener('DOMContentLoaded', () => {
       loadChatHistory();
+      updateChatBgIconVisibility();
     });
   </script>
 

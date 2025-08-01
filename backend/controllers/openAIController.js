@@ -461,8 +461,10 @@ export async function askOpenAI(req, res) {
     const result = await run(agent, prompt);
     let output = result.output;
     let reply = '';
-    // Extract assistant reply text if output is an array of message objects
-    if (Array.isArray(output) && output.length > 0 && output[0].content && Array.isArray(output[0].content)) {
+    // If output is a string and looks like HTML, return as-is for proper rendering
+    if (typeof output === 'string' && output.trim().startsWith('<div')) {
+      reply = output;
+    } else if (Array.isArray(output) && output.length > 0 && output[0].content && Array.isArray(output[0].content)) {
       const textObj = output[0].content.find(c => c.type === 'output_text');
       reply = textObj ? textObj.text : '';
     } else if (typeof output === 'string') {
