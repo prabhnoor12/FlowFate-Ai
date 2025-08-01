@@ -1,3 +1,17 @@
+
+import express from 'express';
+import { createNotionPage, syncWithNotion } from '../integrations/notionIntegration.js';
+import sendResponse from '../utils/responseUtil.js';
+import { z } from 'zod';
+import {
+  queryDatabase,
+  getDatabase,
+  getPage,
+  createBlock
+} from '../utils/notionUtil.js';
+
+const router = express.Router();
+
 // --- Notion Link Unfurling ---
 // POST /api/notion/unfurl { url }
 router.post('/unfurl', async (req, res) => {
@@ -105,18 +119,6 @@ router.get('/recent', async (req, res) => {
   }
 });
 
-import express from 'express';
-import { createNotionPage, syncWithNotion } from '../integrations/notionIntegration.js';
-import sendResponse from '../utils/responseUtil.js';
-import { z } from 'zod';
-import {
-  queryDatabase,
-  getDatabase,
-  getPage,
-  createBlock
-} from '../utils/notionUtil.js';
-
-const router = express.Router();
 
 // Notion webhook endpoint (for future Notion webhook support)
 router.post('/webhook', async (req, res) => {
