@@ -73,7 +73,7 @@ const listClickUpTasks = tool({
 const createClickUpTask = tool({
   name: 'create_clickup_task',
   description: 'Create a new ClickUp task in a list.',
-  parameters: z.object({ listId: z.string().min(1), name: z.string().min(1), description: z.string().optional().nullable(), due_date: z.string().optional().nullable() }),
+  parameters: z.object({ listId: z.string().min(1), name: z.string().min(1), description: z.string().nullable(), due_date: z.string().nullable() }),
   async execute({ listId, name, description, due_date }, ctx) {
     const userId = ctx?.user?.id;
     const { isIntegrationConnected, getIntegrationToken } = await import('../services/integrationService.js');
@@ -130,7 +130,7 @@ const deleteClickUpTask = tool({
 const updateClickUpTask = tool({
   name: 'update_clickup_task',
   description: 'Update a ClickUp task (name, description, due date, etc.).',
-  parameters: z.object({ taskId: z.string().min(1), updates: z.object({}).passthrough() }),
+  parameters: z.object({ taskId: z.string().min(1), updates: z.object({}).strict() }),
   async execute({ taskId, updates }, ctx) {
     const userId = ctx?.user?.id;
     const { isIntegrationConnected, getIntegrationToken } = await import('../services/integrationService.js');
