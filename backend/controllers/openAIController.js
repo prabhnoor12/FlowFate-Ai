@@ -218,7 +218,7 @@ const deleteTodoistTask = tool({
 const updateTodoistTask = tool({
   name: 'update_todoist_task',
   description: 'Update a Todoist task (content, due date, etc.).',
-  parameters: z.object({ taskId: z.string().min(1), updates: z.object({}).passthrough() }),
+  parameters: z.object({ taskId: z.string().min(1), updates: z.object({}).strict() }),
   async execute({ taskId, updates }, ctx) {
     const userId = ctx?.user?.id;
     const { isIntegrationConnected, getIntegrationToken } = await import('../services/integrationService.js');
