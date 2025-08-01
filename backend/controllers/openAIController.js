@@ -242,7 +242,7 @@ const createTodoistTask = tool({
   description: 'Create a new task in Todoist for the user. Prompts user to connect Todoist if not connected.',
   parameters: z.object({
     content: z.string().min(1),
-    projectId: z.string().optional().nullable(),
+    projectId: z.string().optional().nullable(), // Explicitly typed as string for OpenAI schema
   }),
   async execute({ content, projectId }, ctx) {
     const userId = ctx?.user?.id;
