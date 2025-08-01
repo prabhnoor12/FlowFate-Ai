@@ -405,6 +405,13 @@ const createNotionNote = tool({
     content: z.string().min(1),
   }),
   async execute({ userId, title, content }, ctx) {
+    // Check Notion integration for user
+    const { isIntegrationConnected } = await import('../services/integrationService.js');
+    const notionConnected = ctx?.user?.id && await isIntegrationConnected(ctx.user.id, 'notion');
+    if (!notionConnected) {
+      const oauthUrl = '/api/integrations/notion/connect';
+      return `<div style='font-size:1.1em;'><b>🚀 Connect Notion to FlowFate!</b><br>To use Notion features, <a href="${oauthUrl}" target="_blank" rel="noopener noreferrer" data-integration="notion" style="color:#4e8cff;font-weight:bold;">click here to connect your Notion account</a>.<br><i>Once connected, you can create and manage Notion notes from FlowFate!</i></div>`;
+    }
     // Pass user context for audit and security
     return await createNoteForUser(userId, title, content, { agent: ctx?.user || 'AI', traceId: ctx?.traceId });
   },
