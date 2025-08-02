@@ -1,10 +1,9 @@
-// Google One Tap/Sign-In
-export { googleOneTap } from './googleOneTap.js';
 // Handles user authentication (register & login)
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
+// Google One Tap/Sign-In
+export { googleOneTap } from './googleOneTap.js';
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
