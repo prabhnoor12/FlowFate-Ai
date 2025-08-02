@@ -58,7 +58,7 @@
           </svg>
         </span>
       </div>
-      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10" role="log" aria-live="polite" aria-relevant="additions">
+      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10 max-h-full" style="word-break:break-word;overflow-y:auto;" role="log" aria-live="polite" aria-relevant="additions">
         <div class="flex flex-col items-center justify-center mt-12 mb-2" id="emptyChatMsg" aria-label="Empty chat message">
           <p class="text-base">Start a new conversation</p>
           <p class="text-xs">How can FlowFate AI assist you today?</p>
@@ -321,14 +321,15 @@
       if (sender === 'user' || sender === 'bot') {
         setTimeout(() => notionUnfurlLinks(msg), 0);
       }
-      if (window.autoScrollEnabled) scrollChatToBottom();
+      // Always scroll to bottom after new message
+      setTimeout(scrollChatToBottom, 0);
       saveChatHistory();
       updateChatBgIconVisibility();
     }
 
     function scrollChatToBottom() {
       const chatBox = document.getElementById('chatBox');
-      if (window.autoScrollEnabled && chatBox) {
+      if (chatBox) {
         chatBox.scrollTop = chatBox.scrollHeight;
       }
     }
