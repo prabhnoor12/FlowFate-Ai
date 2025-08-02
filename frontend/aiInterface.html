@@ -7,7 +7,7 @@
   <title>FlowFate AI Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex justify-center items-center min-h-screen p-4" role="main">
+<body class="bg-gray-100 flex justify-center items-center min-h-screen p-4 overflow-hidden" role="main">
 
   <!-- Mobile-Responsive Chat UI -->
   <main class="w-full max-w-md bg-white rounded-3xl shadow-lg p-6 flex flex-col gap-4 h-[90vh]" aria-label="Chat interface">
@@ -58,7 +58,7 @@
           </svg>
         </span>
       </div>
-      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10 max-h-full" style="word-break:break-word;overflow-y:auto;" role="log" aria-live="polite" aria-relevant="additions">
+      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10 max-h-[60vh] w-full" style="word-break:break-word;" role="log" aria-live="polite" aria-relevant="additions">
         <div class="flex flex-col items-center justify-center mt-12 mb-2" id="emptyChatMsg" aria-label="Empty chat message">
           <p class="text-base">Start a new conversation</p>
           <p class="text-xs">How can FlowFate AI assist you today?</p>
