@@ -333,6 +333,10 @@
           displayText = displayText.replace(/```[\s\S]*?```/g, '');
           // Remove lines that look like JSON (e.g., { ... } or [ ... ])
           displayText = displayText.replace(/^[ \t]*[\{\[].*[\}\]][ \t]*$/gim, '');
+          // Remove trailing JSON or bracketed fragments (e.g., after a closing } or ])
+          displayText = displayText.replace(/([\}\]])[\s\S]*$/, '$1');
+          // Remove trailing API fragments (e.g., after a closing parenthesis and then a quote or comma)
+          displayText = displayText.replace(/\)["',\]\s*([\]\}\)]|$)[\s\S]*$/, ')');
           // Convert markdown links [text](url) to HTML links
           displayText = displayText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, label, url) {
             return `<a href="${url}" target="_blank" class="text-blue-500 underline">${label}</a>`;
