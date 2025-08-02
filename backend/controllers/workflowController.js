@@ -32,15 +32,44 @@ export async function createWorkflow(req, res, next) {
   }
 }
 
+// List workflows with pagination, filtering, and sharing support
 export async function listWorkflows(req, res, next) {
+  const start = Date.now();
   try {
     const userId = req.user?.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
-    const workflows = await workflowService.listWorkflows({ userId });
-    sendResponse(res, { status: 'success', data: workflows });
+
+    // Pagination and filtering
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize) || 10));
+    const skip = (page - 1) * pageSize;
+    const filter = {};
+    if (req.query.name) filter.name = { contains: req.query.name, mode: 'insensitive' };
+    if (req.query.isShared !== undefined) filter.isShared = req.query.isShared === 'true';
+
+    // Only show user's workflows or shared ones
+    const where = {
+      OR: [
+        { userId },
+        { isShared: true }
+      ],
+      ...filter
+    };
+
+    const [workflows, total] = await Promise.all([
+      workflowService.listWorkflows({ where, skip, take: pageSize, orderBy: { createdAt: 'desc' } }),
+      workflowService.countWorkflows({ where })
+    ]);
+    logger.info(`[Workflow] List: userId=${userId}, page=${page}, ms=${Date.now() - start}`);
+    sendResponse(res, {
+      status: 'success',
+      data: workflows,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+    });
   } catch (err) {
     logger.error('[Workflow] List error', err);
-    next(err);
+    sendResponse(res, { status: 'error', error: { message: 'Failed to list workflows', details: err.message } }, 500);
+    if (next) next(err);
   }
 }
 
