@@ -446,7 +446,7 @@
       appendMessage(text, 'user');
       showTypingIndicator(true);
       try {
-        const response = await fetch('https://flowfate-ai.onrender.com/api/openai/notion', {
+        const response = await fetch('https://flowfate-ai.onrender.com/api/openai/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -458,7 +458,9 @@
         }
         const data = await response.json();
         let reply = null;
-        if (data && data.data && data.data.reply) {
+        if (data && data.reply) {
+          reply = data.reply;
+        } else if (data && data.data && data.data.reply) {
           reply = data.data.reply;
         } else if (Array.isArray(data)) {
           for (let i = data.length - 1; i >= 0; i--) {
