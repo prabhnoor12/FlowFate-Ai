@@ -58,7 +58,7 @@
           </svg>
         </span>
       </div>
-      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10 max-h-[60vh] w-full" style="word-break:break-word;" role="log" aria-live="polite" aria-relevant="additions">
+      <div id="chatBox" class="flex flex-1 flex-col gap-4 mt-4 text-sm overflow-y-auto relative z-10 max-h-[60vh] w-full break-words" style="word-break:break-word;overflow-wrap:break-word;overflow-x:auto;" role="log" aria-live="polite" aria-relevant="additions">
         <div class="flex flex-col items-center justify-center mt-12 mb-2" id="emptyChatMsg" aria-label="Empty chat message">
           <p class="text-base">Start a new conversation</p>
           <p class="text-xs">How can FlowFate AI assist you today?</p>
@@ -307,14 +307,18 @@
         bgClass = 'bg-yellow-50 text-yellow-800 border border-yellow-200';
         alignClass = 'self-center';
       }
-      msg.className = `${alignClass} message ${sender} ${bgClass} text-sm p-2 my-1 rounded-xl max-w-xs shadow`;
+      msg.className = `${alignClass} message ${sender} ${bgClass} text-sm p-2 my-1 rounded-xl max-w-xs shadow break-words`;
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       let displayText = text;
-      if (sender === 'bot' && /^<div/i.test(text.trim())) {
-        const temp = document.createElement('div');
-        temp.innerHTML = text;
-        displayText = temp.textContent || temp.innerText || '';
-        displayText = displayText.replace(/\s+/g, ' ').replace(/ +/g, ' ').trim();
+      // If bot, sanitize markdown links and strip tags for user-friendly output
+      if (sender === 'bot') {
+        // Convert markdown links [text](url) to HTML links
+        displayText = displayText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, label, url) {
+          // Only show the label as a clickable link, not the markdown
+          return `<a href="${url}" target="_blank" class="text-blue-500 underline">${label}</a>`;
+        });
+        // Remove any remaining HTML tags except <a>
+        displayText = displayText.replace(/<(?!a\b)[^>]*>/gi, '');
       }
       msg.innerHTML = `<div>${displayText}</div><div class="text-xs text-right opacity-60">${time}</div>`;
       chatBox.appendChild(msg);
