@@ -48,8 +48,8 @@
     </button>
   </nav>
 
-    <!-- Chat Section -->
-    <!-- Small Discord-like Chat Icon as background, with centered empty message below -->
+
+    <!-- Chat Section: All controls and input are now inside the chat area -->
     <section class="relative flex-1 flex flex-col" aria-label="Chat messages">
       <div id="chatBgIcon" class="absolute left-0 right-0 top-4 flex justify-center pointer-events-none z-0 transition-opacity duration-700 opacity-40" aria-hidden="true">
         <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 shadow" title="Chat Icon">
@@ -63,60 +63,61 @@
           <p class="text-base">Start a new conversation</p>
           <p class="text-xs">How can FlowFate AI assist you today?</p>
         </div>
-      <!-- Typing/Loading Indicator -->
-      <div id="typingIndicator" class="text-center text-xs text-gray-500 mt-2 hidden flex-col items-center justify-center" role="status" aria-live="polite">
-        <span class="inline-flex items-center gap-2 justify-center">
-          <svg class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-          </svg>
-          FlowFate AI is typing...
-        </span>
+        <!-- Typing/Loading Indicator -->
+        <div id="typingIndicator" class="text-center text-xs text-gray-500 mt-2 hidden flex-col items-center justify-center" role="status" aria-live="polite">
+          <span class="inline-flex items-center gap-2 justify-center">
+            <svg class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            FlowFate AI is typing...
+          </span>
+        </div>
       </div>
-    </div>
 
-    <!-- Help Icon above input, right-aligned -->
-    <nav class="flex justify-end mb-1" aria-label="Quick actions and help">
-      <!-- Notion Quick Actions -->
-      <div class="flex gap-2 mb-2" role="group" aria-label="Notion quick actions">
-        <button id="createNotionPageBtn" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-black hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2" title="Create Notion Page" aria-label="Create Notion Page" tabindex="0">
+      <!-- Help Icon and Notion Quick Actions now inside chat area, below chatBox -->
+      <nav class="flex justify-end mb-1 mt-2" aria-label="Quick actions and help">
+        <!-- Notion Quick Actions -->
+        <div class="flex gap-2 mb-2" role="group" aria-label="Notion quick actions">
+          <button id="createNotionPageBtn" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-black hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2" title="Create Notion Page" aria-label="Create Notion Page" tabindex="0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5" fill="#fff" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8" stroke="#22c55e" stroke-width="1.5" />
+            </svg>
+            <span class="sr-only">Create Notion Page</span>
+          </button>
+          <button id="showNotionFeedBtn" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-indigo-600 hover:bg-indigo-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2" title="Show Recent Notion Updates" aria-label="Show Recent Notion Updates" tabindex="0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5" fill="#fff" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 8h8M8 12h8M8 16h4" stroke="#6366f1" stroke-width="1.5" />
+            </svg>
+            <span class="sr-only">Show Notion Feed</span>
+          </button>
+        </div>
+        <a href="help.html" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-blue-500 hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" title="Help" aria-label="Help" tabindex="0">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5" fill="#fff" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8" stroke="#22c55e" stroke-width="1.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M12 14.25V12a2.25 2.25 0 10-2.25-2.25" />
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
           </svg>
-          <span class="sr-only">Create Notion Page</span>
-        </button>
-        <button id="showNotionFeedBtn" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-indigo-600 hover:bg-indigo-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2" title="Show Recent Notion Updates" aria-label="Show Recent Notion Updates" tabindex="0">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5" fill="#fff" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 8h8M8 12h8M8 16h4" stroke="#6366f1" stroke-width="1.5" />
-          </svg>
-          <span class="sr-only">Show Notion Feed</span>
-        </button>
-      </div>
-      <a href="help.html" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-blue-500 hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" title="Help" aria-label="Help" tabindex="0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M12 14.25V12a2.25 2.25 0 10-2.25-2.25" />
-          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-        </svg>
-        <span class="sr-only">Help</span>
-      </a>
-    </nav>
+          <span class="sr-only">Help</span>
+        </a>
+      </nav>
 
-    <!-- Input Section with File Upload Icon -->
-    <form class="mt-auto" role="search" aria-label="Chat input" onsubmit="event.preventDefault();handleUserInput();">
-      <div class="flex items-center border rounded-xl overflow-hidden">
-        <input type="text" placeholder="Reply to FlowFate AI" class="flex-1 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-400" id="userInput" aria-label="Chat input" autocomplete="off" required />
-        <label for="fileInput" class="cursor-pointer px-2 flex items-center h-full" title="Attach file" aria-label="Attach file" tabindex="0">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-500 hover:text-blue-500 transition-colors">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3A2.25 2.25 0 008.25 5.25V19.5a3.75 3.75 0 007.5 0V7.5a.75.75 0 00-1.5 0v12a2.25 2.25 0 11-4.5 0V5.25" />
-          </svg>
-          <span class="sr-only">Attach file</span>
-        </label>
-        <input type="file" id="fileInput" class="hidden" title="Choose a file to upload" aria-label="File upload" tabindex="0" />
-        <button type="submit" class="px-4 text-blue-500 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" aria-label="Send message" tabindex="0">➤</button>
-      </div>
-    </form>
+      <!-- Input Section with File Upload Icon now inside chat area -->
+      <form class="mt-2" role="search" aria-label="Chat input" onsubmit="event.preventDefault();handleUserInput();">
+        <div class="flex items-center border rounded-xl overflow-hidden">
+          <input type="text" placeholder="Reply to FlowFate AI" class="flex-1 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-400" id="userInput" aria-label="Chat input" autocomplete="off" required />
+          <label for="fileInput" class="cursor-pointer px-2 flex items-center h-full" title="Attach file" aria-label="Attach file" tabindex="0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-500 hover:text-blue-500 transition-colors">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3A2.25 2.25 0 008.25 5.25V19.5a3.75 3.75 0 007.5 0V7.5a.75.75 0 00-1.5 0v12a2.25 2.25 0 11-4.5 0V5.25" />
+            </svg>
+            <span class="sr-only">Attach file</span>
+          </label>
+          <input type="file" id="fileInput" class="hidden" title="Choose a file to upload" aria-label="File upload" tabindex="0" />
+          <button type="submit" class="px-4 text-blue-500 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" aria-label="Send message" tabindex="0">➤</button>
+        </div>
+      </form>
+    </section>
   </main>
 
   <script>
@@ -312,13 +313,28 @@
       let displayText = text;
       // If bot, sanitize markdown links and strip tags for user-friendly output
       if (sender === 'bot') {
-        // Convert markdown links [text](url) to HTML links
-        displayText = displayText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, label, url) {
-          // Only show the label as a clickable link, not the markdown
-          return `<a href="${url}" target="_blank" class="text-blue-500 underline">${label}</a>`;
-        });
-        // Remove any remaining HTML tags except <a>
-        displayText = displayText.replace(/<(?!a\b)[^>]*>/gi, '');
+        // Special case: If the message is exactly the Notion connect prompt, render a styled block
+        if (
+          text &&
+          text.trim().startsWith('✅ Final Display to User') &&
+          text.includes('Connect Notion to FlowFate')
+        ) {
+          displayText = `
+            <div class="flex flex-col items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+              <span class="text-2xl">🔗</span>
+              <div class="font-semibold text-blue-900">Connect Notion to FlowFate!</div>
+              <div class="text-sm text-blue-800">To unlock powerful Notion automations, <a href='dashboard.html' class='text-blue-600 underline font-medium' target='_blank'>click here to connect your Notion account</a>. Once connected, you can sync content, trigger workflows, and more—right from FlowFate!</div>
+            </div>
+          `;
+        } else {
+          // Convert markdown links [text](url) to HTML links
+          displayText = displayText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, label, url) {
+            // Only show the label as a clickable link, not the markdown
+            return `<a href="${url}" target="_blank" class="text-blue-500 underline">${label}</a>`;
+          });
+          // Remove any remaining HTML tags except <a>
+          displayText = displayText.replace(/<(?!a\b)[^>]*>/gi, '');
+        }
       }
       msg.innerHTML = `<div>${displayText}</div><div class="text-xs text-right opacity-60">${time}</div>`;
       chatBox.appendChild(msg);
