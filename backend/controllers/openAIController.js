@@ -359,8 +359,12 @@ const createNotionNote = tool({
     const { isIntegrationConnected } = await import('../services/integrationService.js');
     const notionConnected = ctx?.user?.id && await isIntegrationConnected(ctx.user.id, 'notion');
     if (!notionConnected) {
-      const oauthUrl = '/api/integrations/notion/connect';
-      return `<div style='font-size:1.1em;'><b>🚀 Connect Notion to FlowFate!</b><br>To use Notion features, <a href="${oauthUrl}" target="_blank" rel="noopener noreferrer" data-integration="notion" style="color:#4e8cff;font-weight:bold;">click here to connect your Notion account</a>.<br><i>Once connected, you can create and manage Notion notes from FlowFate!</i></div>`;
+      // Dynamically generate Notion OAuth URL
+      const clientId = process.env.NOTION_CLIENT_ID;
+      const redirectUri = encodeURIComponent(process.env.NOTION_REDIRECT_URI);
+      const oauthUrl = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+      // Always return as HTML with <a> tag for clickability
+      return `<div style='font-size:1.1em;'><b>🚀 Connect Notion to FlowFate!</b><br>To use Notion features, <a href="${oauthUrl}" target="_blank" rel="noopener noreferrer" data-integration="notion" style="color:#4e8cff;font-weight:bold; text-decoration: underline;'>click here to connect your Notion account</a>.<br><i>Once connected, you can create and manage Notion notes from FlowFate!</i></div>`;
     }
     // Pass user context for audit and security
     return await createNoteForUser(userId, title, content, { agent: ctx?.user || 'AI', traceId: ctx?.traceId });
