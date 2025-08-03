@@ -1,3 +1,5 @@
+import cleanIntegration from '../middleware/cleanIntegration.js';
+
 // Tool: Connect ClickUp
 const connectClickUp = tool({
   name: 'connect_clickup',
