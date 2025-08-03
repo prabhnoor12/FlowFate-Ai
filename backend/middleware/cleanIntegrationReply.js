@@ -7,7 +7,7 @@
  * @param {string} text
  * @returns {boolean}
  */
-function isIntegrationConnectRequest(text) {
+export function isIntegrationConnectRequest(text) {
   if (!text || typeof text !== 'string') return false;
   const keywords = [
     'connect notion', 'connect google', 'connect slack', 'connect drive',
@@ -24,7 +24,7 @@ function isIntegrationConnectRequest(text) {
  * @param {string} reply
  * @returns {string}
  */
-function cleanBotReply(reply) {
+export function cleanBotReply(reply) {
   if (!reply || typeof reply !== 'string') return '';
   // Remove code blocks
   let cleaned = reply.replace(/```[\s\S]*?```/g, '');
