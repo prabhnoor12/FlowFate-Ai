@@ -214,10 +214,11 @@
         });
       }
       let safeText = text;
-      // Only escape for user and system, allow bot to render links (assuming backend sanitizes)
+      // Only escape for user and system, allow bot to render HTML (links, etc.)
       if (sender === 'user' || sender === 'system') {
         safeText = escapeHTML(text);
       }
+      // For bot, render HTML directly (backend must sanitize)
       msg.innerHTML = `<div>${safeText}</div><div class="text-xs text-right opacity-60">${time}</div>`;
       chatBox.appendChild(msg);
       if (sender === 'user' || sender === 'bot') {
