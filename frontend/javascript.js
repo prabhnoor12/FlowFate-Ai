@@ -219,6 +219,7 @@
         safeText = escapeHTML(text);
       }
       // For bot, render HTML directly (backend must sanitize)
+      // Removed meta tag stripping from bot replies
       msg.innerHTML = `<div>${safeText}</div><div class="text-xs text-right opacity-60">${time}</div>`;
       chatBox.appendChild(msg);
       if (sender === 'user' || sender === 'bot') {
