@@ -218,8 +218,10 @@
       if (sender === 'user' || sender === 'system') {
         safeText = escapeHTML(text);
       }
-      // For bot, render HTML directly (backend must sanitize)
-      // Removed meta tag stripping from bot replies
+      // For bot, convert markdown links to HTML links before rendering
+      if (sender === 'bot' || sender === 'system') {
+        safeText = safeText.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-500 underline">$1</a>');
+      }
       msg.innerHTML = `<div>${safeText}</div><div class="text-xs text-right opacity-60">${time}</div>`;
       chatBox.appendChild(msg);
       if (sender === 'user' || sender === 'bot') {
