@@ -32,8 +32,6 @@ export function cleanBotReply(reply) {
   cleaned = cleaned.replace(/(^|\n)\s*(Meta:|meta:|data:|source:|sources?:|info:|debug:)[^\n]*\n?/gi, '');
   // Remove JSON objects/arrays
   cleaned = cleaned.replace(/[\{\[].*[\}\]]/gs, '');
-  // Convert markdown links [text](url) to HTML <a> tags
-  cleaned = cleaned.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-500 underline">$1</a>');
   // Remove extra blank lines
   cleaned = cleaned.replace(/\n{2,}/g, '\n').trim();
   return cleaned;

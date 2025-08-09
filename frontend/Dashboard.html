@@ -1,561 +1,677 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Dashboard | FlowFate AI</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- ===========================
+       META & TITLE
+  ============================ -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FlowFate AI — Automation Dashboard</title>
+
+  <!-- ===========================
+       Tailwind CSS (CDN) + config
+       - CDN is convenient for prototyping.
+       - For production, compile Tailwind to reduce CSS size.
+  ============================ -->
+  <script>
+    tailwind = window.tailwind || {}
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f3fbf6',
+              100: '#e9f9ef',
+              300: '#6ee7b7',
+              500: '#10b981',
+              700: '#059669',
+              900: '#0b4f36'
+            }
+          },
+          boxShadow: {
+            'soft-lg': '0 12px 30px rgba(2,6,23,0.08)',
+            'glass': '0 8px 30px rgba(2,6,23,0.06)'
+          },
+          borderRadius: { xl2: '18px' }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Flowbite for components -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Lucide icons (optional) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
-    body { background: #f6f8fa; }
-    .navbar {
-      background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; }
-    .nav-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; color: #fff; white-space: nowrap; }
-    .nav-menu .navbar-nav { flex-direction: row; }
-    .nav-menu .nav-link {
-      color: #fff;
-      margin-left: 1.5rem;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-    .nav-menu .nav-link.active, .nav-menu .nav-link:hover { color: #ffd700; }
-    @media (max-width: 991.98px) {
-      .nav-menu .navbar-nav { flex-direction: column; align-items: flex-start; }
-      .nav-menu .nav-link { margin-left: 0; margin-bottom: 0.7rem; }
-      .nav-inner { flex-direction: column; align-items: stretch; }
-    }
-    .dashboard-container { max-width: 1100px; background: #fff; }
-    @media (max-width: 768px) {
-      .dashboard-container { padding: 0.5rem !important; max-width: 100vw; }
-    }
-    .user-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .copy-btn, .refresh-btn { border: none; background: #e9ecef; color: #333; border-radius: 6px; padding: 0.3rem 0.7rem; margin-left: 0.2rem; transition: background 0.2s; }
-    .copy-btn:hover, .refresh-btn:hover { background: #d0d7de; color: #0d6efd; }
-    .integration-pill { display: inline-block; margin-right: 0.5rem; margin-top: 0.2rem; padding: 0.2rem 0.7rem; border-radius: 1rem; font-size: 0.95em; background: #f1f3f5; }
-    .integration-pill.connected { background: #e0f7e9; color: #198754; border: 1px solid #19875422; }
-    .integration-pill.not-connected { background: #fbeaea; color: #b91c1c; border: 1px solid #b91c1c22; }
-    .section { margin-top: 2.5rem; }
-    .section h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 1.2rem; letter-spacing: 0.5px; }
-    .card { border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s; }
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .empty { color: #adb5bd; font-style: italic; }
-    .loading { color: #0d6efd; font-weight: 500; }
-    .error { color: #b91c1c; font-weight: 500; }
-    .badge.bg-light { border: 1px solid #dee2e6; }
-    .table th, .table td { vertical-align: middle; }
-    .onboarding-tip {
-      background: #e7f1ff;
-      border-left: 4px solid #0d6efd;
-      padding: 0.7rem 1rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1.2rem;
-      color: #084298;
-      font-size: 1.05em;
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-    }
-    .notion-hero {
-      background: linear-gradient(90deg, #f8fafc 60%, #e7f1ff 100%);
-      border-radius: 1rem;
-      padding: 2rem 2.5rem 1.5rem 2.5rem;
-      margin-bottom: 2.5rem;
-      box-shadow: 0 2px 8px rgba(13,110,253,0.04);
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-    .notion-hero .fa { font-size: 2.5rem; color: #0d6efd; }
-    .notion-hero-content h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .notion-hero-content p { color: #495057; margin-bottom: 0; }
-    .footer {
-      background: #f1f3f5;
-      color: #6c757d;
-      text-align: center;
-      padding: 1.2rem 0 0.7rem 0;
-      font-size: 1em;
-      border-top: 1px solid #e9ecef;
-      margin-top: 3rem;
-    }
-    @media (max-width: 768px) {
-      .dashboard-container { padding: 1.2rem 0.2rem !important; max-width: 100vw; }
-      .notion-hero { flex-direction: column; padding: 1.2rem 0.7rem; gap: 1rem; }
-      .user-info { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-      .section { margin-top: 1.5rem; }
-      .card { min-width: 90vw; }
-      .row.g-3 > [class^='col-'] { flex: 0 0 100%; max-width: 100%; }
-    }
+    /* --------------------------
+       Micro-polish and utilities
+       -------------------------- */
+    :root { color-scheme: light; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .card { border-radius: 14px; }
+    .shadow-soft { box-shadow: 0 8px 30px rgba(2,6,23,0.06); }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.82)); backdrop-filter: blur(6px); }
+    .integration-logo { transition: transform .15s ease, box-shadow .15s ease; }
+    .integration-logo:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(2,6,23,0.08); }
+    .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
   </style>
 </head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container-fluid nav-inner">
-      <div class="nav-logo"><i class="fa fa-bolt me-2"></i> FlowFate <span style="color:#ffd700">AI</span></div>
-      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="padding:0.7rem 1.3rem; font-size:1.35rem; border-radius:10px;">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse nav-menu" id="navbarNav">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="homepage.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" href="dashboard.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="aiInterface.html">AI Interface</a></li>
-        </ul>
-        <div class="d-flex align-items-center gap-2 ms-2 mt-2 mt-lg-0">
-          <a href="help.html" class="btn btn-outline-light" title="Help & Documentation" aria-label="Help" style="border-radius:50%; padding:0.45rem 0.7rem; font-size:1.25rem;">
-            <i class="fa fa-question-circle"></i>
-          </a>
+
+<body class="bg-gray-50 text-gray-800 antialiased">
+  <!-- Skip to main content for accessibility -->
+  <a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-white focus:text-brand-700 focus:px-4 focus:py-2 focus:rounded focus:shadow">Skip to main content</a>
+
+  <!--
+    Layout structure:
+    - outer flex container: sidebar (fixed width on desktop) + main (flex-1)
+    - mobile drawer is separate and overlays when open
+    This prevents the sidebar from covering main content on desktop.
+  -->
+  <div class="min-h-screen flex">
+
+    <!-- =========================
+         DESKTOP SIDEBAR (always visible like Notion)
+         - hidden on small screens (md:hidden)
+    ========================== -->
+    <aside id="sidebarDesktop" class="hidden md:flex md:flex-col w-72 bg-white border-r border-gray-100">
+      <!-- header -->
+      <div class="p-5 border-b">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-700 to-brand-500 grid place-items-center text-white font-extrabold">AI</div>
+          <div>
+            <div class="text-lg font-semibold">FlowFate AI</div>
+            <div class="text-xs text-gray-400">Automation Platform</div>
+          </div>
         </div>
       </div>
-    </div>
-  </nav>
-  <div class="container dashboard-container mt-4 mb-5 p-4 rounded-4 shadow-lg bg-white">
-    <div class="notion-hero mb-4">
-      <div><i class="fa-brands fa-notion"></i></div>
-      <div class="notion-hero-content">
-        <h3>Welcome, <span id="userName">User</span>!</h3>
-        <p class="mb-1">Your unified dashboard for automations, workflows, and Notion integration.</p>
-        <div class="user-info mt-2">
-          <span id="userEmail" data-bs-toggle="tooltip" title="Your email"></span>
-          <span id="userId" data-bs-toggle="tooltip" title="Your user ID"></span>
-          <button class="copy-btn" id="copyIdBtn" title="Copy User ID"><i class="fa fa-copy"></i></button>
-          <button class="refresh-btn" id="refreshBtn"><i class="fa fa-rotate"></i> Refresh</button>
-        </div>
-        <div class="integrations mt-2" id="integrations"></div>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-          <div id="gmailActions"></div>
-          <div id="calendarActions"></div>
-          <div id="driveActions"></div>
+
+      <!-- nav -->
+      <nav class="p-4 space-y-1 flex-1">
+        <a class="flex items-center gap-3 p-2 rounded-lg hover:bg-green-50 transition" href="#">
+          <svg class="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18" stroke-width="1.5"></path></svg>
+          <span class="font-medium">Overview</span>
+        </a>
+
+        <a class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition" href="#">
+          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 17v-6a3 3 0 016 0v6" stroke-width="1.5"></path></svg>
+          <span>Automations</span>
+        </a>
+
+        <a class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition" href="#">
+          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 12h18M3 17h18" stroke-width="1.5"></path></svg>
+          <span>Executions</span>
+        </a>
+
+        <a class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition" href="#">
+          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="1.5"></path></svg>
+          <span>Integrations</span>
+        </a>
+
+        <a class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition" href="#">
+          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l4 4-4 4-4-4 4-4z" stroke-width="1.5"></path></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <!-- workspace -->
+      <div class="p-4 border-t">
+        <div class="text-xs text-gray-500">Workspace</div>
+        <div class="mt-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 grid place-items-center text-white font-bold">A</div>
+          <div>
+            <div class="text-sm font-medium">Acme Corp</div>
+            <div class="text-xs text-gray-400">Team workspace</div>
+          </div>
         </div>
       </div>
+    </aside>
+
+    <!-- =========================
+         MOBILE SIDEBAR (slide-in)
+    ========================== -->
+    <div id="mobileDrawer" class="fixed inset-0 z-50 hidden">
+      <div id="drawerBackdrop" class="absolute inset-0 bg-black/40"></div>
+      <div class="absolute left-0 top-0 w-72 h-full bg-white shadow p-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded grid place-items-center bg-brand-700 text-white font-bold">AI</div>
+            <div>
+              <div class="font-semibold">FlowFate AI</div>
+              <div class="text-xs text-gray-400">Automation</div>
+            </div>
+          </div>
+          <button id="closeDrawer" class="p-2 rounded hover:bg-gray-100">
+            <svg class="w-5 h-5 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <nav class="space-y-2">
+          <a class="block p-2 rounded hover:bg-gray-50" href="#">Overview</a>
+          <a class="block p-2 rounded hover:bg-gray-50" href="#">Automations</a>
+          <a class="block p-2 rounded hover:bg-gray-50" href="#">Integrations</a>
+          <a class="block p-2 rounded hover:bg-gray-50" href="#">Analytics</a>
+          <a class="block p-2 rounded hover:bg-gray-50" href="#">Settings</a>
+        </nav>
+      </div>
     </div>
-    <div class="section mb-4">
-      <h2><i class="fa fa-diagram-project me-2"></i> Your Workflows</h2>
-      <div class="row g-3" id="workflows"></div>
-    </div>
-    <div class="section mb-4">
-      <h2><i class="fa fa-list-check me-2"></i> Recent Tasks</h2>
-      <div class="row g-3" id="tasks"></div>
-    </div>
-    <div class="section mb-4">
-      <h2><i class="fa-brands fa-notion me-2"></i> Notion Property Mapping</h2>
-      <div class="onboarding-tip"><i class="fa fa-lightbulb"></i> Map your Notion database properties to app fields for seamless two-way sync. <span class="badge bg-primary ms-2">Tip</span></div>
-      <div id="notionMappingUI"></div>
-    </div>
-    <div class="section mb-4">
-      <h2><i class="fa fa-robot me-2"></i> Notion Automations</h2>
-      <div class="onboarding-tip"><i class="fa fa-magic"></i> Create automations to trigger actions when Notion data changes. Try <span class="badge bg-success">{"type":"new_page"}</span> as a trigger! <span class="badge bg-primary ms-2">Tip</span></div>
-      <div id="notionAutomationUI"></div>
-    </div>
-    <div id="dashboardStatus"></div>
+
+    <!-- =========================
+         MAIN AREA (flex-1 so sidebar doesn't overlap)
+    ========================== -->
+  <main id="mainContent" class="flex-1 min-h-screen flex flex-col" tabindex="-1">
+
+      <!-- NAVBAR (floating feel using glass style) -->
+      <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center gap-4">
+              <!-- mobile toggle -->
+              <button id="openDrawer" class="md:hidden p-2 rounded hover:bg-gray-100">
+                <svg class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </button>
+              <div>
+                <div class="text-lg font-semibold">Dashboard</div>
+                <div class="text-xs text-gray-400">AI Workflow Automation</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <!-- Global Search -->
+              <div class="hidden md:block">
+                <form role="search" aria-label="Global automations search" class="relative w-full max-w-xs">
+                  <label for="globalSearch" class="sr-only">Search automations</label>
+                  <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 3a7.5 7.5 0 006.15 13.65z" />
+                    </svg>
+                  </span>
+                  <input
+                    id="globalSearch"
+                    type="text"
+                    placeholder="Search automations..."
+                    class="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    autocomplete="off"
+                  />
+                </form>
+              </div>
+
+              <button id="notificationsBtn" class="p-2 rounded hover:bg-gray-100"><svg class="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="1.6" d="M15 17h5l-1.405-1.405"/></svg></button>
+
+              <div class="flex items-center gap-2 border-l border-gray-100 pl-3 ml-1">
+                <div class="text-right hidden sm:block">
+                  <div class="text-sm font-medium">Totok Michael</div>
+                  <div class="text-xs text-gray-400">tmichael20@mail.com</div>
+                </div>
+                <button id="profileBtn" class="w-10 h-10 rounded-full overflow-hidden ring-1 ring-gray-100">
+                  <img src="https://i.pravatar.cc/80?img=5" alt="avatar" class="w-full h-full object-cover" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <div class="flex-1 overflow-y-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <!-- TOP STATS -->
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Total Automations -->
+            <div class="card bg-white p-5 shadow-soft hover:shadow-lg transition">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-sm text-gray-500">Total Automations</p>
+                  <h2 id="totalAutomations" class="text-3xl font-bold mt-2">124</h2>
+                  <p class="text-xs text-gray-400 mt-2">Automations defined across workspace</p>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm text-gray-500">Change</div>
+                  <div class="mt-2 inline-block px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">+12%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Running -->
+            <div class="card bg-white p-5 shadow-soft hover:shadow-lg transition">
+              <p class="text-sm text-gray-500">Running</p>
+              <h2 id="runningAutomations" class="text-3xl font-bold text-green-600 mt-2">98</h2>
+              <p class="text-xs text-gray-400 mt-2">Automations currently executing</p>
+            </div>
+
+            <!-- Paused -->
+            <div class="card bg-white p-5 shadow-soft hover:shadow-lg transition">
+              <p class="text-sm text-gray-500">Paused</p>
+              <h2 id="pausedAutomations" class="text-3xl font-bold text-amber-600 mt-2">15</h2>
+              <p class="text-xs text-gray-400 mt-2">Manually paused or scheduled</p>
+            </div>
+
+            <!-- Failed -->
+            <div class="card bg-white p-5 shadow-soft hover:shadow-lg transition">
+              <p class="text-sm text-gray-500">Failed</p>
+              <h2 id="failedAutomations" class="text-3xl font-bold text-red-600 mt-2">11</h2>
+              <p class="text-xs text-gray-400 mt-2">Needs attention</p>
+            </div>
+          </section>
+
+          <!-- INTEGRATIONS + MAIN CHART -->
+          <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Integrations -->
+            <aside class="card bg-white p-5 shadow-soft">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Connected Integrations</h3>
+                <button id="manageIntegrations" class="text-sm text-gray-500 hover:text-gray-700">Manage</button>
+              </div>
+
+              <div class="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                <!-- Slack -->
+                <a href="#" class="flex flex-col items-center p-3 rounded-lg bg-gray-50 integration-logo" title="Slack">
+                  <img src="https://cdn-icons-png.flaticon.com/512/2111/2111615.png" alt="Slack" class="w-8 h-8" />
+                  <span class="text-xs mt-2">Slack</span>
+                </a>
+
+                <!-- Notion -->
+                <a href="#" class="flex flex-col items-center p-3 rounded-lg bg-gray-50 integration-logo" title="Notion">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Notion-logo.svg" alt="Notion" class="w-8 h-8" />
+                  <span class="text-xs mt-2">Notion</span>
+                </a>
+
+                <!-- ClickUp -->
+                <a href="#" class="flex flex-col items-center p-3 rounded-lg bg-gray-50 integration-logo" title="ClickUp">
+                  <img src="https://cdn-icons-png.flaticon.com/512/5968/5968812.png" alt="ClickUp" class="w-8 h-8" />
+                  <span class="text-xs mt-2">ClickUp</span>
+                </a>
+
+                <!-- Google Drive -->
+                <a href="#" class="flex flex-col items-center p-3 rounded-lg bg-gray-50 integration-logo" title="Drive">
+                  <img src="https://cdn-icons-png.flaticon.com/512/2965/2965306.png" alt="Drive" class="w-8 h-8" />
+                  <span class="text-xs mt-2">Drive</span>
+                </a>
+
+                <!-- Gmail -->
+                <a href="#" class="flex flex-col items-center p-3 rounded-lg bg-gray-50 integration-logo" title="Gmail">
+                  <img src="https://cdn-icons-png.flaticon.com/512/281/281769.png" alt="Gmail" class="w-8 h-8" />
+                  <span class="text-xs mt-2">Gmail</span>
+                </a>
+
+                <!-- Webhooks -->
+                <a href="#" class="flex flex-col items-center p-3 rounded-lg bg-gray-50 integration-logo" title="Webhooks">
+                  <svg class="w-8 h-8 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="1.5" d="M12 2v4M12 18v4M4 12h4M16 12h4"/></svg>
+                  <span class="text-xs mt-2">Webhooks</span>
+                </a>
+              </div>
+
+              <div class="mt-4 text-xs text-gray-500">Click a logo to open logs & configuration (demo).</div>
+            </aside>
+
+            <!-- Chart -->
+            <article class="lg:col-span-2 card bg-white p-5 shadow-soft">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold">Automation Runs — Monthly</h3>
+                  <p class="text-sm text-gray-500">Total workflow executions for the client per month</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <select id="periodSelect" class="text-sm border rounded px-2 py-1">
+                    <option value="6">Last 6 months</option>
+                    <option value="12" selected>Last 12 months</option>
+                    <option value="24">Last 24 months</option>
+                  </select>
+                  <button id="exportChartBtn" class="text-sm px-3 py-1 border rounded hover:bg-gray-50">Export</button>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <canvas id="automationRunsChart" height="160"></canvas>
+              </div>
+
+              <div class="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Runs</div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Avg duration</div>
+              </div>
+            </article>
+          </section>
+
+          <!-- REMINDERS & TIME TRACKER -->
+          <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Reminders -->
+            <div class="card bg-white p-5 shadow-soft">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold">Reminders</h3>
+                <span class="text-xs text-gray-400">Today</span>
+              </div>
+
+              <ul class="mt-4 space-y-3">
+                <li class="flex items-center justify-between">
+                  <div>
+                    <div class="font-medium">Update Slack bot workflow</div>
+                    <div class="text-xs text-gray-400">Check event mapping</div>
+                  </div>
+                  <div class="text-sm text-gray-500">Today • 11:00</div>
+                </li>
+
+                <li class="flex items-center justify-between">
+                  <div>
+                    <div class="font-medium">Review Notion integration logs</div>
+                    <div class="text-xs text-gray-400">Look for sync errors</div>
+                  </div>
+                  <div class="text-sm text-gray-500">Tomorrow • 09:00</div>
+                </li>
+
+                <li class="flex items-center justify-between">
+                  <div>
+                    <div class="font-medium">Test ClickUp task sync</div>
+                    <div class="text-xs text-gray-400">Simulate a task creation</div>
+                  </div>
+                  <div class="text-sm text-gray-500">Next Week</div>
+                </li>
+              </ul>
+
+              <div class="mt-4 flex gap-2">
+                <button id="snoozeBtn" class="px-3 py-2 bg-gray-50 rounded hover:bg-gray-100">Snooze</button>
+                <button id="viewAllRemBtn" class="px-3 py-2 bg-brand-700 text-white rounded hover:brightness-95">View all</button>
+              </div>
+            </div>
+
+            <!-- Time Tracker -->
+            <div class="card bg-white p-5 shadow-soft flex flex-col items-center">
+              <div class="w-full flex items-center justify-between">
+                <h3 class="text-lg font-semibold">Time Tracker</h3>
+                <div class="text-xs text-gray-400">Focus mode</div>
+              </div>
+
+              <div class="mt-4 relative">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="68" stroke="#eef2f6" stroke-width="10" fill="none" />
+                  <circle id="timerProgress" cx="80" cy="80" r="68" stroke="#10b981" stroke-width="10" fill="none" stroke-linecap="round" transform="rotate(-90 80 80)" stroke-dasharray="427" stroke-dashoffset="427"/>
+                </svg>
+
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <div id="timeDisplay" class="text-3xl font-mono font-bold">00:00:00</div>
+                  <div class="text-xs text-gray-400 mt-1">Tracked time today</div>
+                </div>
+              </div>
+
+              <div class="mt-4 flex gap-3 w-full">
+                <button id="startPauseBtn" class="flex-1 px-4 py-2 rounded-lg bg-brand-700 text-white flex items-center justify-center gap-2 hover:brightness-95">
+                  <svg id="startIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3v18l15-9L5 3z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span id="startPauseLabel" class="text-sm font-medium">Start</span>
+                </button>
+                <button id="resetTimerBtn" class="px-4 py-2 rounded-lg border border-gray-200 text-sm">Reset</button>
+              </div>
+
+              <div id="trackerStatus" class="mt-3 text-xs text-gray-500">No active session</div>
+            </div>
+          </section>
+
+          <!-- FOOTER -->
+          <footer class="mt-8 text-center text-xs text-gray-400">
+            © <span id="year"></span> FlowFate AI — Built for automation teams
+          </footer>
+
+        </div>
+      </div>
+    </main>
   </div>
-  <footer class="footer">
-    <div>FlowFate AI &copy; 2025 &middot; <i class="fa fa-bolt"></i> Built for productivity and creativity</div>
-  </footer>
+
+  <!-- =========================
+       SCRIPTS: icons, chart, timer, interactions
+       ========================== -->
   <script>
-    // Enable Bootstrap tooltips
-    document.addEventListener('DOMContentLoaded', function () {
-      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-        new bootstrap.Tooltip(tooltipTriggerEl);
+    // lucide icons if available
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // Set year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Mobile drawer toggles
+    const openDrawer = document.getElementById('openDrawer');
+    const closeDrawer = document.getElementById('closeDrawer');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+    openDrawer && openDrawer.addEventListener('click', () => {
+      mobileDrawer.classList.remove('hidden');
+    });
+    closeDrawer && closeDrawer.addEventListener('click', () => {
+      mobileDrawer.classList.add('hidden');
+    });
+    drawerBackdrop && drawerBackdrop.addEventListener('click', () => {
+      mobileDrawer.classList.add('hidden');
+    });
+
+    // Clickable integration cards demo
+    document.querySelectorAll('.integration-logo').forEach(node => {
+      node.addEventListener('click', () => {
+        const label = node.querySelector('span')?.innerText || 'Integration';
+        alert('Open integration: ' + label + ' (demo)');
       });
     });
-    const statusDiv = document.getElementById('dashboardStatus');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const copyIdBtn = document.getElementById('copyIdBtn');
-    let lastUserId = null;
 
-    function setLoading(isLoading) {
-      statusDiv.innerHTML = isLoading ? '<div class="loading"><i class="fa fa-spinner fa-spin"></i> Loading dashboard...</div>' : '';
-    }
-    function setError(msg) {
-      statusDiv.innerHTML = `<div class="error"><i class="fa fa-triangle-exclamation"></i> ${msg}</div>`;
-    }
+    // Chart: monthly automation runs
+    const ctx = document.getElementById('automationRunsChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(16,185,129,0.12)');
+    gradient.addColorStop(1, 'rgba(16,185,129,0.02)');
 
-    async function fetchDashboard() {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/dashboard', { credentials: 'include' });
-        if (!res.ok) throw new Error('Failed to load dashboard');
-        const { data } = await res.json();
-        // User info
-        document.getElementById('userName').textContent = data.user.name || 'User';
-        document.getElementById('userEmail').textContent = data.user.email;
-        document.getElementById('userId').textContent = `ID: ${data.user.id}`;
-        lastUserId = data.user.id;
-        // Integrations
-        const integrations = data.user.integrations || {};
-        const integrationsDiv = document.getElementById('integrations');
-        integrationsDiv.innerHTML = Object.keys(integrations).length
-          ? Object.entries(integrations).map(([k, v]) => `<span class="integration-pill ${v ? 'connected' : 'not-connected'}"><i class="fa ${v ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${k}: ${v ? 'Connected' : 'Not Connected'}</span>`).join('')
-          : '<span class="empty">No integrations connected</span>';
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const sampleData = [420, 560, 700, 820, 940, 1100, 1270, 1300, 1150, 980, 860, 1020];
 
-        // Gmail integration actions
-        const gmailActionsDiv = document.getElementById('gmailActions');
-        if (integrations.gmail) {
-          gmailActionsDiv.innerHTML = `<button id="sendTestEmailBtn" class="refresh-btn" aria-label="Send Test Email"><i class="fa fa-paper-plane"></i> Send Test Email</button><span id="gmailActionStatus" style="margin-left:12px;"></span>`;
-        } else {
-          gmailActionsDiv.innerHTML = `<button id="connectGmailBtn" class="refresh-btn" aria-label="Connect Gmail"><i class="fa fa-envelope"></i> Connect Gmail</button>`;
-        }
-
-        // Calendar integration actions
-        const calendarActionsDiv = document.getElementById('calendarActions');
-        if (integrations.calendar) {
-          calendarActionsDiv.innerHTML = `<button id="listEventsBtn" class="refresh-btn" aria-label="List Calendar Events"><i class="fa fa-calendar"></i> List Events</button><span id="calendarActionStatus" style="margin-left:12px;"></span>`;
-        } else {
-          calendarActionsDiv.innerHTML = `<button id="connectCalendarBtn" class="refresh-btn" aria-label="Connect Calendar"><i class="fa fa-calendar-plus"></i> Connect Calendar</button>`;
-        }
-
-        // Drive integration actions
-        const driveActionsDiv = document.getElementById('driveActions');
-        if (integrations.drive) {
-          driveActionsDiv.innerHTML = `<button id="listFilesBtn" class="refresh-btn" aria-label="List Drive Files"><i class="fa fa-folder-open"></i> List Files</button><span id="driveActionStatus" style="margin-left:12px;"></span>`;
-        } else {
-          driveActionsDiv.innerHTML = `<button id="connectDriveBtn" class="refresh-btn" aria-label="Connect Drive"><i class="fa fa-google-drive"></i> Connect Drive</button>`;
-        }
-        // Workflows
-        const workflowsDiv = document.getElementById('workflows');
-        if (data.workflows && data.workflows.length) {
-          workflowsDiv.innerHTML = data.workflows.map(w => `
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <strong>${w.name}</strong>
-                  <div>${w.description ? w.description : '<span class=empty>No description</span>'}</div>
-                  <div class="text-muted mt-2" style="font-size:0.95em;">ID: ${w.id}</div>
-                </div>
-              </div>
-            </div>
-          `).join('');
-        } else {
-          workflowsDiv.innerHTML = '<span class="text-muted fst-italic">No workflows yet.</span>';
-        }
-        // Tasks
-        const tasksDiv = document.getElementById('tasks');
-        if (data.tasks && data.tasks.length) {
-          tasksDiv.innerHTML = data.tasks.map(t => `
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <strong>${t.title}</strong>
-                  <div>${t.description ? t.description : '<span class=empty>No description</span>'}</div>
-                  <div class="text-muted mt-2" style="font-size:0.95em;">Due: ${t.dueDate ? new Date(t.dueDate).toLocaleString() : 'N/A'}</div>
-                </div>
-              </div>
-            </div>
-          `).join('');
-        } else {
-          tasksDiv.innerHTML = '<span class="text-muted fst-italic">No recent tasks.</span>';
-        }
-        // Notion Property Mapping UI
-        renderNotionMappingUI(data.user.id);
-        // Notion Automation UI
-        renderNotionAutomationUI(data.user.id);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load dashboard. Please try again.');
-      }
-    }
-    // --- Notion Property Mapping UI ---
-    async function renderNotionMappingUI(userId) {
-      const container = document.getElementById('notionMappingUI');
-      container.innerHTML = '<div class="text-center text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading Notion databases...</div>';
-      try {
-        // 1. List workspaces
-        const wsRes = await fetch(`/api/notion-auth/workspaces?userId=${userId}`);
-        const wsData = await wsRes.json();
-        if (!wsData.workspaces || !wsData.workspaces.length) {
-          container.innerHTML = '<div class="alert alert-warning">No Notion workspaces connected.</div>';
-          return;
-        }
-        // 2. Workspace select
-        let wsOptions = wsData.workspaces.map(ws => `<option value="${ws.workspaceId}">${ws.workspaceName || ws.workspaceId}</option>`).join('');
-        container.innerHTML = `
-          <div class="mb-3">
-            <label class="form-label">Workspace</label>
-            <select class="form-select" id="notionWorkspaceSelect">${wsOptions}</select>
-          </div>
-          <div class="mb-3" id="notionDatabaseSelectDiv"></div>
-          <div class="mb-3" id="notionPropertyMappingDiv"></div>
-        `;
-        document.getElementById('notionWorkspaceSelect').addEventListener('change', e => loadDatabases(userId, e.target.value));
-        loadDatabases(userId, wsData.workspaces[0].workspaceId);
-      } catch (err) {
-        container.innerHTML = '<div class="alert alert-danger">Failed to load Notion workspaces.</div>';
-      }
-    }
-
-    async function loadDatabases(userId, workspaceId) {
-      const dbDiv = document.getElementById('notionDatabaseSelectDiv');
-      dbDiv.innerHTML = '<div class="text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading databases...</div>';
-      try {
-        const dbRes = await fetch(`/api/notion-auth/databases?userId=${userId}&workspaceId=${workspaceId}`);
-        const dbData = await dbRes.json();
-        if (!dbData.databases || !dbData.databases.length) {
-          dbDiv.innerHTML = '<div class="alert alert-warning">No databases found in this workspace.</div>';
-          return;
-        }
-        let dbOptions = dbData.databases.map(db => `<option value="${db.id}">${db.title?.[0]?.plain_text || db.id}</option>`).join('');
-        dbDiv.innerHTML = `
-          <label class="form-label">Database</label>
-          <select class="form-select" id="notionDatabaseSelect">${dbOptions}</select>
-        `;
-        document.getElementById('notionDatabaseSelect').addEventListener('change', e => loadPropertyMapping(userId, workspaceId, e.target.value));
-        loadPropertyMapping(userId, workspaceId, dbData.databases[0].id);
-      } catch (err) {
-        dbDiv.innerHTML = '<div class="alert alert-danger">Failed to load databases.</div>';
-      }
-    }
-
-    async function loadPropertyMapping(userId, workspaceId, databaseId) {
-      const propDiv = document.getElementById('notionPropertyMappingDiv');
-      propDiv.innerHTML = '<div class="text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading properties...</div>';
-      try {
-        const propRes = await fetch(`/api/notion-auth/database/${databaseId}/properties?userId=${userId}&workspaceId=${workspaceId}`);
-        const propData = await propRes.json();
-        const mappingRes = await fetch(`/api/notion-mapping/property-mapping?userId=${userId}&workspaceId=${workspaceId}&databaseId=${databaseId}`);
-        const mappingData = await mappingRes.json();
-        const properties = propData.properties || {};
-        const mapping = mappingData.mapping || {};
-        // Example app fields
-        const appFields = ['title', 'description', 'dueDate', 'status'];
-        let html = `<form id="propertyMappingForm">
-          <table class="table table-bordered align-middle">
-            <thead><tr><th>Notion Property</th><th>Map to App Field</th></tr></thead>
-            <tbody>
-              ${Object.entries(properties).map(([key, prop]) => `
-                <tr>
-                  <td><b>${prop.name || key}</b> <span class="badge bg-light text-dark">${prop.type}</span></td>
-                  <td>
-                    <select class="form-select" name="${key}">
-                      <option value="">(Ignore)</option>
-                      ${appFields.map(f => `<option value="${f}" ${mapping[key] === f ? 'selected' : ''}>${f}</option>`).join('')}
-                    </select>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          <button type="submit" class="btn btn-primary">Save Mapping</button>
-        </form>`;
-        propDiv.innerHTML = html;
-        document.getElementById('propertyMappingForm').onsubmit = async function(e) {
-          e.preventDefault();
-          const formData = new FormData(e.target);
-          const mapping = {};
-          for (const [k, v] of formData.entries()) if (v) mapping[k] = v;
-          const saveRes = await fetch('/api/notion-mapping/property-mapping', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, workspaceId, databaseId, mapping })
-          });
-          if (saveRes.ok) {
-            propDiv.innerHTML += '<div class="alert alert-success mt-2">Mapping saved!</div>';
-          } else {
-            propDiv.innerHTML += '<div class="alert alert-danger mt-2">Failed to save mapping.</div>';
-          }
-        };
-      } catch (err) {
-        propDiv.innerHTML = '<div class="alert alert-danger">Failed to load properties or mapping.</div>';
-      }
-    }
-
-    // --- Notion Automation UI ---
-    async function renderNotionAutomationUI(userId) {
-      const container = document.getElementById('notionAutomationUI');
-      container.innerHTML = '<div class="text-center text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading automations...</div>';
-      try {
-        // 1. List workspaces
-        const wsRes = await fetch(`/api/notion-auth/workspaces?userId=${userId}`);
-        const wsData = await wsRes.json();
-        if (!wsData.workspaces || !wsData.workspaces.length) {
-          container.innerHTML = '<div class="alert alert-warning">No Notion workspaces connected.</div>';
-          return;
-        }
-        let wsOptions = wsData.workspaces.map(ws => `<option value="${ws.workspaceId}">${ws.workspaceName || ws.workspaceId}</option>`).join('');
-        container.innerHTML = `
-          <div class="mb-3">
-            <label class="form-label">Workspace</label>
-            <select class="form-select" id="automationWorkspaceSelect">${wsOptions}</select>
-          </div>
-          <div class="mb-3" id="automationListDiv"></div>
-          <div class="mb-3" id="automationFormDiv"></div>
-        `;
-        document.getElementById('automationWorkspaceSelect').addEventListener('change', e => loadAutomations(userId, e.target.value));
-        loadAutomations(userId, wsData.workspaces[0].workspaceId);
-      } catch (err) {
-        container.innerHTML = '<div class="alert alert-danger">Failed to load Notion workspaces.</div>';
-      }
-    }
-
-    async function loadAutomations(userId, workspaceId) {
-      const listDiv = document.getElementById('automationListDiv');
-      const formDiv = document.getElementById('automationFormDiv');
-      listDiv.innerHTML = '<div class="text-secondary"><i class="fa fa-spinner fa-spin"></i> Loading automations...</div>';
-      try {
-        const autoRes = await fetch(`/api/notion-mapping/automation?userId=${userId}&workspaceId=${workspaceId}`);
-        const autoData = await autoRes.json();
-        if (!autoData.automations || !autoData.automations.length) {
-          listDiv.innerHTML = '<div class="alert alert-warning">No automations defined yet.</div>';
-        } else {
-          listDiv.innerHTML = `<ul class="list-group mb-3">${autoData.automations.map(a => `
-            <li class="list-group-item">
-              <b>Trigger:</b> <code>${JSON.stringify(a.trigger)}</code><br>
-              <b>Action:</b> <code>${JSON.stringify(a.action)}</code>
-            </li>
-          `).join('')}</ul>`;
-        }
-        // Automation form
-        formDiv.innerHTML = `
-          <form id="automationForm">
-            <div class="mb-2">
-              <label class="form-label">Trigger (JSON)</label>
-              <textarea class="form-control" name="trigger" rows="2" required>{"type":"new_page"}</textarea>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Action (JSON)</label>
-              <textarea class="form-control" name="action" rows="2" required>{"type":"create_task"}</textarea>
-            </div>
-            <button type="submit" class="btn btn-success">Add Automation</button>
-          </form>
-        `;
-        document.getElementById('automationForm').onsubmit = async function(e) {
-          e.preventDefault();
-          const formData = new FormData(e.target);
-          let trigger, action;
-          try {
-            trigger = JSON.parse(formData.get('trigger'));
-            action = JSON.parse(formData.get('action'));
-          } catch (err) {
-            formDiv.innerHTML += '<div class="alert alert-danger mt-2">Invalid JSON in trigger or action.</div>';
-            return;
-          }
-          const saveRes = await fetch('/api/notion-mapping/automation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, workspaceId, trigger, action })
-          });
-          if (saveRes.ok) {
-            formDiv.innerHTML += '<div class="alert alert-success mt-2">Automation saved!</div>';
-            loadAutomations(userId, workspaceId);
-          } else {
-            formDiv.innerHTML += '<div class="alert alert-danger mt-2">Failed to save automation.</div>';
-          }
-        };
-      } catch (err) {
-        listDiv.innerHTML = '<div class="alert alert-danger">Failed to load automations.</div>';
-      }
-    }
-        setLoading(false);
-       // Load user email
-       const userEmailRes = await fetch(`/api/user/email?userId=${userId}`);
-       const userEmailData = await userEmailRes.json();
-       if (userEmailRes.ok) {
-         document.getElementById('userEmail').textContent = userEmailData.email;
-       } else {
-         document.getElementById('userEmail').textContent = 'Unknown';
-       }
-    // Gmail connect and send email handlers
-    document.addEventListener('click', async (e) => {
-      if (e.target && e.target.id === 'connectGmailBtn') {
-        // Start Gmail OAuth flow
-        window.location.href = '/api/integrations/gmail/connect';
-      }
-      if (e.target && e.target.id === 'sendTestEmailBtn') {
-        const userEmail = document.getElementById('userEmail').textContent;
-        const gmailActionStatus = document.getElementById('gmailActionStatus');
-        gmailActionStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
-        e.target.disabled = true;
-        try {
-          const res = await fetch('/gmail/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              to: userEmail,
-              subject: 'FlowFate Test Email',
-              body: '<b>This is a test email from FlowFate AI dashboard.</b>'
-            })
-          });
-          const result = await res.json();
-          if (res.ok) {
-            gmailActionStatus.innerHTML = '<span style="color:#059669"><i class="fa fa-check-circle"></i> Sent!</span>';
-            setTimeout(() => { gmailActionStatus.innerHTML = ''; e.target.disabled = false; }, 1800);
-          } else {
-            gmailActionStatus.innerHTML = `<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> ${result.error || 'Failed to send email.'}</span>`;
-            setTimeout(() => { gmailActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
-          }
-        } catch (err) {
-          gmailActionStatus.innerHTML = '<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> Failed to send email.</span>';
-          setTimeout(() => { gmailActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
-        }
-      }
-
-      // Calendar connect and list events
-      if (e.target && e.target.id === 'connectCalendarBtn') {
-        window.location.href = '/api/integrations/calendar/connect';
-      }
-      if (e.target && e.target.id === 'listEventsBtn') {
-        const calendarActionStatus = document.getElementById('calendarActionStatus');
-        calendarActionStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
-        e.target.disabled = true;
-        try {
-          const res = await fetch('/calendar/events', { credentials: 'include' });
-          const result = await res.json();
-          if (res.ok && result.events) {
-            calendarActionStatus.innerHTML = `<span style="color:#059669"><i class="fa fa-check-circle"></i> ${result.events.length} events loaded.</span>`;
-            setTimeout(() => { calendarActionStatus.innerHTML = ''; e.target.disabled = false; }, 1800);
-          } else {
-            calendarActionStatus.innerHTML = `<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> ${result.error || 'Failed to load events.'}</span>`;
-            setTimeout(() => { calendarActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
-          }
-        } catch (err) {
-          calendarActionStatus.innerHTML = '<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> Failed to load events.</span>';
-          setTimeout(() => { calendarActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
-        }
-      }
-
-      // Drive connect and list files
-      if (e.target && e.target.id === 'connectDriveBtn') {
-        window.location.href = '/api/integrations/drive/connect';
-      }
-      if (e.target && e.target.id === 'listFilesBtn') {
-        const driveActionStatus = document.getElementById('driveActionStatus');
-        driveActionStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
-        e.target.disabled = true;
-        try {
-          const res = await fetch('/drive/files', { credentials: 'include' });
-          const result = await res.json();
-          if (res.ok && result.files) {
-            driveActionStatus.innerHTML = `<span style="color:#059669"><i class="fa fa-check-circle"></i> ${result.files.length} files loaded.</span>`;
-            setTimeout(() => { driveActionStatus.innerHTML = ''; e.target.disabled = false; }, 1800);
-          } else {
-            driveActionStatus.innerHTML = `<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> ${result.error || 'Failed to load files.'}</span>`;
-            setTimeout(() => { driveActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
-          }
-        } catch (err) {
-          driveActionStatus.innerHTML = '<span style="color:#b91c1c"><i class="fa fa-times-circle"></i> Failed to load files.</span>';
-          setTimeout(() => { driveActionStatus.innerHTML = ''; e.target.disabled = false; }, 3000);
+    const automationChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          label: 'Automation Runs',
+          data: sampleData,
+          backgroundColor: gradient,
+          borderColor: '#10b981',
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#10b981',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#6b7280' } },
+          y: { beginAtZero: true, ticks: { color: '#6b7280' }, grid: { color: '#f3f4f6' } }
         }
       }
     });
 
-    refreshBtn.addEventListener('click', fetchDashboard);
-    copyIdBtn.addEventListener('click', () => {
-      if (lastUserId) {
-        navigator.clipboard.writeText(lastUserId.toString());
-        copyIdBtn.innerHTML = '<i class="fa fa-check"></i>';
-        setTimeout(() => { copyIdBtn.innerHTML = '<i class="fa fa-copy"></i>'; }, 1200);
+    // Export chart image demo
+    document.getElementById('exportChartBtn').addEventListener('click', () => {
+      const url = automationChart.toBase64Image();
+      const w = window.open('');
+      w.document.write('<img src="' + url + '" style="max-width:100%;">');
+    });
+
+    // Chart period selector (simulate data)
+    document.getElementById('periodSelect').addEventListener('change', (e) => {
+      const val = parseInt(e.target.value, 10);
+      const nowIdx = new Date().getMonth();
+      const newLabels = [];
+      const newData = [];
+      for (let i = val - 1; i >= 0; i--) {
+        const idx = (nowIdx - i + 12) % 12;
+        newLabels.push(months[idx]);
+        // generate simulated number (for demo)
+        const base = 700 + Math.round(Math.sin(idx / 2) * 200) + Math.round(Math.random() * 120);
+        newData.push(base);
+      }
+      automationChart.data.labels = newLabels;
+      automationChart.data.datasets[0].data = newData;
+      automationChart.update();
+    });
+
+    // Animated counters for top stats
+    function animateCounter(elId, target, duration = 800) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const start = +el.textContent || 0;
+      const diff = target - start;
+      const startTime = performance.now();
+      function frame(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        el.textContent = Math.floor(start + diff * t);
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+    animateCounter('totalAutomations', 124);
+    animateCounter('runningAutomations', 98);
+    animateCounter('pausedAutomations', 15);
+    animateCounter('failedAutomations', 11);
+
+    // -------------------------
+    // Time tracker logic
+    // -------------------------
+    const timerProgress = document.getElementById('timerProgress');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const startPauseBtn = document.getElementById('startPauseBtn');
+    const startPauseLabel = document.getElementById('startPauseLabel');
+    const startIcon = document.getElementById('startIcon');
+    const resetTimerBtn = document.getElementById('resetTimerBtn');
+    const trackerStatus = document.getElementById('trackerStatus');
+
+    let timerInterval = null;
+    let elapsedSeconds = 0;
+    const circleLength = 2 * Math.PI * 68; // circumference for r=68
+
+    function formatHMS(sec) {
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function updateTimerUI() {
+      timeDisplay.textContent = formatHMS(elapsedSeconds);
+      // Progress relative to 1 hour for demo
+      const prog = Math.min(elapsedSeconds / 3600, 1);
+      const offset = circleLength - (circleLength * prog);
+      timerProgress.style.strokeDasharray = circleLength;
+      timerProgress.style.strokeDashoffset = offset;
+    }
+
+    startPauseBtn.addEventListener('click', () => {
+      if (!timerInterval) {
+        // start
+        trackerStatus.textContent = 'Running';
+        startPauseLabel.textContent = 'Pause';
+        startIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>';
+        timerInterval = setInterval(() => {
+          elapsedSeconds++;
+          updateTimerUI();
+        }, 1000);
+      } else {
+        // pause
+        clearInterval(timerInterval);
+        timerInterval = null;
+        trackerStatus.textContent = 'Paused';
+        startPauseLabel.textContent = 'Resume';
+        startIcon.innerHTML = '<path d="M5 3v18l15-9L5 3z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>';
       }
     });
 
-    // Initial load
-    fetchDashboard();
+    resetTimerBtn.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      elapsedSeconds = 0;
+      updateTimerUI();
+      trackerStatus.textContent = 'Reset';
+      startPauseLabel.textContent = 'Start';
+      startIcon.innerHTML = '<path d="M5 3v18l15-9L5 3z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>';
+    });
+
+    // init timer UI
+    updateTimerUI();
+
+    // Live filter for integrations using globalSearch
+    const globalSearchInput = document.getElementById('globalSearch');
+    const integrationCards = Array.from(document.querySelectorAll('.integration-logo'));
+    const integrationContainer = integrationCards.length ? integrationCards[0].parentElement : null;
+    let noResultsEl = null;
+    function ensureNoResultsEl() {
+      if (!integrationContainer) return;
+      if (!noResultsEl) {
+        noResultsEl = document.createElement('div');
+        noResultsEl.className = 'col-span-full text-center text-sm text-gray-400 py-6';
+        noResultsEl.textContent = 'No integrations match your search.';
+        noResultsEl.hidden = true;
+        integrationContainer.appendChild(noResultsEl);
+      }
+    }
+    ensureNoResultsEl();
+    function filterIntegrations(query) {
+      if (!integrationCards.length) return;
+      const q = query.trim().toLowerCase();
+      let visible = 0;
+      integrationCards.forEach(card => {
+        const label = (card.querySelector('span')?.innerText || '').toLowerCase();
+        const match = !q || label.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (noResultsEl) noResultsEl.hidden = visible !== 0;
+    }
+    let searchDebounce;
+    globalSearchInput && globalSearchInput.addEventListener('input', e => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => filterIntegrations(e.target.value), 120);
+    });
+
+    // Keyboard shortcut: Ctrl/Cmd+K focuses search
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        globalSearchInput?.focus();
+      }
+    });
+
+    // Small UX buttons (demo)
+    document.getElementById('manageIntegrations').addEventListener('click', () => alert('Open Integrations Manager (demo)'));
+    document.getElementById('snoozeBtn').addEventListener('click', () => alert('Snoozed reminders (demo)'));
+    document.getElementById('viewAllRemBtn').addEventListener('click', () => alert('Open Reminders (demo)'));
+
+    // Accessibility: close drawer with escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') mobileDrawer.classList.add('hidden');
+    });
+
+    // Live region for a11y announcements (simple)
+    function announce(msg) {
+      let live = document.getElementById('liveRegion');
+      if (!live) {
+        live = document.createElement('div');
+        live.id = 'liveRegion';
+        live.className = 'sr-only';
+        live.setAttribute('aria-live', 'polite');
+        live.setAttribute('role', 'status');
+        document.body.appendChild(live);
+      }
+      live.textContent = msg;
+    }
+
+    // Announce timer start/pause
+    startPauseBtn.addEventListener('click', () => {
+      if (timerInterval) announce('Timer started.');
+      else announce('Timer paused.');
+    });
+
   </script>
 </body>
 </html>
