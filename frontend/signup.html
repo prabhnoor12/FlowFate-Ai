@@ -144,6 +144,17 @@
     toggleIcon.className = isPasswordVisible ? "bi bi-eye" : "bi bi-eye-slash";
   }
 
+  // Utility: read query param plan to pass through after signup
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedPlan = urlParams.get('plan');
+  if(requestedPlan){
+    // Provide subtle hint to user about selected plan
+    const banner = document.createElement('div');
+    banner.className = 'alert alert-info py-2 small mb-3';
+    banner.textContent = `You chose the ${requestedPlan} plan. Complete signup to continue.`;
+    document.querySelector('.login-card').insertBefore(banner, document.getElementById('signup-form'));
+  }
+
   // Handle signup form submission
   document.getElementById('signup-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -216,11 +227,16 @@
           errorDiv.textContent = data.message || 'Sign up failed.';
           errorDiv.classList.remove('d-none');
         } else {
-          successDiv.textContent = 'Sign up successful! Redirecting to login...';
+          successDiv.textContent = 'Sign up successful! Finishing setup...';
           successDiv.classList.remove('d-none');
           document.getElementById('signup-form').reset();
           setTimeout(() => {
-            window.location.href = 'login.html';
+            if(requestedPlan){
+              // Send user directly to plan confirmation so they can save seats.
+              window.location.href = 'UserPlans.html?from=signup&plan=' + encodeURIComponent(requestedPlan);
+            } else {
+              window.location.href = 'login.html';
+            }
           }, 1200);
         }
       })
@@ -251,10 +267,14 @@
       const data = await res.json();
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
-        successDiv.textContent = 'Sign up successful! Redirecting to login...';
+        successDiv.textContent = 'Sign up successful! Finishing setup...';
         successDiv.classList.remove('d-none');
         setTimeout(() => {
-          window.location.href = 'login.html';
+          if(requestedPlan){
+            window.location.href = 'UserPlans.html?from=signup&plan=' + encodeURIComponent(requestedPlan);
+          } else {
+            window.location.href = 'login.html';
+          }
         }, 1200);
       } else {
         errorDiv.textContent = (data && data.error) || 'Google sign up failed.';

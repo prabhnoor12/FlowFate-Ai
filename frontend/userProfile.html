@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>User Profile • FlowFate AI</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			theme: { extend: { colors: { brand: { 50:'#f3fbf6',500:'#10b981',600:'#059669',800:'#065f46'} } } }
+		};
+	</script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<style>
+			body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+			/* .focus-ring helper: replaced @apply with explicit styles since CDN build can't process @apply */
+			.focus-ring:focus { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 2px rgb(16 185 129 / 0.6); }
+		</style>
+</head>
+<body class="h-full bg-gray-50 text-gray-800">
+	<!-- Skip link -->
+	<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-white focus:text-brand-600 focus:px-4 focus:py-2 focus:rounded focus:shadow">Skip to main content</a>
+
+	<header class="border-b bg-white/80 backdrop-blur sticky top-0 z-20">
+		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-600 to-brand-500 grid place-items-center text-white font-bold">AI</div>
+				<h1 class="text-lg font-semibold">Profile</h1>
+			</div>
+			<nav class="hidden sm:flex gap-6 text-sm text-gray-600">
+				<a href="Dashboard.html" class="hover:text-gray-900">Dashboard</a>
+				<a href="aiInterface.html" class="hover:text-gray-900">AI Interface</a>
+			</nav>
+		</div>
+	</header>
+
+	<main id="main" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" tabindex="-1">
+		<div class="mb-8">
+			<h2 class="text-2xl font-semibold tracking-tight">Account Settings</h2>
+			<p class="text-sm text-gray-500 mt-1">Manage your personal information, plan and organization details.</p>
+		</div>
+
+		<div id="globalAlert" class="hidden mb-6 rounded-lg border px-4 py-3 text-sm"></div>
+
+		<div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+			<!-- Sidebar Summary -->
+			<aside class="lg:col-span-1 space-y-6">
+				<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+					<div class="flex items-center gap-4">
+						<div class="relative">
+							<img id="avatarImg" src="https://i.pravatar.cc/120?img=13" alt="Avatar" class="w-20 h-20 rounded-xl object-cover ring-2 ring-white shadow" />
+							<button id="changeAvatarBtn" class="absolute -bottom-2 -right-2 bg-brand-500 hover:bg-brand-600 text-white rounded-full p-2 shadow focus-ring" title="Change avatar" aria-label="Change avatar">
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+							</button>
+						</div>
+						<div>
+							<div id="profileName" class="font-medium">—</div>
+							<div id="profileEmail" class="text-xs text-gray-500 truncate max-w-[140px]">—</div>
+							<div id="profilePlanBadge" class="mt-2 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Plan: —</div>
+						</div>
+					</div>
+					<div class="mt-5 text-xs text-gray-500 leading-relaxed">
+						This is a simplified profile similar to GitHub's account area. Only core fields are shown for now.
+					</div>
+				</div>
+
+				<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+					<h3 class="text-sm font-semibold mb-3">Quick Actions</h3>
+					<div class="space-y-2">
+						<button id="refreshBtn" class="w-full text-left px-3 py-2 rounded-lg border text-sm hover:bg-gray-50 focus-ring">Refresh Data</button>
+						<button id="resetFormBtn" class="w-full text-left px-3 py-2 rounded-lg border text-sm hover:bg-gray-50 focus-ring">Reset Changes</button>
+						<button id="logoutBtn" class="w-full text-left px-3 py-2 rounded-lg border text-sm text-red-600 hover:bg-red-50 focus-ring">Logout</button>
+					</div>
+				</div>
+			</aside>
+
+			<!-- Main Form -->
+			<section class="lg:col-span-3 space-y-10">
+				<!-- Profile Form Card -->
+				<form id="profileForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-8" novalidate>
+					<div>
+						<h3 class="text-lg font-semibold">Profile Information</h3>
+						<p class="text-sm text-gray-500 mt-1">Update your personal details associated with your account.</p>
+					</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+							<div class="space-y-2">
+								<label for="name" class="text-sm font-medium">Name</label>
+								<input id="name" name="name" type="text" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus-ring" placeholder="Your full name" />
+								<p class="text-xs text-gray-400">Displayed across the app.</p>
+							</div>
+							<div class="space-y-2">
+								<label for="email" class="text-sm font-medium">Email</label>
+								<input id="email" name="email" type="email" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus-ring" placeholder="you@example.com" />
+								<p class="text-xs text-gray-400">Used for notifications & login.</p>
+							</div>
+							<div class="space-y-2">
+								<label for="orgName" class="text-sm font-medium">Organization</label>
+								<input id="orgName" name="orgName" type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus-ring" placeholder="Company or team name" />
+								<p class="text-xs text-gray-400">Shown in shared workspace contexts.</p>
+							</div>
+							<div class="space-y-2">
+								<label for="password" class="text-sm font-medium">Password</label>
+								<input id="password" name="password" type="password" disabled class="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm cursor-not-allowed" placeholder="••••••••" />
+								<p class="text-xs text-amber-600">Password changes not yet available here.</p>
+							</div>
+						</div>
+
+						<div class="pt-4 border-t border-gray-100">
+							<h4 class="text-sm font-semibold mb-3">Current Plan</h4>
+							<fieldset class="grid sm:grid-cols-3 gap-4" id="planFieldset">
+								<!-- Plan Radio Blocks -->
+								<label class="planCard group relative block rounded-xl border border-gray-200 bg-white p-4 cursor-pointer hover:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500">
+									<input type="radio" name="plan" value="basic" class="sr-only peer" />
+									<div class="flex items-start justify-between">
+										<div>
+											<div class="font-medium text-sm">Basic</div>
+											<div class="text-xs text-gray-500 mt-1">Starter features</div>
+										</div>
+										<span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-brand-500 peer-checked:bg-brand-500"></span>
+									</div>
+								</label>
+								<label class="planCard group relative block rounded-xl border border-gray-200 bg-white p-4 cursor-pointer hover:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500">
+									<input type="radio" name="plan" value="pro" class="sr-only peer" />
+									<div class="flex items-start justify-between">
+										<div>
+											<div class="font-medium text-sm">Pro</div>
+											<div class="text-xs text-gray-500 mt-1">Advanced automation</div>
+										</div>
+										<span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-brand-500 peer-checked:bg-brand-500"></span>
+									</div>
+								</label>
+								<label class="planCard group relative block rounded-xl border border-gray-200 bg-white p-4 cursor-pointer hover:border-brand-300 focus-within:ring-2 focus-within:ring-brand-500">
+									<input type="radio" name="plan" value="enterprise" class="sr-only peer" />
+									<div class="flex items-start justify-between">
+										<div>
+											<div class="font-medium text-sm">Enterprise</div>
+											<div class="text-xs text-gray-500 mt-1">Scale & governance</div>
+										</div>
+										<span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-brand-500 peer-checked:bg-brand-500"></span>
+									</div>
+								</label>
+							</fieldset>
+						</div>
+
+						<div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+							<button type="button" id="cancelBtn" class="px-4 py-2 rounded-lg border text-sm hover:bg-gray-50 focus-ring">Cancel</button>
+							<button type="submit" id="saveBtn" class="px-5 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium shadow hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed focus-ring">Save Changes</button>
+						</div>
+				</form>
+
+				<!-- Danger Zone -->
+				<div class="bg-white rounded-xl shadow-sm border border-red-200/60 p-6">
+					<h3 class="text-sm font-semibold text-red-600">Danger Zone</h3>
+					<p class="text-xs text-gray-500 mt-1">Irreversible actions may appear here in the future.</p>
+					<button disabled class="mt-4 px-4 py-2 rounded-lg bg-red-600/40 text-white text-sm cursor-not-allowed">Delete Account (coming soon)</button>
+				</div>
+			</section>
+		</div>
+	</main>
+
+	<footer class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center text-xs text-gray-400">© <span id="year"></span> FlowFate AI</footer>
+
+	<!-- Hidden file input for avatar -->
+	<input id="avatarFileInput" type="file" accept="image/*" class="hidden" />
+
+	<script>
+		const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
+		const token = localStorage.getItem('token');
+		const globalAlert = document.getElementById('globalAlert');
+		const profileForm = document.getElementById('profileForm');
+		const avatarImg = document.getElementById('avatarImg');
+		const profileName = document.getElementById('profileName');
+		const profileEmail = document.getElementById('profileEmail');
+		const profilePlanBadge = document.getElementById('profilePlanBadge');
+		const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+		const avatarFileInput = document.getElementById('avatarFileInput');
+		const yearSpan = document.getElementById('year'); yearSpan.textContent = new Date().getFullYear();
+		let fetchedUser = null; // store original user
+
+		function showAlert(msg, type='info') {
+			globalAlert.textContent = msg;
+			globalAlert.className = 'mb-6 rounded-lg border px-4 py-3 text-sm';
+			const map = { success:'border-green-200 bg-green-50 text-green-700', error:'border-red-200 bg-red-50 text-red-700', info:'border-gray-200 bg-white text-gray-700', warning:'border-amber-200 bg-amber-50 text-amber-700'};
+			globalAlert.classList.add(...map[type].split(' '));
+			globalAlert.classList.remove('hidden');
+		}
+		function hideAlert() { globalAlert.classList.add('hidden'); }
+
+		if (!token) {
+			showAlert('You are not logged in. Redirecting to login...', 'error');
+			setTimeout(()=> window.location.href='login.html', 1200);
+		}
+
+		async function fetchProfile() {
+			try {
+				showAlert('Loading profile…', 'info');
+				const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, { headers: { 'Authorization': `Bearer ${token}` }});
+				const json = await res.json();
+				if (!res.ok) throw new Error(json?.error?.message || json.message || 'Failed to load profile');
+				fetchedUser = json.data;
+				populateForm();
+				showAlert('Profile loaded.', 'success');
+				setTimeout(hideAlert, 1500);
+			} catch (e) {
+				showAlert(e.message, 'error');
+			}
+		}
+
+		function populateForm() {
+			if (!fetchedUser) return;
+			document.getElementById('name').value = fetchedUser.name || '';
+			document.getElementById('email').value = fetchedUser.email || '';
+			const prefs = fetchedUser.preferences || {};
+			document.getElementById('orgName').value = prefs.organizationName || '';
+			const plan = prefs.plan || 'basic';
+			const planInput = profileForm.querySelector(`input[name=plan][value="${plan}"]`);
+			if (planInput) planInput.checked = true; else profileForm.querySelector('input[name=plan][value=basic]').checked = true;
+			avatarImg.src = fetchedUser.profilePictureUrl || avatarImg.src;
+			profileName.textContent = fetchedUser.name || '—';
+			profileEmail.textContent = fetchedUser.email || '—';
+			profilePlanBadge.textContent = 'Plan: ' + (plan.charAt(0).toUpperCase()+plan.slice(1));
+		}
+
+		profileForm.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			hideAlert();
+			const formData = new FormData(profileForm);
+			const name = formData.get('name').trim();
+			const email = formData.get('email').trim();
+			const plan = formData.get('plan') || 'basic';
+			const organizationName = formData.get('orgName').trim();
+			if (!name || !email) { showAlert('Name and Email are required.', 'error'); return; }
+			const mergedPreferences = Object.assign({}, fetchedUser?.preferences || {}, { plan, organizationName });
+			document.getElementById('saveBtn').disabled = true;
+			try {
+				const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, {
+					method: 'PUT',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ name, email, preferences: mergedPreferences })
+				});
+				const json = await res.json();
+				if (!res.ok) throw new Error(json?.error?.message || json.message || 'Update failed');
+				fetchedUser = json.data;
+				populateForm();
+				showAlert('Profile updated successfully.', 'success');
+				setTimeout(hideAlert, 1700);
+			} catch (err) {
+				showAlert(err.message, 'error');
+			} finally {
+				document.getElementById('saveBtn').disabled = false;
+			}
+		});
+
+		document.getElementById('cancelBtn').addEventListener('click', (e) => { e.preventDefault(); populateForm(); showAlert('Changes reverted.', 'info'); setTimeout(hideAlert, 1200); });
+		document.getElementById('resetFormBtn').addEventListener('click', () => { profileForm.reset(); showAlert('Form cleared. Remember to save.', 'warning'); });
+		document.getElementById('refreshBtn').addEventListener('click', fetchProfile);
+		document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('token'); window.location.href='login.html'; });
+
+		// Avatar change: simple URL prompt (since backend expects URL via separate endpoint)
+		changeAvatarBtn.addEventListener('click', async () => {
+			if (!fetchedUser) return;
+			const url = prompt('Enter direct image URL for your avatar:');
+			if (!url) return;
+			try {
+				showAlert('Updating avatar…', 'info');
+				const res = await fetch(`${BACKEND_BASE_URL}/api/users/${fetchedUser.id}/profile-picture`, {
+					method: 'PATCH',
+					headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
+					body: JSON.stringify({ profilePictureUrl: url })
+				});
+				const json = await res.json();
+				if (!res.ok) throw new Error(json?.error?.message || json.message || 'Failed to update avatar');
+				fetchedUser.profilePictureUrl = url;
+				avatarImg.src = url;
+				showAlert('Avatar updated.', 'success'); setTimeout(hideAlert, 1600);
+			} catch (e) { showAlert(e.message, 'error'); }
+		});
+
+		// Keyboard shortcut: meta/ctrl + s to save
+		document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='s') { e.preventDefault(); profileForm.requestSubmit(); } });
+
+		// Initial fetch
+		fetchProfile();
+	</script>
+</body>
+</html>
