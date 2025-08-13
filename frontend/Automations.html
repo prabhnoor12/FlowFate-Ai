@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Automations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+    }
+    button {
+      font-family: 'Inter', sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      #filterMenu {
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        background-color: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      #filterMenu.show {
+        display: flex;
+      }
+      #filterToggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: #2563eb;
+        color: white;
+        border-radius: 50%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s;
+      }
+      #filterToggle:hover {
+        background-color: #1e40af;
+      }
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
+      color: #1f2937;
+    }
+
+    header {
+      background: linear-gradient(to right, #2563eb, #1e40af);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      background: #1f2937;
+      color: #f9fafb;
+    }
+
+    button {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-0.5rem);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <aside class="bg-blue-600 text-white w-full md:w-64 p-4 flex flex-col gap-4 shadow-md">
+    <div class="flex justify-between items-center md:block">
+      <h2 class="text-lg font-semibold">Navigation</h2>
+      <button id="menuToggle" class="md:hidden text-white focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+      </button>
+    </div>
+    <nav id="menu" class="hidden flex-col gap-2 md:flex md:flex-col">
+      <a href="Dashboard.html" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+      <a href="Integrations.html" class="hover:bg-blue-700 px-3 py-2 rounded">Integrations</a>
+      <a href="aiInterface.html" class="hover:bg-blue-700 px-3 py-2 rounded">AI Interface</a>
+      <a href="Workflows.html" class="hover:bg-blue-700 px-3 py-2 rounded">Workflows</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-semibold">User Automations</h1>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto p-4">
+      <section>
+        <h2 class="text-lg font-semibold mb-4">Active Automations</h2>
+
+        <!-- Bulk Actions -->
+        <div class="mb-4 flex items-center gap-4">
+          <button id="filterToggle" class="md:hidden flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+          <button id="bulkPause" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Pause Selected</button>
+          <button id="bulkDelete" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Selected</button>
+        </div>
+
+        <!-- Filter Menu -->
+        <div id="filterMenu" class="hidden flex-col gap-4 bg-gray-100 p-4 rounded-lg shadow md:flex md:flex-row md:items-center">
+          <select id="statusFilter" class="w-full md:w-auto px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+            <option value="completed">Completed</option>
+          </select>
+          <input type="date" id="dateFilter" class="w-full md:w-auto px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select id="sortOptions" class="w-full md:w-auto px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="name">Sort by Name</option>
+            <option value="status">Sort by Status</option>
+            <option value="updatedAt">Sort by Last Updated</option>
+          </select>
+        </div>
+
+        <!-- Automation List -->
+        <div id="automationList" class="space-y-4">
+          <!-- Placeholder for automation items -->
+          <p class="text-gray-500">Loading automations...</p>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="mt-4 flex justify-center gap-2">
+          <button id="prevPage" class="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Previous</button>
+          <span id="currentPage" class="px-3 py-1">1</span>
+          <button id="nextPage" class="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Next</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 text-center text-sm text-gray-500 p-4">
+      © 2025 FlowFate AI. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const automationList = document.getElementById('automationList');
+      const searchBar = document.getElementById('searchBar');
+      const statusFilter = document.getElementById('statusFilter');
+      const sortOptions = document.getElementById('sortOptions');
+      const bulkPause = document.getElementById('bulkPause');
+      const bulkDelete = document.getElementById('bulkDelete');
+      const prevPage = document.getElementById('prevPage');
+      const nextPage = document.getElementById('nextPage');
+      const currentPage = document.getElementById('currentPage');
+      const menuToggle = document.getElementById('menuToggle');
+      const menu = document.getElementById('menu');
+      const filterToggle = document.getElementById('filterToggle');
+      const filterMenu = document.getElementById('filterMenu');
+
+      let automations = [];
+      let currentPageNumber = 1;
+      const itemsPerPage = 5;
+
+      menuToggle.addEventListener('click', () => {
+        menu.classList.toggle('show');
+      });
+
+      menu.addEventListener('click', (event) => {
+        if (event.target.tagName === 'A' && window.innerWidth < 768) {
+          menu.classList.add('hidden');
+        }
+      });
+
+      filterToggle.addEventListener('click', () => {
+        filterMenu.classList.toggle('show');
+      });
+
+      async function fetchAutomations() {
+        try {
+          const response = await fetch('https://flowfate-ai.onrender.com/api/automations', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch automations');
+          }
+
+          automations = await response.json();
+          renderAutomations();
+        } catch (error) {
+          automationList.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+        }
+      }
+
+      function renderAutomations() {
+        const searchQuery = searchBar.value.toLowerCase();
+        const selectedStatus = statusFilter.value;
+        const sortBy = sortOptions.value;
+
+        let filteredAutomations = automations.filter(automation => {
+          const matchesSearch = automation.name.toLowerCase().includes(searchQuery);
+          const matchesStatus = selectedStatus ? automation.status === selectedStatus : true;
+          return matchesSearch && matchesStatus;
+        });
+
+        filteredAutomations.sort((a, b) => {
+          if (sortBy === 'name') return a.name.localeCompare(b.name);
+          if (sortBy === 'status') return a.status.localeCompare(b.status);
+          if (sortBy === 'updatedAt') return new Date(b.updatedAt) - new Date(a.updatedAt);
+        });
+
+        const startIndex = (currentPageNumber - 1) * itemsPerPage;
+        const paginatedAutomations = filteredAutomations.slice(startIndex, startIndex + itemsPerPage);
+
+        automationList.innerHTML = '';
+
+        if (paginatedAutomations.length === 0) {
+          automationList.innerHTML = '<p class="text-gray-500">No automations match your criteria.</p>';
+        } else {
+          paginatedAutomations.forEach(automation => {
+            const item = document.createElement('div');
+            item.className = 'p-4 bg-white shadow rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4';
+            item.innerHTML = `
+              <div>
+                <h3 class="text-md font-medium">${automation.name}</h3>
+                <p class="text-sm text-gray-500">${automation.description}</p>
+                <p class="text-xs text-gray-400 mt-2">Last updated: ${new Date(automation.updatedAt).toLocaleString()}</p>
+                <div class="mt-2 flex gap-2">
+                  ${automation.tags.map(tag => `<span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${tag}</span>`).join('')}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" class="bulkSelect" data-id="${automation.id}" />
+                <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(automation.status)}">${automation.status}</span>
+                <button class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">Edit</button>
+                <button class="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600">Pause</button>
+                <button class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">Delete</button>
+                <button class="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600">View Details</button>
+              </div>
+            `;
+            automationList.appendChild(item);
+          });
+        }
+      }
+
+      function getStatusBadgeClass(status) {
+        switch (status) {
+          case 'active':
+            return 'bg-green-100 text-green-800';
+          case 'paused':
+            return 'bg-yellow-100 text-yellow-800';
+          case 'completed':
+            return 'bg-gray-100 text-gray-800';
+          default:
+            return 'bg-gray-100 text-gray-800';
+        }
+      }
+
+      function handlePagination(direction) {
+        if (direction === 'next') {
+          currentPageNumber++;
+        } else if (direction === 'prev' && currentPageNumber > 1) {
+          currentPageNumber--;
+        }
+        renderAutomations();
+      }
+
+      prevPage.addEventListener('click', () => handlePagination('prev'));
+      nextPage.addEventListener('click', () => handlePagination('next'));
+
+      bulkPause.addEventListener('click', () => {
+        const selectedIds = Array.from(document.querySelectorAll('.bulkSelect:checked')).map(input => input.dataset.id);
+        console.log('Pause these automations:', selectedIds);
+      });
+
+      bulkDelete.addEventListener('click', () => {
+        const selectedIds = Array.from(document.querySelectorAll('.bulkSelect:checked')).map(input => input.dataset.id);
+        console.log('Delete these automations:', selectedIds);
+      });
+
+      searchBar.addEventListener('input', renderAutomations);
+      statusFilter.addEventListener('change', renderAutomations);
+      sortOptions.addEventListener('change', renderAutomations);
+
+      fetchAutomations();
+    });
+  </script>
+</body>
+</html>
