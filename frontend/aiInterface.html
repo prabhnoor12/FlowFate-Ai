@@ -10,12 +10,51 @@
     body {
       font-family: 'Roboto', sans-serif;
       background: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
+      color: #1f2937;
     }
     h1, h2, h3, h4, h5, h6 {
       font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      color: #1e40af;
+    }
+    p, span, input, textarea {
+      font-family: 'Roboto', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: #374151;
     }
     button {
       font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      background: linear-gradient(to right, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(to right, #2563eb, #1e40af);
+      transform: scale(1.05);
+    }
+    header {
+      background: linear-gradient(to right, #2563eb, #1e40af);
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .branding {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fbbf24; /* Golden yellow for a premium look */
+    }
+    footer {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem;
+      text-align: center;
     }
     @media (max-width: 768px) {
       #sidebar {
@@ -59,73 +98,155 @@
     }
   </style>
 </head>
-<body class="min-h-screen">
-  <div id="layout">
+<body class="min-h-screen bg-gray-100">
+  <div id="layout" class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <aside id="sidebar" class="bg-gradient-to-b from-blue-600 to-blue-500 text-white h-screen fixed md:relative z-20 p-4 flex flex-col gap-6 shadow-lg">
-      <button id="closeSidebar" class="self-end text-white md:hidden">Close</button>
-      <nav class="flex flex-col gap-4">
-        <a href="#" class="flex items-center gap-3 text-white font-medium hover:bg-blue-700 px-4 py-2 rounded transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
-          </svg>
-          Dashboard
-        </a>
-        <a href="#" class="flex items-center gap-3 text-white font-medium hover:bg-blue-700 px-4 py-2 rounded transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Integrations
-        </a>
-        <a href="#" class="flex items-center gap-3 text-white font-medium hover:bg-blue-700 px-4 py-2 rounded transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          Automations
-        </a>
-        <a href="#" class="flex items-center gap-3 text-white font-medium hover:bg-blue-700 px-4 py-2 rounded transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21V3" />
-          </svg>
-          Workflows
-        </a>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-b from-blue-600 to-blue-500 text-white transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 flex-shrink-0">
+      <nav class="p-6">
+        <ul class="space-y-4">
+          <li><a href="Dashboard.html" class="block text-white hover:bg-blue-700 p-2 rounded">Dashboard</a></li>
+          <li><a href="integrations.html" class="block text-white hover:bg-blue-700 p-2 rounded">Integrations</a></li>
+          <li><a href="Automations.html" class="block text-white hover:bg-blue-700 p-2 rounded">Automations</a></li>
+          <li><a href="Workflows.html" class="block text-white hover:bg-blue-700 p-2 rounded">Workflows</a></li>
+        </ul>
       </nav>
     </aside>
-
+    <!-- Overlay for mobile -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-40 z-20 hidden md:hidden"></div>
     <!-- Main Content -->
-    <div id="mainContent" class="flex-1 flex flex-col">
+    <div id="mainContent" class="flex-1 flex flex-col h-full">
       <!-- Header -->
-      <header class="bg-gradient-to-r from-blue-600 to-blue-500 text-white sticky top-0 z-10 flex items-center justify-between p-4 shadow-md">
-        <button id="openSidebar" class="text-white md:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
-          </svg>
-        </button>
-        <h1 class="text-xl font-semibold">FlowFate AI</h1>
-        <button id="logoutBtn" class="text-sm hover:underline">Logout</button>
+      <header class="bg-gradient-to-r from-blue-600 to-blue-500 text-white flex items-center justify-between p-4 shadow-md sticky top-0 z-10">
+        <div class="flex items-center gap-4">
+          <button id="menuIcon" class="text-white focus:outline-none md:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
+            </svg>
+          </button>
+          <div class="branding text-xl font-bold text-yellow-400">FlowFate AI</div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-right cursor-pointer" id="userProfileBtn">
+            <div class="text-lg font-semibold" id="userName">User Name</div>
+            <div class="text-sm text-gray-200">Last seen today at 3:45 PM</div>
+          </div>
+          <div id="userProfilePicWrapper">
+            <img src="" alt="Profile Picture" class="w-10 h-10 rounded-full border-2 border-white cursor-pointer hidden" id="userProfilePic" />
+            <div id="userInitial" class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 flex items-center justify-center text-lg font-bold border-2 border-white cursor-pointer"></div>
+          </div>
+        </div>
       </header>
-
       <!-- Chat Section -->
-      <main class="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
-        <section class="flex-1 overflow-y-auto" id="chatBox">
-          <div class="space-y-4">
-            <!-- Example Messages -->
-            <div class="self-start bg-gradient-to-r from-blue-100 to-blue-50 text-blue-900 p-4 rounded-lg shadow max-w-[80%]">Hello! How can I assist you today?</div>
-            <div class="self-end bg-gradient-to-r from-gray-100 to-gray-50 text-gray-900 p-4 rounded-lg shadow max-w-[80%]">Can you help me with my tasks?</div>
+      <main class="flex-1 flex flex-col gap-0 p-0 md:p-4 overflow-hidden">
+        <section class="flex-1 overflow-y-auto px-2 md:px-0" id="chatBox">
+          <div class="flex flex-col space-y-4 py-4" id="messagesContainer">
+            <!-- Messages will be dynamically added here -->
           </div>
         </section>
-
         <!-- Input Area -->
-        <form class="sticky bg-white p-3 shadow-md rounded-t-lg">
-          <div class="flex items-center border rounded-lg overflow-hidden">
-            <input type="text" id="userInput" placeholder="Type your message..." class="flex-1 px-4 py-3 text-sm outline-none" required />
-            <button type="submit" class="bg-blue-500 text-white px-4 py-3 text-sm font-medium">Send</button>
-          </div>
+        <form class="bg-white p-3 shadow-inner border-t flex items-center sticky bottom-0 z-10" id="messageForm" autocomplete="off">
+          <input type="text" id="userInput" placeholder="Type your message..." class="flex-1 px-4 py-3 text-sm outline-none rounded-l-lg border border-gray-200" required />
+          <button type="submit" class="bg-blue-500 text-white px-6 py-3 text-sm font-medium rounded-r-lg">Send</button>
         </form>
       </main>
     </div>
   </div>
-
-  <script src="javascript.js"></script>
+ 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuIcon = document.getElementById('menuIcon');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      // Sidebar toggle for mobile
+      if (menuIcon && sidebar && sidebarOverlay) {
+        menuIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sidebar.classList.add('open');
+          sidebar.classList.remove('-translate-x-full');
+          sidebarOverlay.classList.remove('hidden');
+        });
+        sidebarOverlay.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+          sidebar.classList.add('-translate-x-full');
+          sidebarOverlay.classList.add('hidden');
+        });
+      }
+      // Hide sidebar on resize to desktop
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.remove('-translate-x-full');
+          sidebarOverlay.classList.add('hidden');
+        } else {
+          sidebar.classList.add('-translate-x-full');
+          sidebar.classList.remove('open');
+        }
+      });
+      // User profile logic
+      const userName = document.getElementById('userName');
+      const userProfilePic = document.getElementById('userProfilePic');
+      const userInitial = document.getElementById('userInitial');
+      const userProfilePicWrapper = document.getElementById('userProfilePicWrapper');
+      // Example: Replace with real user data
+      const user = {
+        name: 'User Name', // Replace with actual user name
+        profilePic: '' // Replace with actual profile pic URL if available
+      };
+      userName.textContent = user.name;
+      if (user.profilePic) {
+        userProfilePic.src = user.profilePic;
+        userProfilePic.classList.remove('hidden');
+        userInitial.classList.add('hidden');
+      } else {
+        userProfilePic.classList.add('hidden');
+        userInitial.textContent = user.name.charAt(0).toUpperCase();
+        userInitial.classList.remove('hidden');
+      }
+      userProfilePicWrapper.addEventListener('click', () => {
+        window.location.href = 'userProfile.html';
+      });
+      // Chat API connection (no javascript.js)
+      const messageForm = document.getElementById('messageForm');
+      const userInput = document.getElementById('userInput');
+      const messagesContainer = document.getElementById('messagesContainer');
+      async function appendMessage(content, sender) {
+        const message = document.createElement('div');
+        message.className = `max-w-[80%] p-4 rounded-lg shadow ${
+          sender === 'user' ? 'self-end bg-blue-500 text-white' : sender === 'bot' ? 'self-start bg-gray-200 text-gray-900' : 'self-center bg-yellow-50 text-yellow-800'
+        }`;
+        message.innerHTML = content;
+        messagesContainer.appendChild(message);
+        const chatBox = document.getElementById('chatBox');
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+      async function sendMessage(text) {
+        if (!text.trim()) return '';
+        try {
+          const response = await fetch('https://flowfate-ai.onrender.com/api/openai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: text })
+          });
+          if (!response.ok) throw new Error('API error');
+          const data = await response.json();
+          if (data.reply) return data.reply;
+          if (data.data && data.data.reply) return data.data.reply;
+          return '⚠️ No response from AI.';
+        } catch (err) {
+          return `❌ ${err.message}`;
+        }
+      }
+      if (messageForm && userInput) {
+        messageForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const text = userInput.value.trim();
+          if (!text) return;
+          appendMessage(text, 'user');
+          userInput.value = '';
+          const reply = await sendMessage(text);
+          appendMessage(reply, 'bot');
+        });
+      }
+    });
+  </script>
 </body>
 </html>

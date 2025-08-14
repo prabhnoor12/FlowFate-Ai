@@ -675,6 +675,55 @@
       });
     }
 
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Fetch and display dashboard stats
+      try {
+        const statsRes = await fetch('https://flowfate-ai.onrender.com/api/dashboard/stats');
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          // Example: update stats section (add your own HTML IDs/classes as needed)
+          if (document.getElementById('dashboardStats')) {
+            document.getElementById('dashboardStats').textContent = JSON.stringify(stats, null, 2);
+          }
+        }
+      } catch (e) { /* Optionally handle error */ }
+
+      // Fetch and display automations
+      try {
+        const autoRes = await fetch('https://flowfate-ai.onrender.com/api/automations');
+        if (autoRes.ok) {
+          const automations = await autoRes.json();
+          if (document.getElementById('automationsList')) {
+            document.getElementById('automationsList').textContent = JSON.stringify(automations, null, 2);
+          }
+        }
+      } catch (e) { /* Optionally handle error */ }
+
+      // Fetch and display integrations
+      try {
+        const integRes = await fetch('https://flowfate-ai.onrender.com/api/integrations');
+        if (integRes.ok) {
+          const integrations = await integRes.json();
+          if (document.getElementById('integrationsList')) {
+            document.getElementById('integrationsList').textContent = JSON.stringify(integrations, null, 2);
+          }
+        }
+      } catch (e) { /* Optionally handle error */ }
+    });
   </script>
+
+  <!-- Example sections to show fetched data -->
+  <section class="p-4">
+    <h2 class="text-lg font-bold mb-2">Stats</h2>
+    <pre id="dashboardStats" class="bg-gray-100 p-2 rounded text-xs"></pre>
+  </section>
+  <section class="p-4">
+    <h2 class="text-lg font-bold mb-2">Automations</h2>
+    <pre id="automationsList" class="bg-gray-100 p-2 rounded text-xs"></pre>
+  </section>
+  <section class="p-4">
+    <h2 class="text-lg font-bold mb-2">Integrations</h2>
+    <pre id="integrationsList" class="bg-gray-100 p-2 rounded text-xs"></pre>
+  </section>
 </body>
 </html>

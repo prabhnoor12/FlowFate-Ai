@@ -297,14 +297,64 @@
       prevPage.addEventListener('click', () => handlePagination('prev'));
       nextPage.addEventListener('click', () => handlePagination('next'));
 
-      bulkPause.addEventListener('click', () => {
+      bulkPause.addEventListener('click', async () => {
         const selectedIds = Array.from(document.querySelectorAll('.bulkSelect:checked')).map(input => input.dataset.id);
-        console.log('Pause these automations:', selectedIds);
+        if (selectedIds.length === 0) {
+          alert('No automations selected to pause.');
+          return;
+        }
+
+        try {
+          const response = await fetch('https://flowfate-ai.onrender.com/api/automations/pause', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ ids: selectedIds })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to pause automations');
+          }
+
+          alert('Selected automations have been paused.');
+          fetchAutomations();
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
       });
 
-      bulkDelete.addEventListener('click', () => {
+      bulkDelete.addEventListener('click', async () => {
         const selectedIds = Array.from(document.querySelectorAll('.bulkSelect:checked')).map(input => input.dataset.id);
-        console.log('Delete these automations:', selectedIds);
+        if (selectedIds.length === 0) {
+          alert('No automations selected to delete.');
+          return;
+        }
+
+        if (!confirm('Are you sure you want to delete the selected automations?')) {
+          return;
+        }
+
+        try {
+          const response = await fetch('https://flowfate-ai.onrender.com/api/automations/delete', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ ids: selectedIds })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to delete automations');
+          }
+
+          alert('Selected automations have been deleted.');
+          fetchAutomations();
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
       });
 
       searchBar.addEventListener('input', renderAutomations);
