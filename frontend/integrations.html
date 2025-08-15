@@ -7,6 +7,29 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    @media (max-width: 768px) {
+      .integration-card {
+        padding: 0.75rem !important;
+        margin-bottom: 1rem;
+      }
+      .integration-card .integration-details {
+        display: none;
+      }
+      .integration-card.collapsed .integration-details {
+        display: block;
+      }
+      .integration-card .toggle-details {
+        display: block;
+      }
+    }
+    @media (min-width: 769px) {
+      .integration-card .toggle-details {
+        display: none;
+      }
+      .integration-card .integration-details {
+        display: block !important;
+      }
+    }
     body {
       font-family: 'Roboto', sans-serif;
       background: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
@@ -46,11 +69,38 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="flex items-center justify-between p-4">
-    <div class="branding text-xl font-bold text-yellow-400">FlowFate AI</div>
-    <button id="logoutBtn" class="text-sm hover:underline">Logout</button>
-  </header>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="bg-blue-600 text-white w-full md:w-64 p-4 flex flex-col gap-4 md:block hidden">
+    <div class="flex flex-col items-center py-4">
+      <div class="text-2xl font-bold mb-2">FlowFate</div>
+      <div class="text-xs mb-4">AI Automation Platform</div>
+    </div>
+    <nav id="menu" class="flex flex-col gap-2">
+      <a href="Dashboard.html">🏠 Dashboard</a>
+      <a href="Integrations.html">🔗 Integrations</a>
+      <a href="aiInterface.html">🤖 AI Interface</a>
+      <a href="Workflows.html">🔄 Workflows</a>
+      <a href="userProfile.html" class="mt-4 border-t pt-4">⚙️ Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="flex items-center justify-between p-4 bg-blue-600 text-white shadow-md">
+      <div class="flex items-center gap-3">
+        <button id="menuToggleMobile" aria-label="Open menu" class="md:hidden text-white focus:outline-none mr-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
+        <div id="userInitial" class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 flex items-center justify-center text-lg font-bold border-2 border-white cursor-pointer">?</div>
+        <div class="branding text-xl font-bold text-yellow-400">FlowFate AI</div>
+      </div>
+      <button id="logoutBtn" class="text-sm hover:underline">Logout</button>
+    </header>
 
   <main class="flex-1 container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">Integrations</h1>
@@ -58,10 +108,162 @@
     <div class="mt-6">
       <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Add Integration</button>
     </div>
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Notion -->
+  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" class="w-16 h-16 mb-3"/>
+        <div class="font-semibold text-lg mb-2">Notion</div>
+        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
+        <div class="integration-details w-full flex flex-col items-center">
+          <button class="connect-btn" data-integration="notion">Connect</button>
+        </div>
+      </div>
+      <!-- Slack -->
+  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png" alt="Slack" class="w-16 h-16 mb-3"/>
+        <div class="font-semibold text-lg mb-2">Slack</div>
+        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
+        <div class="integration-details w-full flex flex-col items-center">
+          <button class="connect-btn" data-integration="slack">Connect</button>
+        </div>
+      </div>
+      <!-- Todoist -->
+  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Todoist_icon.png" alt="Todoist" class="w-16 h-16 mb-3"/>
+        <div class="font-semibold text-lg mb-2">Todoist</div>
+        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
+        <div class="integration-details w-full flex flex-col items-center">
+          <button class="connect-btn" data-integration="todoist">Connect</button>
+        </div>
+      </div>
+      <!-- ClickUp -->
+  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ClickUp-logo.png" alt="ClickUp" class="w-16 h-16 mb-3"/>
+        <div class="font-semibold text-lg mb-2">ClickUp</div>
+        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
+        <div class="integration-details w-full flex flex-col items-center">
+          <button class="connect-btn" data-integration="clickup">Connect</button>
+        </div>
+      </div>
+      <!-- Google Drive -->
+  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Drive_logo.png" alt="Google Drive" class="w-16 h-16 mb-3"/>
+        <div class="font-semibold text-lg mb-2">Google Drive</div>
+        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
+        <div class="integration-details w-full flex flex-col items-center">
+          <button class="connect-btn" data-integration="drive">Connect</button>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <footer>
-    © 2025 FlowFate AI. All rights reserved.
-  </footer>
+    <footer>
+      © 2025 FlowFate AI. All rights reserved.
+    </footer>
+  </div>
+  <script>
+    // Mobile collapsible integration cards
+    function setupMobileIntegrationCards() {
+      if (window.innerWidth <= 768) {
+        document.querySelectorAll('.integration-card').forEach(card => {
+          const toggle = card.querySelector('.toggle-details');
+          const details = card.querySelector('.integration-details');
+          if (toggle && details) {
+            toggle.style.display = 'block';
+            details.style.display = 'none';
+            card.classList.remove('collapsed');
+            toggle.textContent = 'Show Details';
+            toggle.onclick = function() {
+              if (details.style.display === 'none') {
+                details.style.display = 'block';
+                card.classList.add('collapsed');
+                toggle.textContent = 'Hide Details';
+              } else {
+                details.style.display = 'none';
+                card.classList.remove('collapsed');
+                toggle.textContent = 'Show Details';
+              }
+            };
+          }
+        });
+      } else {
+        document.querySelectorAll('.integration-card').forEach(card => {
+          const toggle = card.querySelector('.toggle-details');
+          const details = card.querySelector('.integration-details');
+          if (toggle && details) {
+            toggle.style.display = 'none';
+            details.style.display = 'block';
+            card.classList.remove('collapsed');
+          }
+        });
+      }
+    }
+  document.addEventListener('DOMContentLoaded', async () => {
+      const userInitial = document.getElementById('userInitial');
+      const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
+      let token = localStorage.getItem('token');
+      let userName = '';
+      async function fetchUserProfile() {
+        if (!token) {
+          if (userInitial) userInitial.textContent = '?';
+          return;
+        }
+        try {
+          const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+          if (!res.ok) {
+            localStorage.removeItem('token');
+            if (userInitial) userInitial.textContent = '?';
+            return;
+          }
+          const json = await res.json();
+          userName = json.data?.name || '';
+          if (userInitial) userInitial.textContent = userName ? userName.charAt(0).toUpperCase() : '?';
+        } catch (e) {
+          if (userInitial) userInitial.textContent = '?';
+        }
+      }
+  await fetchUserProfile();
+  setupMobileIntegrationCards();
+
+      // Integration connect button handler
+      document.querySelectorAll('.connect-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const integration = this.getAttribute('data-integration');
+          if (integration) {
+            window.location.href = `${BACKEND_BASE_URL}/api/integrations/${integration}/oauth`;
+          }
+        });
+      });
+    });
+
+    // Sidebar mobile toggle
+    const menuToggleMobile = document.getElementById('menuToggleMobile');
+    const sidebar = document.getElementById('sidebar');
+    if (menuToggleMobile && sidebar) {
+      menuToggleMobile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('hidden');
+      });
+      // Hide sidebar when clicking outside on mobile
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuToggleMobile.contains(e.target)) {
+          sidebar.classList.add('hidden');
+        }
+      });
+    }
+    // On resize, ensure sidebar is visible on desktop and hidden on mobile
+    function handleResize() {
+      if (window.innerWidth >= 768) {
+        if (sidebar) sidebar.classList.remove('hidden');
+      } else {
+        if (sidebar) sidebar.classList.add('hidden');
+      }
+    }
+    window.addEventListener('resize', () => {
+      handleResize();
+      setupMobileIntegrationCards();
+    });
+    handleResize();
+  </script>
 </body>
 </html>

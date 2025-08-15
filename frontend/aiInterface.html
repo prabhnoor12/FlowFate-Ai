@@ -132,7 +132,7 @@
           </div>
           <div id="userProfilePicWrapper">
             <img src="" alt="Profile Picture" class="w-10 h-10 rounded-full border-2 border-white cursor-pointer hidden" id="userProfilePic" />
-            <div id="userInitial" class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 flex items-center justify-center text-lg font-bold border-2 border-white cursor-pointer"></div>
+            <div id="userInitial" class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 flex items-center justify-center text-lg font-bold border-2 border-white cursor-pointer">?</div>
           </div>
         </div>
       </header>
@@ -153,10 +153,37 @@
   </div>
  
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const menuIcon = document.getElementById('menuIcon');
       const sidebar = document.getElementById('sidebar');
       const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const userInitial = document.getElementById('userInitial'); // This line is kept
+    const userNameDiv = document.getElementById('userName'); // This line is kept
+      // --- User Profile Initial and Persistent Login ---
+      const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
+      let token = localStorage.getItem('token');
+    let userName = ''; // This line is kept
+      async function fetchUserProfile() {
+        if (!token) {
+          window.location.href = 'login.html';
+          return;
+        }
+        try {
+          const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+          if (!res.ok) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+            return;
+          }
+          const json = await res.json();
+          userName = json.data?.name || '';
+          if (userInitial) userInitial.textContent = userName ? userName.charAt(0).toUpperCase() : '?';
+          if (userNameDiv) userNameDiv.textContent = userName || 'User Name';
+        } catch (e) {
+          if (userInitial) userInitial.textContent = '?';
+        }
+      }
+      await fetchUserProfile();
       // Sidebar toggle for mobile
       if (menuIcon && sidebar && sidebarOverlay) {
         menuIcon.addEventListener('click', (e) => {
@@ -182,9 +209,8 @@
         }
       });
       // User profile logic
-      const userName = document.getElementById('userName');
-      const userProfilePic = document.getElementById('userProfilePic');
-      const userInitial = document.getElementById('userInitial');
+    const userProfilePic = document.getElementById('userProfilePic'); // This line is kept
+    // const userInitial = document.getElementById('userInitial'); // This line is removed to avoid redeclaration
       const userProfilePicWrapper = document.getElementById('userProfilePicWrapper');
       // Example: Replace with real user data
       const user = {
