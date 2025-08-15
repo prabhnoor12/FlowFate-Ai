@@ -3,282 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Integrations</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    .btn-light {
-      background: #f3f4f6;
-      color: #2563eb;
-      border: 1px solid #d1d5db;
-      border-radius: 0.5rem;
-      padding: 0.5rem 1.25rem;
-      font-weight: 600;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn-light:hover {
-      background: #e0e7ef;
-      color: #1e40af;
-    }
-    @media (max-width: 768px) {
-      .integration-card {
-        padding: 0.75rem !important;
-        margin-bottom: 1rem;
-      }
-      .integration-card .integration-details {
-        display: none;
-      }
-      .integration-card.collapsed .integration-details {
-        display: block;
-      }
-      .integration-card .toggle-details {
-        display: block;
-      }
-    }
-    @media (min-width: 769px) {
-      .integration-card .toggle-details {
-        display: none;
-      }
-      .integration-card .integration-details {
-        display: block !important;
-      }
-    }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
-      color: #1f2937;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      color: #1e40af;
-    }
-    button {
-      font-family: 'Inter', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      background: linear-gradient(to right, #3b82f6, #2563eb);
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-    button:hover {
-      background: linear-gradient(to right, #2563eb, #1e40af);
-      transform: scale(1.05);
-    }
-    header {
-      background: linear-gradient(to right, #2563eb, #1e40af);
-      color: white;
-      padding: 1rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    footer {
-      background: #1f2937;
-      color: #f9fafb;
-      padding: 1rem;
-      text-align: center;
-    }
-  </style>
+  <title>Integrations - FlowFate AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="intergration.css">
 </head>
-<body class="min-h-screen flex flex-col md:flex-row">
+<body>
+  <div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">FlowFate</div>
+        <div class="sidebar-subtitle">AI Automation Platform</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="Dashboard.html" class="sidebar-link">🏠 Dashboard</a>
+        <a href="Integrations.html" class="sidebar-link active">🔗 Integrations</a>
+        <a href="aiInterface.html" class="sidebar-link">🤖 AI Interface</a>
+        <a href="Workflows.html" class="sidebar-link">🔄 Workflows</a>
+        <a href="Automations.html" class="sidebar-link">⚡ Automations</a>
+        <a href="userProfile.html" class="sidebar-link sidebar-settings">⚙️ Settings</a>
+      </nav>
+    </aside>
 
-  <!-- Sidebar -->
-  <aside id="sidebar" class="bg-blue-600 text-white w-full md:w-64 p-4 flex flex-col gap-4 md:block hidden">
-    <div class="flex flex-col items-center py-4">
-      <div class="text-2xl font-bold mb-2">FlowFate</div>
-      <div class="text-xs mb-4">AI Automation Platform</div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-container">
+          <h1 class="header-title">Connect Your Apps</h1>
+          <button id="menuToggleMobile" aria-label="Open menu" class="mobile-menu-button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Integrations Grid -->
+      <main class="main-area">
+        <section>
+          <div class="integrations-header">
+            <h2 class="integrations-title">Available Integrations</h2>
+            <div class="search-container">
+              <div class="search-icon-container">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input type="text" placeholder="Search integrations..." class="search-input">
+            </div>
+          </div>
+          
+          <div class="filter-container">
+            <button class="filter-button active">All</button>
+            <button class="filter-button inactive">Project Management</button>
+            <button class="filter-button inactive">Communication</button>
+            <button class="filter-button inactive">File Storage</button>
+          </div>
+
+          <div class="integrations-grid">
+            
+            <!-- Notion Card -->
+            <div class="integration-card" data-integration="notion">
+              <div>
+                <div class="card-header">
+                  <h3 class="card-title">Notion</h3>
+                  <span class="status-badge" style="display: none;">Connected</span>
+                </div>
+                <p class="card-description">Connect your Notion workspace to automate documentation and knowledge management.</p>
+              </div>
+              <button class="connect-button notion">Connect Notion</button>
+            </div>
+
+            <!-- Slack Card -->
+            <div class="integration-card" data-integration="slack">
+              <div>
+                <h3 class="card-title">Slack</h3>
+                <p class="card-description">Integrate with Slack to send notifications and manage your team communications.</p>
+              </div>
+              <button class="connect-button slack">Connect Slack</button>
+            </div>
+
+            <!-- Google Drive Card -->
+            <div class="integration-card" data-integration="drive">
+              <div>
+                <h3 class="card-title">Google Drive</h3>
+                <p class="card-description">Access your files and automate document workflows in Google Drive.</p>
+              </div>
+              <button class="connect-button drive">Connect Google Drive</button>
+            </div>
+
+            <!-- Todoist Card -->
+            <div class="integration-card" data-integration="todoist">
+              <div>
+                <div class="card-header">
+                  <h3 class="card-title">Todoist</h3>
+                   <span class="status-badge" style="display: none;">Connected</span>
+                </div>
+                <p class="card-description">Manage your tasks and projects by connecting your Todoist account.</p>
+              </div>
+              <button class="connect-button todoist">Connect Todoist</button>
+            </div>
+
+            <!-- ClickUp Card -->
+            <div class="integration-card" data-integration="clickup">
+              <div>
+                <h3 class="card-title">ClickUp</h3>
+                <p class="card-description">Streamline your project management with ClickUp integration.</p>
+              </div>
+              <button class="connect-button clickup">Connect ClickUp</button>
+            </div>
+
+            <!-- Gmail Card -->
+            <div class="integration-card" data-integration="gmail">
+              <div>
+                <h3 class="card-title">Gmail</h3>
+                <p class="card-description">Automate your email workflows and manage communications with Gmail.</p>
+              </div>
+              <button class="connect-button gmail">Connect Gmail</button>
+            </div>
+
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        © 2025 FlowFate AI. All rights reserved.
+      </footer>
     </div>
-    <nav id="menu" class="flex flex-col gap-2">
-      <a href="Dashboard.html">Dashboard</a>
-      <a href="Integrations.html">Integrations</a>
-      <a href="Automations.html">Automations</a>
-      <a href="aiInterface.html">AI Interface</a>
-      <a href="Workflows.html">Workflows</a>
-      <a href="userProfile.html" class="mt-4 border-t pt-4">Settings</a>
-    </nav>
-  </aside>
-
-  <!-- Main Content -->
-  <div class="flex-1 flex flex-col">
-    <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-blue-600 text-white shadow-md">
-      <div class="flex items-center gap-3">
-        <button id="menuToggleMobile" aria-label="Open menu" class="md:hidden text-white focus:outline-none mr-2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
-          </svg>
-        </button>
-        <div id="userInitial" class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 flex items-center justify-center text-lg font-bold border-2 border-white cursor-pointer">?</div>
-        <div class="branding text-xl font-bold text-yellow-400">FlowFate AI</div>
-      </div>
-      <button id="logoutBtn" class="text-sm hover:underline">Logout</button>
-    </header>
-
-  <main class="flex-1 container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Integrations</h1>
-    <p class="text-gray-600">Manage your integrations here.</p>
-    <div class="mt-6">
-      <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Add Integration</button>
-    </div>
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Notion -->
-  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" class="w-16 h-16 mb-3"/>
-        <div class="font-semibold text-lg mb-2">Notion</div>
-        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
-        <div class="integration-details w-full flex flex-col items-center">
-          <button type="button" class="connect-btn btn-light w-full mt-2" data-integration="notion">Connect</button>
-        </div>
-      </div>
-      <!-- Slack -->
-  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png" alt="Slack" class="w-16 h-16 mb-3"/>
-        <div class="font-semibold text-lg mb-2">Slack</div>
-        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
-        <div class="integration-details w-full flex flex-col items-center">
-          <button type="button" class="connect-btn btn-light w-full mt-2" data-integration="slack">Connect</button>
-        </div>
-      </div>
-      <!-- Todoist -->
-  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Todoist_icon.png" alt="Todoist" class="w-16 h-16 mb-3"/>
-        <div class="font-semibold text-lg mb-2">Todoist</div>
-        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
-        <div class="integration-details w-full flex flex-col items-center">
-          <button type="button" class="connect-btn btn-light w-full mt-2" data-integration="todoist">Connect</button>
-        </div>
-      </div>
-      <!-- ClickUp -->
-  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ClickUp-logo.png" alt="ClickUp" class="w-16 h-16 mb-3"/>
-        <div class="font-semibold text-lg mb-2">ClickUp</div>
-        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
-        <div class="integration-details w-full flex flex-col items-center">
-          <button type="button" class="connect-btn btn-light w-full mt-2" data-integration="clickup">Connect</button>
-        </div>
-      </div>
-      <!-- Google Drive -->
-  <div class="integration-card flex flex-col items-center bg-white rounded-lg shadow p-6">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Drive_logo.png" alt="Google Drive" class="w-16 h-16 mb-3"/>
-        <div class="font-semibold text-lg mb-2">Google Drive</div>
-        <button class="toggle-details text-xs text-blue-600 underline mb-2" style="display:none;">Show Details</button>
-        <div class="integration-details w-full flex flex-col items-center">
-          <button type="button" class="connect-btn btn-light w-full mt-2" data-integration="drive">Connect</button>
-        </div>
-      </div>
-    </div>
-  </main>
-
-    <footer>
-      © 2025 FlowFate AI. All rights reserved.
-    </footer>
   </div>
   <script>
-    // Mobile collapsible integration cards
-    function setupMobileIntegrationCards() {
-      if (window.innerWidth <= 768) {
-        document.querySelectorAll('.integration-card').forEach(card => {
-          const toggle = card.querySelector('.toggle-details');
-          const details = card.querySelector('.integration-details');
-          if (toggle && details) {
-            toggle.style.display = 'block';
-            details.style.display = 'none';
-            card.classList.remove('collapsed');
-            toggle.textContent = 'Show Details';
-            toggle.onclick = function() {
-              if (details.style.display === 'none') {
-                details.style.display = 'block';
-                card.classList.add('collapsed');
-                toggle.textContent = 'Hide Details';
-              } else {
-                details.style.display = 'none';
-                card.classList.remove('collapsed');
-                toggle.textContent = 'Show Details';
-              }
-            };
-          }
-        });
-      } else {
-        document.querySelectorAll('.integration-card').forEach(card => {
-          const toggle = card.querySelector('.toggle-details');
-          const details = card.querySelector('.integration-details');
-          if (toggle && details) {
-            toggle.style.display = 'none';
-            details.style.display = 'block';
-            card.classList.remove('collapsed');
-          }
-        });
-      }
-    }
-  document.addEventListener('DOMContentLoaded', async () => {
-      const userInitial = document.getElementById('userInitial');
+    document.addEventListener('DOMContentLoaded', async () => {
+      const menuToggleMobile = document.getElementById('menuToggleMobile');
+      const sidebar = document.querySelector('.sidebar');
+      const searchInput = document.querySelector('.search-input');
+      const integrationCards = document.querySelectorAll('.integration-card');
+      const connectButtons = document.querySelectorAll('.connect-button');
       const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
-      let token = localStorage.getItem('token');
-      let userName = '';
-      async function fetchUserProfile() {
-        if (!token) {
-          if (userInitial) userInitial.textContent = '?';
-          return;
-        }
+
+      // Fetch user's connected integrations
+      async function fetchUserIntegrations() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
         try {
-          const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-          if (!res.ok) {
-            localStorage.removeItem('token');
-            if (userInitial) userInitial.textContent = '?';
-            return;
+          const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const user = await res.json();
+            if (user.data && user.data.integrations) {
+              updateIntegrationStatus(user.data.integrations);
+            }
           }
-          const json = await res.json();
-          userName = json.data?.name || '';
-          if (userInitial) userInitial.textContent = userName ? userName.charAt(0).toUpperCase() : '?';
-        } catch (e) {
-          if (userInitial) userInitial.textContent = '?';
+        } catch (error) {
+          console.error('Error fetching user integrations:', error);
         }
       }
-  await fetchUserProfile();
-  setupMobileIntegrationCards();
 
-      // Integration connect button handler (must be inside DOMContentLoaded for BACKEND_BASE_URL scope)
-      document.addEventListener('click', function(e) {
-        const btn = e.target.closest('.connect-btn');
-        if (btn) {
-          const integration = btn.getAttribute('data-integration');
-          if (integration) {
-            window.location.href = BACKEND_BASE_URL + '/api/integrations/' + integration + '/oauth';
+      function updateIntegrationStatus(integrations) {
+        const connectedIntegrations = new Set(integrations.map(int => int.provider.toLowerCase()));
+        
+        integrationCards.forEach(card => {
+          const integrationName = card.dataset.integration;
+          const statusBadge = card.querySelector('.status-badge');
+          const connectButton = card.querySelector('.connect-button');
+
+          if (connectedIntegrations.has(integrationName)) {
+            if (statusBadge) statusBadge.style.display = 'inline-block';
+            if (connectButton) {
+              connectButton.textContent = 'Connected';
+              connectButton.disabled = true;
+            }
+          } else {
+             if (statusBadge) statusBadge.style.display = 'none';
+             if (connectButton) {
+              connectButton.textContent = `Connect ${integrationName.charAt(0).toUpperCase() + integrationName.slice(1)}`;
+              connectButton.disabled = false;
+            }
           }
+        });
+      }
+
+      await fetchUserIntegrations();
+
+      // Mobile menu toggle
+      if (menuToggleMobile && sidebar) {
+        menuToggleMobile.addEventListener('click', () => {
+          if (sidebar.style.display === 'none' || sidebar.style.display === '') {
+            sidebar.style.display = 'block';
+          } else {
+            sidebar.style.display = 'none';
+          }
+        });
+      }
+
+      // Search functionality
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const searchTerm = e.target.value.toLowerCase();
+          integrationCards.forEach(card => {
+            const title = card.querySelector('.card-title').textContent.toLowerCase();
+            const description = card.querySelector('.card-description').textContent.toLowerCase();
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      }
+
+      // Connect buttons
+      connectButtons.forEach(button => {
+        if (!button.disabled) {
+          button.addEventListener('click', () => {
+            let integrationName = '';
+            if (button.classList.contains('notion')) integrationName = 'notion';
+            else if (button.classList.contains('slack')) integrationName = 'slack';
+            else if (button.classList.contains('drive')) integrationName = 'drive';
+            else if (button.classList.contains('todoist')) integrationName = 'todoist';
+            else if (button.classList.contains('clickup')) integrationName = 'clickup';
+            else if (button.classList.contains('gmail')) integrationName = 'gmail';
+            
+            if(integrationName) {
+                // Special handling for notion as it has a different auth route structure
+                if(integrationName === 'notion') {
+                    window.location.href = `${BACKEND_BASE_URL}/api/notion/auth`;
+                } else {
+                    window.location.href = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
+                }
+            }
+          });
         }
       });
     });
-
-    // Sidebar mobile toggle
-    const menuToggleMobile = document.getElementById('menuToggleMobile');
-    const sidebar = document.getElementById('sidebar');
-    if (menuToggleMobile && sidebar) {
-      menuToggleMobile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sidebar.classList.toggle('hidden');
-      });
-      // Hide sidebar when clicking outside on mobile
-      document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuToggleMobile.contains(e.target)) {
-          sidebar.classList.add('hidden');
-        }
-      });
-    }
-    // On resize, ensure sidebar is visible on desktop and hidden on mobile
-    function handleResize() {
-      if (window.innerWidth >= 768) {
-        if (sidebar) sidebar.classList.remove('hidden');
-      } else {
-        if (sidebar) sidebar.classList.add('hidden');
-      }
-    }
-    window.addEventListener('resize', () => {
-      handleResize();
-      setupMobileIntegrationCards();
-    });
-    handleResize();
   </script>
 </body>
 </html>

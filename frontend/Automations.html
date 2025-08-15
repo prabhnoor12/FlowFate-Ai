@@ -6,117 +6,27 @@
   <title>User Automations</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- Optional: Link to external CSS/JS if needed -->
-  <!-- <link rel="stylesheet" href="styles.css">
-  <script src="script.js"></script> -->
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
-    }
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Inter', sans-serif;
-    }
-    button {
-      font-family: 'Inter', sans-serif;
-    }
-    @media (max-width: 768px) {
-      #filterMenu {
-        display: none;
-        flex-direction: column;
-        gap: 1rem;
-        background-color: #f9fafb;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      #filterMenu.show {
-        display: flex;
-      }
-      #filterToggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.5rem;
-        height: 2.5rem;
-        background-color: #2563eb;
-        color: white;
-        border-radius: 50%;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s;
-      }
-      #filterToggle:hover {
-        background-color: #1e40af;
-      }
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
-      color: #1f2937;
-    }
-    header {
-      background: linear-gradient(to right, #2563eb, #1e40af);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    footer {
-      background: #1f2937;
-      color: #f9fafb;
-    }
-    button {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .card {
-      background: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-0.5rem);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-    }
-    @media (max-width: 768px) {
-      #menu {
-        font-size: 1rem;
-        padding: 0.5rem 0;
-        gap: 0.5rem;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-      }
-      #menu a {
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        width: 100%;
-        display: block;
-      }
-      #bulkPause, #bulkDelete {
-        font-size: 0.75rem !important;
-        padding: 0.5rem 0.75rem !important;
-      }
-      .mb-4.flex.items-center.gap-4 {
-        gap: 0.5rem !important;
-      }
+    #filterMenu.show {
+      display: flex;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row">
+<body class="bg-gray-100 font-sans">
+<div class="flex h-screen">
   <!-- Sidebar -->
-  <aside id="sidebar" class="bg-blue-600 text-white w-full md:w-64 p-4 flex flex-col gap-4 md:block hidden">
+  <aside id="sidebar" class="w-64 bg-white p-6 shadow-lg hidden md:block">
     <div class="flex flex-col items-center py-4">
       <div class="text-2xl font-bold mb-2">FlowFate</div>
       <div class="text-xs mb-4">AI Automation Platform</div>
     </div>
     <nav id="menu" class="flex flex-col gap-2">
-      <a href="Dashboard.html">🏠 Dashboard</a>
-      <a href="Integrations.html">🔗 Integrations</a>
-      <a href="aiInterface.html">🤖 AI Interface</a>
-      <a href="Workflows.html">🔄 Workflows</a>
-      <a href="userProfile.html" class="mt-4 border-t pt-4">⚙️ Settings</a>
+      <a href="Dashboard.html" class="p-2 rounded hover:bg-gray-200">🏠 Dashboard</a>
+      <a href="Integrations.html" class="p-2 rounded hover:bg-gray-200">🔗 Integrations</a>
+      <a href="aiInterface.html" class="p-2 rounded hover:bg-gray-200">🤖 AI Interface</a>
+      <a href="Workflows.html" class="p-2 rounded hover:bg-gray-200">🔄 Workflows</a>
+      <a href="Automations.html" class="p-2 rounded bg-gray-200">⚡ Automations</a>
+      <a href="userProfile.html" class="mt-4 border-t pt-4 p-2 rounded hover:bg-gray-200">⚙️ Settings</a>
     </nav>
   </aside>
   <!-- Main Content -->
@@ -224,143 +134,5 @@
       © 2025 FlowFate AI. All rights reserved.
     </footer>
   </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Elements
-      const automationList = document.getElementById('automationList');
-      const searchBar = document.getElementById('searchBar');
-      const statusFilter = document.getElementById('statusFilter');
-      const sortOptions = document.getElementById('sortOptions');
-      const dateFilter = document.getElementById('dateFilter');
-      const addAutomationBtn = document.getElementById('addAutomationBtn');
-      const automationModal = document.getElementById('automationModal');
-      const closeModalBtn = document.getElementById('closeModalBtn');
-      // Demo data
-      let automations = [
-        { id: 2, name: 'Weekly Report', status: 'paused', updatedAt: '2025-08-10T09:00:00Z', tags: ['report'], description: 'Send weekly report.' }
-      ];
-      // Render automations
-      function renderAutomations() {
-        let filtered = automations;
-        // Search
-        const search = searchBar.value.trim().toLowerCase();
-        if (search) {
-          filtered = filtered.filter(a => a.name.toLowerCase().includes(search) || a.description.toLowerCase().includes(search));
-        }
-        // Date filter
-        const date = dateFilter.value;
-        if (date) {
-          filtered = filtered.filter(a => a.updatedAt && a.updatedAt.startsWith(date));
-        }
-        // Status filter
-        const status = statusFilter.value;
-        if (status) {
-          filtered = filtered.filter(a => a.status === status);
-        }
-        // Sort
-        const sortBy = sortOptions.value;
-        if (sortBy === 'name') {
-          filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortBy === 'status') {
-          filtered = filtered.sort((a, b) => a.status.localeCompare(b.status));
-        } else if (sortBy === 'updatedAt') {
-          filtered = filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-        }
-        // Render
-        automationList.innerHTML = '';
-        if (filtered.length === 0) {
-          automationList.innerHTML = '<p class="text-gray-500">No automations match your criteria.</p>';
-        } else {
-          filtered.forEach(a => {
-            const item = document.createElement('div');
-            item.className = 'p-4 bg-white shadow rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4';
-            item.innerHTML = `
-              <div>
-                <h3 class="text-md font-medium">${a.name}</h3>
-                <p class="text-sm text-gray-500">${a.description}</p>
-                <p class="text-xs text-gray-400 mt-2">Last updated: ${a.updatedAt ? new Date(a.updatedAt).toLocaleString() : ''}</p>
-                <div class="mt-2 flex gap-2">
-                  ${(a.tags || []).map(tag => `<span class='px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded'>${tag}</span>`).join('')}
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(a.status)}">${a.status}</span>
-              </div>
-            `;
-            automationList.appendChild(item);
-          });
-        }
-      }
-      function getStatusBadgeClass(status) {
-        switch (status) {
-          case 'active': return 'bg-green-100 text-green-800';
-          case 'paused': return 'bg-yellow-100 text-yellow-800';
-          case 'completed': return 'bg-gray-100 text-gray-800';
-          default: return 'bg-gray-100 text-gray-800';
-        }
-      }
-      // Event listeners
-      searchBar.addEventListener('input', renderAutomations);
-      statusFilter.addEventListener('change', renderAutomations);
-      sortOptions.addEventListener('change', renderAutomations);
-      dateFilter.addEventListener('change', renderAutomations);
-      // Add icon opens modal (modal does nothing)
-      if (addAutomationBtn && automationModal) {
-        addAutomationBtn.addEventListener('click', () => {
-          automationModal.classList.remove('hidden');
-        });
-      }
-      if (closeModalBtn && automationModal) {
-        closeModalBtn.addEventListener('click', () => {
-          automationModal.classList.add('hidden');
-        });
-      }
-      // Initial render
-      renderAutomations();
-    });
-  </script>
-  <script>
-    // Sidebar mobile toggle
-    const menuToggleMobile = document.getElementById('menuToggleMobile');
-    const sidebar = document.getElementById('sidebar');
-    if (menuToggleMobile && sidebar) {
-      menuToggleMobile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sidebar.classList.toggle('hidden');
-      });
-      // Hide sidebar when clicking outside on mobile
-      document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuToggleMobile.contains(e.target)) {
-          sidebar.classList.add('hidden');
-        }
-      });
-    }
-    // On resize, ensure sidebar is visible on desktop and hidden on mobile
-    function handleResize() {
-      if (window.innerWidth >= 768) {
-        if (sidebar) sidebar.classList.remove('hidden');
-      } else {
-        if (sidebar) sidebar.classList.add('hidden');
-      }
-    }
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    // Filter menu toggle for mobile
-    const filterToggle = document.getElementById('filterToggle');
-    const filterMenu = document.getElementById('filterMenu');
-    if (filterToggle && filterMenu) {
-      filterToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        filterMenu.classList.toggle('show');
-      });
-      // Hide filter menu when clicking outside on mobile
-      document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && filterMenu && !filterMenu.contains(e.target) && !filterToggle.contains(e.target)) {
-          filterMenu.classList.remove('show');
-        }
-      });
-    }
-  </script>
 </body>
 </html>
