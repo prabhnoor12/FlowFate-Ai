@@ -215,29 +215,30 @@
         });
       }
 
-      // Connect buttons
-      connectButtons.forEach(button => {
-        if (!button.disabled) {
-          button.addEventListener('click', () => {
-            let integrationName = '';
-            if (button.classList.contains('notion')) integrationName = 'notion';
-            else if (button.classList.contains('slack')) integrationName = 'slack';
-            else if (button.classList.contains('drive')) integrationName = 'drive';
-            else if (button.classList.contains('todoist')) integrationName = 'todoist';
-            else if (button.classList.contains('clickup')) integrationName = 'clickup';
-            else if (button.classList.contains('gmail')) integrationName = 'gmail';
-            
-            if(integrationName) {
+      // Connect buttons using event delegation for robustness
+      const grid = document.querySelector('.integrations-grid');
+      if (grid) {
+        grid.addEventListener('click', (e) => {
+          const button = e.target.closest('.connect-button');
+          // Check if a connect button was clicked and it's not disabled
+          if (button && !button.disabled) {
+            const card = button.closest('.integration-card');
+            if (card) {
+              const integrationName = card.dataset.integration;
+              if (integrationName) {
+                let authUrl = '';
                 // Special handling for notion as it has a different auth route structure
-                if(integrationName === 'notion') {
-                    window.location.href = `${BACKEND_BASE_URL}/api/notion/auth`;
+                if (integrationName === 'notion') {
+                  authUrl = `${BACKEND_BASE_URL}/api/notion/auth`;
                 } else {
-                    window.location.href = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
+                  authUrl = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
                 }
+                window.location.href = authUrl;
+              }
             }
-          });
-        }
-      });
+          }
+        });
+      }
     });
   </script>
 </body>
