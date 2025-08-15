@@ -239,14 +239,13 @@
   await fetchUserProfile();
   setupMobileIntegrationCards();
 
-      // Integration connect button handler
-      // Use event delegation for connect buttons to ensure it works for all (including mobile toggled cards)
+      // Integration connect button handler (must be inside DOMContentLoaded for BACKEND_BASE_URL scope)
       document.addEventListener('click', function(e) {
         const btn = e.target.closest('.connect-btn');
         if (btn) {
           const integration = btn.getAttribute('data-integration');
           if (integration) {
-            window.location.href = `${BACKEND_BASE_URL}/api/integrations/${integration}/oauth`;
+            window.location.href = BACKEND_BASE_URL + '/api/integrations/' + integration + '/oauth';
           }
         }
       });
