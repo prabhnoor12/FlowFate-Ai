@@ -227,12 +227,13 @@
               const integrationName = card.dataset.integration;
               if (integrationName) {
                 let authUrl = '';
-                // Special handling for notion as it has a different auth route structure
+                // Special handling for Notion, which has a different auth route structure
                 if (integrationName === 'notion') {
-                  authUrl = `${BACKEND_BASE_URL}/api/notion/auth`;
+                  authUrl = `${BACKEND_BASE_URL}/api/notion/auth/connect`;
                 } else {
                   authUrl = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
                 }
+                console.log(`Attempting to connect '${integrationName}'. Redirecting to: ${authUrl}`);
                 window.location.href = authUrl;
               }
             }
