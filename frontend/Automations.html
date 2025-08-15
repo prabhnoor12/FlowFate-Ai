@@ -85,6 +85,30 @@
       transform: translateY(-0.5rem);
       box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
     }
+
+    /* Make mobile menu a bit smaller and more compact */
+    @media (max-width: 768px) {
+      #menu {
+        font-size: 1rem;
+        padding: 0.5rem 0;
+        gap: 0.5rem;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+      #menu a {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        width: 100%;
+        display: block;
+      }
+      #bulkPause, #bulkDelete {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.75rem !important;
+      }
+      .mb-4.flex.items-center.gap-4 {
+        gap: 0.5rem !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row">
@@ -188,15 +212,22 @@
       let currentPageNumber = 1;
       const itemsPerPage = 5;
 
-      menuToggle.addEventListener('click', () => {
-        menu.classList.toggle('show');
-      });
-
-      menu.addEventListener('click', (event) => {
-        if (event.target.tagName === 'A' && window.innerWidth < 768) {
+      // Responsive menu toggle for mobile
+      if (menuToggle && menu) {
+        menuToggle.addEventListener('click', () => {
+          menu.classList.toggle('hidden');
+        });
+      }
+      // Ensure menu is always visible on desktop
+      function handleResize() {
+        if (window.innerWidth >= 768) {
+          menu.classList.remove('hidden');
+        } else {
           menu.classList.add('hidden');
         }
-      });
+      }
+      window.addEventListener('resize', handleResize);
+      handleResize();
 
       filterToggle.addEventListener('click', () => {
         filterMenu.classList.toggle('show');
