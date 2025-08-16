@@ -101,7 +101,9 @@
   </div>
 
   <script>
+    console.log('Script loaded');
     document.addEventListener('DOMContentLoaded', async () => {
+      console.log('DOM fully loaded');
       const menuToggleMobile = document.getElementById('menuToggleMobile');
       const sidebar = document.querySelector('.sidebar');
       const searchInput = document.querySelector('.search-input');
@@ -182,12 +184,15 @@
       // Connect buttons using event delegation for robustness
       const grid = document.querySelector('.integrations-grid');
       if (grid) {
+        console.log('Grid found, attaching click handler');
         grid.addEventListener('click', (e) => {
           const button = e.target.closest('.connect-button');
           if (button && !button.disabled) {
+            console.log('Connect button clicked:', button);
             const card = button.closest('.integration-card');
             if (card) {
               const integrationName = card.dataset.integration;
+              console.log('Integration name:', integrationName);
               if (integrationName) {
                 let authUrl = '';
                 // Map integration to correct backend endpoint
@@ -210,11 +215,14 @@
                     // fallback for future integrations
                     authUrl = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
                 }
+                console.log('Redirecting to:', authUrl);
                 window.location.href = authUrl;
               }
             }
           }
         });
+      } else {
+        console.log('Grid not found');
       }
     });
   </script>
