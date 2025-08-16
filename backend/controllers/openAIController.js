@@ -1,3 +1,33 @@
+// POST /api/ai/complete-automation
+export async function completeAutomationAI(req, res) {
+  const { automationId, title, integration, description } = req.body;
+  const userId = req.user?.id;
+  if (!automationId || !title || !integration) {
+    return res.status(400).json({ status: 'error', message: 'Missing required fields.' });
+  }
+  try {
+    // Compose a prompt for the AI agent
+    const prompt = `You are FlowFate AI. The user has created a new automation.\nTitle: ${title}\nIntegration: ${integration}\nDescription: ${description || ''}\nPlease complete the automation task for the user, using only the specified integration and keeping it simple.`;
+    // Use the same agent as askOpenAI
+    const result = await run(agent, prompt, { user: { id: userId } });
+    let output = result.output;
+    let reply = '';
+    if (typeof output === 'string' && output.trim().startsWith('<div')) {
+      reply = output;
+    } else if (Array.isArray(output) && output.length > 0 && output[0].content && Array.isArray(output[0].content)) {
+      const textObj = output[0].content.find(c => c.type === 'output_text');
+      reply = textObj ? textObj.text : '';
+    } else if (typeof output === 'string') {
+      reply = output;
+    } else {
+      reply = JSON.stringify(output);
+    }
+    return res.json({ status: 'success', automationId, reply });
+  } catch (err) {
+    console.error('AI completeAutomation error:', err.message);
+    return res.status(500).json({ status: 'error', message: 'AI failed to process automation.', details: err.message });
+  }
+}
 import { cleanBotReply, isIntegrationConnectRequest } from '../middleware/cleanIntegrationReply.js';
 
 // Tool: Connect ClickUp

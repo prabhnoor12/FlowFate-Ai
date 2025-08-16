@@ -133,5 +133,251 @@
     </footer>
   </div>
 </div>
+<script>
+// Sidebar mobile toggle
+document.addEventListener('DOMContentLoaded', function() {
+  // Set backend base URL (switch to localhost for local dev)
+  const BACKEND_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://flowfate-ai.onrender.com';
+
+  const menuToggleMobile = document.getElementById('menuToggleMobile');
+  const sidebar = document.getElementById('sidebar');
+  if (menuToggleMobile && sidebar) {
+    menuToggleMobile.addEventListener('click', function() {
+      sidebar.classList.toggle('md:hidden');
+      sidebar.classList.toggle('md:block');
+    });
+    document.addEventListener('click', function(e) {
+      if (!sidebar.contains(e.target) && e.target !== menuToggleMobile && sidebar.classList.contains('md:block')) {
+        sidebar.classList.remove('md:block');
+        sidebar.classList.add('md:hidden');
+      }
+    });
+  }
+
+  // State
+  let automations = [];
+  let filteredAutomations = [];
+  let currentPage = 1;
+  const pageSize = 5;
+  let selectedIds = new Set();
+
+  // Elements
+  const automationList = document.getElementById('automationList');
+  const searchBar = document.getElementById('searchBar');
+  const statusFilter = document.getElementById('statusFilter');
+  const dateFilter = document.getElementById('dateFilter');
+  const sortOptions = document.getElementById('sortOptions');
+  const prevPage = document.getElementById('prevPage');
+  const nextPage = document.getElementById('nextPage');
+  const currentPageSpan = document.getElementById('currentPage');
+  const bulkPause = document.getElementById('bulkPause');
+  const bulkDelete = document.getElementById('bulkDelete');
+  const bulkActionStatus = document.getElementById('bulkActionStatus');
+  const addAutomationBtn = document.getElementById('addAutomationBtn');
+  const automationModal = document.getElementById('automationModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const automationForm = document.getElementById('automationForm');
+  const automationError = document.getElementById('automationError');
+  const automationSuccess = document.getElementById('automationSuccess');
+  const filterToggle = document.getElementById('filterToggle');
+  const filterMenu = document.getElementById('filterMenu');
+  const inlineError = document.getElementById('inlineError');
+
+  // Fetch automations from backend
+  async function fetchAutomations() {
+    automationList.innerHTML = '<p class="text-gray-500">Loading automations...</p>';
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${BACKEND_BASE_URL}/api/automations`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch automations');
+      const json = await res.json();
+      automations = json.data || [];
+      currentPage = 1;
+      renderAutomations();
+    } catch (err) {
+      automationList.innerHTML = '<p class="text-red-600">Could not load automations.</p>';
+    }
+  }
+
+  // Render automations
+  function renderAutomations() {
+    // Filter, search, sort
+    let list = automations.slice();
+    const search = searchBar.value.trim().toLowerCase();
+    if (search) list = list.filter(a => a.title.toLowerCase().includes(search));
+    if (statusFilter.value) list = list.filter(a => a.status === statusFilter.value);
+    if (dateFilter.value) list = list.filter(a => a.updatedAt && a.updatedAt.startsWith(dateFilter.value));
+    if (sortOptions.value === 'name') list.sort((a, b) => a.title.localeCompare(b.title));
+    if (sortOptions.value === 'status') list.sort((a, b) => a.status.localeCompare(b.status));
+    if (sortOptions.value === 'updatedAt') list.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    filteredAutomations = list;
+    // Pagination
+    const start = (currentPage - 1) * pageSize;
+    const page = list.slice(start, start + pageSize);
+    automationList.innerHTML = '';
+    if (page.length === 0) {
+      automationList.innerHTML = '<p class="text-gray-500">No automations found.</p>';
+      return;
+    }
+    page.forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between';
+      div.innerHTML = `
+        <div class="flex items-center gap-4">
+          <input type="checkbox" class="automation-checkbox" data-id="${a.id}" ${selectedIds.has(a.id) ? 'checked' : ''} />
+          <div>
+            <div class="font-semibold text-lg">${a.title}</div>
+            <div class="text-gray-500 text-sm">${a.description || ''}</div>
+            <div class="text-xs text-gray-600 mt-1">Status: <span class="font-medium">${a.status}</span> &middot; Updated: ${a.updatedAt ? new Date(a.updatedAt).toLocaleString() : ''}</div>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-2 md:mt-0">
+          <button class="px-3 py-1 bg-yellow-500 text-white rounded pause-btn" data-id="${a.id}">Pause</button>
+          <button class="px-3 py-1 bg-red-500 text-white rounded delete-btn" data-id="${a.id}">Delete</button>
+        </div>
+      `;
+      automationList.appendChild(div);
+    });
+    currentPageSpan.textContent = currentPage;
+    // Checkbox listeners
+    document.querySelectorAll('.automation-checkbox').forEach(cb => {
+      cb.addEventListener('change', function() {
+        const id = this.getAttribute('data-id');
+        if (this.checked) selectedIds.add(id); else selectedIds.delete(id);
+      });
+    });
+    // Pause/Delete listeners
+    document.querySelectorAll('.pause-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        await updateAutomationStatus(this.getAttribute('data-id'), 'paused');
+      });
+    });
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        await deleteAutomation(this.getAttribute('data-id'));
+      });
+    });
+  }
+
+  // Pagination
+  prevPage.addEventListener('click', function() {
+    if (currentPage > 1) { currentPage--; renderAutomations(); }
+  });
+  nextPage.addEventListener('click', function() {
+    if ((currentPage * pageSize) < filteredAutomations.length) { currentPage++; renderAutomations(); }
+  });
+
+  // Search/filter/sort
+  searchBar.addEventListener('input', () => { currentPage = 1; renderAutomations(); });
+  statusFilter.addEventListener('change', () => { currentPage = 1; renderAutomations(); });
+  dateFilter.addEventListener('change', () => { currentPage = 1; renderAutomations(); });
+  sortOptions.addEventListener('change', () => { renderAutomations(); });
+
+  // Bulk actions
+  bulkPause.addEventListener('click', async function() {
+    if (selectedIds.size === 0) return;
+    bulkActionStatus.classList.remove('hidden');
+    for (const id of selectedIds) await updateAutomationStatus(id, 'paused');
+    bulkActionStatus.classList.add('hidden');
+    fetchAutomations();
+  });
+  bulkDelete.addEventListener('click', async function() {
+    if (selectedIds.size === 0) return;
+    bulkActionStatus.classList.remove('hidden');
+    for (const id of selectedIds) await deleteAutomation(id);
+    bulkActionStatus.classList.add('hidden');
+    fetchAutomations();
+  });
+
+  // Filter menu toggle
+  filterToggle.addEventListener('click', function() {
+    filterMenu.classList.toggle('hidden');
+  });
+
+  // Modal open/close
+  addAutomationBtn.addEventListener('click', function() {
+    automationModal.classList.remove('hidden');
+  });
+  closeModalBtn.addEventListener('click', function() {
+    automationModal.classList.add('hidden');
+    automationForm.reset();
+    automationError.classList.add('hidden');
+    automationSuccess.classList.add('hidden');
+  });
+
+  // Add automation form
+  automationForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    automationError.classList.add('hidden');
+    automationSuccess.classList.add('hidden');
+    const title = automationForm.automationTitle.value.trim();
+    const integration = automationForm.integrationDropdown.value;
+    const description = automationForm.automationDescription.value.trim();
+    // Enforce only one task and one integration (already by form)
+    if (!title || !integration) {
+      automationError.textContent = 'Title and integration are required.';
+      automationError.classList.remove('hidden');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+  const res = await fetch(`${BACKEND_BASE_URL}/api/automations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ title, integration, description })
+      });
+      if (!res.ok) throw new Error('Failed to create automation');
+      const created = await res.json();
+      automationSuccess.textContent = 'Automation created! Asking AI to complete the task...';
+      automationSuccess.classList.remove('hidden');
+      automationForm.reset();
+      fetchAutomations();
+      // Ask AI to complete the task
+      if (created && created.data && created.data.id) {
+        try {
+          const aiRes = await fetch(`${BACKEND_BASE_URL}/api/ai/complete-automation`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ automationId: created.data.id, title, integration, description })
+          });
+          if (!aiRes.ok) throw new Error('AI could not process the automation.');
+          automationSuccess.textContent = 'Automation created and AI is working on your task!';
+        } catch (aiErr) {
+          automationSuccess.textContent = 'Automation created, but AI could not process the task.';
+        }
+      }
+    } catch (err) {
+      automationError.textContent = 'Could not create automation.';
+      automationError.classList.remove('hidden');
+    }
+  });
+
+  // Helpers
+  async function updateAutomationStatus(id, status) {
+    try {
+      const token = localStorage.getItem('token');
+  await fetch(`${BACKEND_BASE_URL}/api/automations/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status })
+      });
+    } catch {}
+  }
+  async function deleteAutomation(id) {
+    try {
+      const token = localStorage.getItem('token');
+  await fetch(`${BACKEND_BASE_URL}/api/automations/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch {}
+  }
+
+  // Initial fetch
+  fetchAutomations();
+});
+</script>
 </body>
 </html>

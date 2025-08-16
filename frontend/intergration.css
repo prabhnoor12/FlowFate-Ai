@@ -1,3 +1,26 @@
+/* Premium Google Fonts usage for Integrations page */
+body, .sidebar-title, .sidebar-link, .main-area, .integrations-title, .card-title, .card-description, .connect-button {
+  font-family: 'Inter', 'Roboto', 'Montserrat', 'Lora', Arial, sans-serif;
+}
+.sidebar-title {
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+  letter-spacing: 1px;
+}
+.integrations-title {
+  font-family: 'Lora', 'Inter', serif;
+  font-weight: 700;
+}
+.card-title {
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+  font-weight: 600;
+}
+.card-description {
+  font-family: 'Roboto', 'Inter', Arial, sans-serif;
+}
+.connect-button {
+  font-family: 'Inter', 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+}
   
     /* General Body and Layout */
     body {
@@ -18,6 +41,7 @@
       background-color: #ffffff;
       padding: 1.5rem;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s;
     }
 
     .sidebar-header {
@@ -279,10 +303,65 @@
     /* Responsive */
     @media (max-width: 767px) {
       .sidebar {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        display: block;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+        width: 80vw;
+        max-width: 320px;
+      }
+      .sidebar.sidebar-open {
+        transform: translateX(0);
+      }
+      .main-container {
+        flex-direction: column;
+        margin-left: 0 !important;
+      }
+      .main-content {
+        margin-left: 0 !important;
+        width: 100vw;
       }
       .mobile-menu-button {
         display: block;
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        left: auto;
+        z-index: 1100;
+        background: #2563eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+      .sidebar.sidebar-open ~ .main-content {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        position: static;
+        transform: none !important;
+        height: auto;
+        width: 16rem;
+        display: block;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .main-container {
+        flex-direction: row;
+        margin-left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: auto;
+      }
+      .mobile-menu-button {
+        display: none;
       }
     }
     

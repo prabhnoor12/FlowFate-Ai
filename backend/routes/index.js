@@ -1,4 +1,7 @@
+import aiRoutes from './aiRoutes.js';
+router.use('/ai', aiRoutes);
 import integrationTodoistRoutes from './integrationTodoistRoutes.js';
+import slackRoutes from './slackRoutes.js';
 import slackEventsRoutes from './slackEventsRoutes.js';
 import slackScheduleRoutes from './slackScheduleRoutes.js';
 import slackActionsRoutes from './slackActionsRoutes.js';
@@ -50,5 +53,6 @@ router.use('/integrations/notion', notionAuthRoutes);
 router.use('/integrations/todoist', integrationTodoistRoutes);
 router.use('/notion/actions', notionActionsRoutes);
 router.use('/integrations/clickup', clickupActionsRoutes);
+router.use('/integrations/slack', slackRoutes);
 
 export default router;

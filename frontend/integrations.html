@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Integrations</title>
   <link rel="stylesheet" href="intergration.css">
+  <!-- Premium Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;700&family=Lora:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <button id="menuToggleMobile" class="mobile-menu-button" aria-label="Open sidebar">
+    <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5h14a1 1 0 100-2H3a1 1 0 100 2zm14 4H3a1 1 0 100 2h14a1 1 0 100-2zm0 6H3a1 1 0 100 2h14a1 1 0 100-2z" clip-rule="evenodd"/></svg>
+  </button>
   <div class="main-container">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebarNav">
       <div class="sidebar-header">
         <div class="sidebar-title">FlowFate</div>
         <div class="sidebar-subtitle">AI Automation Platform</div>
@@ -105,9 +110,37 @@
     document.addEventListener('DOMContentLoaded', async () => {
       console.log('DOM fully loaded');
       const menuToggleMobile = document.getElementById('menuToggleMobile');
-      const sidebar = document.querySelector('.sidebar');
+      const sidebar = document.getElementById('sidebarNav');
       const searchInput = document.querySelector('.search-input');
       const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
+
+      // Mobile sidebar toggle
+      function isMobile() {
+        return window.innerWidth <= 767;
+      }
+      if (menuToggleMobile && sidebar) {
+        menuToggleMobile.addEventListener('click', () => {
+          sidebar.classList.toggle('sidebar-open');
+        });
+        // Optional: close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+          if (
+            isMobile() &&
+            sidebar.classList.contains('sidebar-open') &&
+            !sidebar.contains(e.target) &&
+            e.target !== menuToggleMobile &&
+            !menuToggleMobile.contains(e.target)
+          ) {
+            sidebar.classList.remove('sidebar-open');
+          }
+        });
+        // Ensure sidebar closes on resize to desktop
+        window.addEventListener('resize', () => {
+          if (!isMobile()) {
+            sidebar.classList.remove('sidebar-open');
+          }
+        });
+      }
 
       // Fetch user's connected integrations
       async function fetchUserIntegrations() {
@@ -128,14 +161,22 @@
         }
       }
 
+
       function updateIntegrationStatus(integrations) {
         const integrationCards = document.querySelectorAll('.integration-card');
         const connectedIntegrations = new Set(integrations.map(int => int.provider.toLowerCase()));
+        // Check if user logged in with Google One Tap
+        const googleOneTap = localStorage.getItem('googleOneTap') === 'true';
+        const googleProviders = ['gmail', 'drive', 'calendar'];
         integrationCards.forEach(card => {
           const integrationName = card.dataset.integration;
           const statusBadge = card.querySelector('.status-badge');
           const connectButton = card.querySelector('.connect-button');
-          if (connectedIntegrations.has(integrationName)) {
+          // Mark Google integrations as connected if Google One Tap was used
+          if (
+            connectedIntegrations.has(integrationName) ||
+            (googleOneTap && googleProviders.includes(integrationName))
+          ) {
             if (statusBadge) statusBadge.style.display = 'inline-block';
             if (connectButton) {
               connectButton.textContent = 'Connected';
