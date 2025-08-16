@@ -13,78 +13,113 @@
   </style>
 </head>
 <body>
-  <header class="flex items-center justify-between p-4 shadow">
-    <div class="flex items-center gap-3">
-      <div id="userInitial" class="profile-initial">?</div>
-      <div class="text-xl font-bold">FlowFate AI Workflows</div>
-    </div>
-    <nav class="flex gap-4">
-      <a href="Dashboard.html" class="hover:underline">Dashboard</a>
-      <a href="Automations.html" class="hover:underline">Automations</a>
-      <a href="integrations.html" class="hover:underline">Integrations</a>
-      <a href="aiInterface.html" class="hover:underline">AI Interface</a>
-    </nav>
-  </header>
-  <main class="max-w-4xl mx-auto p-8">
-    <h1 class="text-3xl font-bold mb-4">Your Workflows</h1>
-    <p class="text-gray-600 mb-8">Manage and review your automation workflows here.</p>
-    <!-- Add workflow management UI here -->
-    <div class="flex justify-between mb-4">
-      <input id="searchInput" type="text" placeholder="Search workflows..." class="border rounded px-3 py-2 w-1/2" />
-      <button id="addWorkflowBtn" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold">+ New Workflow</button>
-    </div>
-    <div id="workflowList" class="space-y-4 mb-8"></div>
-    <div id="pagination" class="flex gap-2 justify-center mb-8"></div>
-    <!-- Modal for create/view workflow -->
-    <div id="workflowModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
-        <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-400 text-2xl font-bold" style="background:none;border:none;">&times;</button>
-        <h2 id="modalTitle" class="text-xl font-bold mb-4">New Workflow</h2>
-        <form id="workflowForm" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Name</label>
-            <input id="workflowName" type="text" required class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Description</label>
-            <textarea id="workflowDesc" class="w-full border rounded px-3 py-2"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Steps (JSON array)</label>
-            <textarea id="workflowDef" class="w-full border rounded px-3 py-2" rows="3" placeholder='[{"integration":"notion","action":"createPage"}]'></textarea>
-          </div>
-          <div class="flex items-center gap-2">
-            <input id="workflowShared" type="checkbox" />
-            <label for="workflowShared">Shared</label>
-          </div>
-          <div id="workflowError" class="text-red-600 text-sm hidden"></div>
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold w-full">Save Workflow</button>
-        </form>
-        <div id="workflowDetails" class="hidden mt-4"></div>
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="bg-white shadow-lg w-64 flex-shrink-0 hidden md:flex flex-col h-screen sticky top-0 z-30">
+      <div class="flex items-center gap-3 p-6 border-b">
+        <div id="userInitial" class="profile-initial">?</div>
+        <div class="text-xl font-bold">FlowFate AI</div>
       </div>
+      <nav class="flex flex-col gap-2 p-6 text-base">
+        <a href="Dashboard.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">Dashboard</a>
+        <a href="Automations.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">Automations</a>
+        <a href="integrations.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">Integrations</a>
+        <a href="aiInterface.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">AI Interface</a>
+        <a href="workflows.html" class="py-2 px-3 rounded bg-blue-100 font-semibold">Workflows</a>
+      </nav>
+    </aside>
+    <!-- Mobile sidebar toggle -->
+    <div class="md:hidden fixed top-0 left-0 z-40">
+      <button id="sidebarToggle" class="m-3 p-2 rounded bg-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+      </button>
     </div>
-  </main>
+    <!-- Mobile sidebar -->
+    <aside id="mobileSidebar" class="fixed inset-y-0 left-0 bg-white shadow-lg w-64 z-50 flex flex-col p-6 transform -translate-x-full transition-transform duration-200 md:hidden">
+      <div class="flex items-center gap-3 mb-6">
+        <div id="userInitialMobile" class="profile-initial">?</div>
+        <div class="text-xl font-bold">FlowFate AI</div>
+      </div>
+      <nav class="flex flex-col gap-2 text-base">
+        <a href="Dashboard.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">Dashboard</a>
+        <a href="Automations.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">Automations</a>
+        <a href="integrations.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">Integrations</a>
+        <a href="aiInterface.html" class="py-2 px-3 rounded hover:bg-blue-50 transition">AI Interface</a>
+        <a href="workflows.html" class="py-2 px-3 rounded bg-blue-100 font-semibold">Workflows</a>
+      </nav>
+    </aside>
+    <!-- Main content -->
+    <main class="flex-1 p-6 md:p-12 max-w-5xl mx-auto w-full">
+      <h1 class="text-3xl font-bold mb-4">Your Workflows</h1>
+      <p class="text-gray-600 mb-8">Manage and review your automation workflows here.</p>
+      <div class="flex justify-between mb-4">
+        <input id="searchInput" type="text" placeholder="Search workflows..." class="border rounded px-3 py-2 w-1/2" />
+        <button id="addWorkflowBtn" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold">+ New Workflow</button>
+      </div>
+      <div id="workflowList" class="space-y-4 mb-8"></div>
+      <div id="pagination" class="flex gap-2 justify-center mb-8"></div>
+      <!-- Modal for create/view workflow -->
+      <div id="workflowModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+          <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-400 text-2xl font-bold" style="background:none;border:none;">&times;</button>
+          <h2 id="modalTitle" class="text-xl font-bold mb-4">New Workflow</h2>
+          <form id="workflowForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Name</label>
+              <input id="workflowName" type="text" required class="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Description</label>
+              <textarea id="workflowDesc" class="w-full border rounded px-3 py-2"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Steps (JSON array)</label>
+              <textarea id="workflowDef" class="w-full border rounded px-3 py-2" rows="3" placeholder='[{"integration":"notion","action":"createPage"}]'></textarea>
+            </div>
+            <div class="flex items-center gap-2">
+              <input id="workflowShared" type="checkbox" />
+              <label for="workflowShared">Shared</label>
+            </div>
+            <div id="workflowError" class="text-red-600 text-sm hidden"></div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold w-full">Save Workflow</button>
+          </form>
+          <div id="workflowDetails" class="hidden mt-4"></div>
+        </div>
+      </div>
+    </main>
+  </div>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      // Sidebar toggle for mobile
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const mobileSidebar = document.getElementById('mobileSidebar');
       const userInitial = document.getElementById('userInitial');
-      const BACKEND_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://flowfate-ai.onrender.com';
-      let token = localStorage.getItem('token');
-      let page = 1, pageSize = 5, totalPages = 1, search = '';
-      const workflowList = document.getElementById('workflowList');
-      const pagination = document.getElementById('pagination');
-      const searchInput = document.getElementById('searchInput');
-      const addWorkflowBtn = document.getElementById('addWorkflowBtn');
-      const workflowModal = document.getElementById('workflowModal');
-      const closeModalBtn = document.getElementById('closeModalBtn');
-      const workflowForm = document.getElementById('workflowForm');
-      const workflowName = document.getElementById('workflowName');
-      const workflowDesc = document.getElementById('workflowDesc');
-      const workflowDef = document.getElementById('workflowDef');
-      const workflowShared = document.getElementById('workflowShared');
-      const workflowError = document.getElementById('workflowError');
-      const modalTitle = document.getElementById('modalTitle');
-      const workflowDetails = document.getElementById('workflowDetails');
-      let editingWorkflow = null;
+      const userInitialMobile = document.getElementById('userInitialMobile');
+      if (sidebarToggle && mobileSidebar) {
+        sidebarToggle.addEventListener('click', () => {
+          mobileSidebar.classList.toggle('-translate-x-full');
+        });
+        // Hide sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!mobileSidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            mobileSidebar.classList.add('-translate-x-full');
+          }
+        });
+      }
+      // Set user initial in both sidebars if available
+      if (userInitial && userInitialMobile) {
+        const token = localStorage.getItem('token');
+        let initial = '?';
+        try {
+          if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload && payload.email) initial = payload.email[0].toUpperCase();
+          }
+        } catch {}
+        userInitial.textContent = initial;
+        userInitialMobile.textContent = initial;
+      }
+  // ...existing code...
 
       async function fetchWorkflows() {
         workflowList.innerHTML = '<div class="text-gray-500">Loading...</div>';

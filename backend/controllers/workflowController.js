@@ -1,24 +1,57 @@
+
+
+// --- Imports ---
 import { run as runAI } from './openAIController.js';
 import integrationService from '../services/integrationService.js';
-// Validate workflow definition: must have at least one step, each step must specify integration and action
-function validateWorkflowDefinition(definition) {
-  if (!Array.isArray(definition) || definition.length === 0) {
-    return { valid: false, error: 'Workflow must have at least one step.' };
-  }
-  for (const [i, step] of definition.entries()) {
-    if (!step.integration || !step.action) {
-      return { valid: false, error: `Step ${i + 1} missing integration or action.` };
-    }
-  }
-  return { valid: true };
-}
-// backend/controllers/workflowController.js
 import * as workflowService from '../services/workflowService.js';
 import sendResponse from '../utils/responseUtil.js';
 import { z } from 'zod';
 import logger from '../utils/logger.js';
 import DOMPurify from 'isomorphic-dompurify';
 
+// --- Exports (all at top for clarity) ---
+export { createWorkflow, listWorkflows, getWorkflowById, updateWorkflow, deleteWorkflow, executeWorkflow, getWorkflowStatus };
+
+// --- Helpers ---
+/**
+ * Validate workflow definition structure
+ * @param {any} definition
+ * @returns {{valid: boolean, error?: string}}
+ */
+function validateWorkflowDefinition(definition) {
+  if (!Array.isArray(definition) || definition.length === 0) {
+    return { valid: false, error: 'Workflow must have at least one step.' };
+  }
+  for (const [i, step] of definition.entries()) {
+    if (typeof step !== 'object' || !step.integration || !step.action) {
+      return { valid: false, error: `Step ${i + 1} missing integration or action.` };
+    }
+  }
+  return { valid: true };
+}
+
+function sanitizeWorkflowInput(data) {
+  return {
+    name: data.name ? DOMPurify.sanitize(data.name) : undefined,
+    description: data.description ? DOMPurify.sanitize(data.description) : undefined,
+    definition: data.definition,
+    isShared: data.isShared
+  };
+}
+
+// --- In-memory status tracking (for demo; use Redis or DB for production) ---
+// TODO: Replace with Redis or persistent store for distributed/production deployments
+const workflowStatusMap = new Map();
+// TODO: Add per-user rate limiting for create/update/execute endpoints
+
+// --- Controllers ---
+
+/**
+ * Create a new workflow
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 async function createWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
@@ -33,16 +66,11 @@ async function createWorkflow(req, res, next) {
     if (!parse.success) {
       return sendResponse(res, { status: 'error', error: { message: 'Validation failed', details: parse.error.errors } }, 400);
     }
-    // Sanitize input
-    const name = DOMPurify.sanitize(parse.data.name);
-    const description = parse.data.description ? DOMPurify.sanitize(parse.data.description) : undefined;
-    const { definition, isShared } = parse.data;
-    // Validate workflow definition
+    const { name, description, definition, isShared } = sanitizeWorkflowInput(parse.data);
     const validation = validateWorkflowDefinition(definition);
     if (!validation.valid) {
       return sendResponse(res, { status: 'error', error: { message: validation.error } }, 400);
     }
-    // Check user has connected all required integrations
     for (const step of definition) {
       const connected = await integrationService.isIntegrationConnected(userId, step.integration);
       if (!connected) {
@@ -56,7 +84,12 @@ async function createWorkflow(req, res, next) {
     logger.error('[Workflow] Create error', err);
     next(err);
   }
-// Execute a workflow: runs all steps in order, returns results and status for each step
+/**
+ * Execute a workflow: runs all steps in order, returns results and status for each step
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 async function executeWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
@@ -83,22 +116,29 @@ async function executeWorkflow(req, res, next) {
     next(err);
   }
 }
-// Add status tracking for workflows (simple in-memory for demo; use DB for production)
-const workflowStatusMap = new Map();
-
+/**
+ * Get workflow status (demo: in-memory)
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 async function getWorkflowStatus(req, res, next) {
   const workflowId = req.params.id;
   const status = workflowStatusMap.get(workflowId) || 'unknown';
   sendResponse(res, { status: 'success', workflowId, workflowStatus: status }, 200);
 }
 
-// List workflows with pagination, filtering, and sharing support
-export async function listWorkflows(req, res, next) {
+/**
+ * List workflows with pagination, filtering, and sharing support
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+async function listWorkflows(req, res, next) {
   const start = Date.now();
   try {
     const userId = req.user?.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
-
     // Pagination and filtering
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize) || 10));
@@ -106,7 +146,6 @@ export async function listWorkflows(req, res, next) {
     const filter = {};
     if (req.query.name) filter.name = { contains: req.query.name, mode: 'insensitive' };
     if (req.query.isShared !== undefined) filter.isShared = req.query.isShared === 'true';
-
     // Only show user's workflows or shared ones
     const where = {
       OR: [
@@ -115,7 +154,6 @@ export async function listWorkflows(req, res, next) {
       ],
       ...filter
     };
-
     const [workflows, total] = await Promise.all([
       workflowService.listWorkflows({ where, skip, take: pageSize, orderBy: { createdAt: 'desc' } }),
       workflowService.countWorkflows({ where })
@@ -133,7 +171,13 @@ export async function listWorkflows(req, res, next) {
   }
 }
 
-export async function getWorkflowById(req, res, next) {
+/**
+ * Get workflow by ID
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+async function getWorkflowById(req, res, next) {
   try {
     const userId = req.user?.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
@@ -150,7 +194,13 @@ export async function getWorkflowById(req, res, next) {
   }
 }
 
-export async function updateWorkflow(req, res, next) {
+/**
+ * Update workflow
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+async function updateWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
@@ -168,13 +218,9 @@ export async function updateWorkflow(req, res, next) {
     if (!parse.success) {
       return sendResponse(res, { status: 'error', error: { message: 'Validation failed', details: parse.error.errors } }, 400);
     }
-    // Sanitize input
-    const name = parse.data.name ? DOMPurify.sanitize(parse.data.name) : undefined;
-    const description = parse.data.description ? DOMPurify.sanitize(parse.data.description) : undefined;
-    const { definition, isShared } = parse.data;
+    const { name, description, definition, isShared } = sanitizeWorkflowInput(parse.data);
     const workflow = await workflowService.updateWorkflow({ userId, id, name, description, definition, isShared });
     if (!workflow) return sendResponse(res, { status: 'error', error: { message: 'Workflow not found or not owned by user' } }, 404);
-
     sendResponse(res, { status: 'success', data: workflow });
   } catch (err) {
     logger.error('[Workflow] Update error', err);
@@ -182,6 +228,12 @@ export async function updateWorkflow(req, res, next) {
   }
 }
 
+/**
+ * Delete workflow
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 async function deleteWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
@@ -197,15 +249,4 @@ async function deleteWorkflow(req, res, next) {
     logger.error('[Workflow] Delete error', err);
     next(err);
   }
-}
-
-// ESM named exports for all controller functions
-export {
-  createWorkflow,
-  listWorkflows,
-  getWorkflowById,
-  updateWorkflow,
-  deleteWorkflow,
-  executeWorkflow,
-  getWorkflowStatus
-};
+}}
