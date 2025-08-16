@@ -4,172 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FlowFate AI Chat</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /* Sidebar overlay for mobile */
-    #sidebarOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 40;
-      display: none;
-    }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
-      color: #1f2937;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      color: #1e40af;
-    }
-    p, span, input, textarea {
-      font-family: 'Roboto', sans-serif;
-      font-size: 1rem;
-      font-weight: 400;
-      color: #374151;
-    }
-    button {
-      font-family: 'Inter', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      background: linear-gradient(to right, #3b82f6, #2563eb);
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-    button:hover {
-      background: linear-gradient(to right, #2563eb, #1e40af);
-      transform: scale(1.05);
-    }
-    header {
-      background: linear-gradient(to right, #2563eb, #1e40af);
-      color: white;
-      padding: 1rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .branding {
-      font-family: 'Inter', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fbbf24; /* Golden yellow for a premium look */
-    }
-    footer {
-      background: #1f2937;
-      color: #f9fafb;
-      padding: 1rem;
-      text-align: center;
-    }
-    @media (max-width: 768px) {
-      #sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 80vw;
-        max-width: 320px;
-        z-index: 50;
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-        box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-      }
-      #sidebar.open {
-        transform: translateX(0);
-      }
-      #sidebarOverlay {
-        display: block;
-      }
-      #mainContent {
-        min-height: 100vh;
-        padding-bottom: 80px; /* Leaves space for input area */
-      }
-      form.sticky {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 30;
-        width: 100%;
-        border-radius: 0;
-      }
-      main {
-        overflow: visible !important;
-      }
-    }
-    @media (min-width: 769px) {
-      #layout {
-        display: flex;
-        flex-direction: row;
-      }
-      #sidebar {
-        flex: 0 0 16rem; /* Sidebar width */
-      }
-      #mainContent {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-    }
+  <style href="aiInterface.css"> 
   </style>
 </head>
-<body class="min-h-screen bg-gray-100">
-  <div id="layout" class="flex h-screen overflow-hidden">
+<body>
+  <div id="layout">
     <!-- Sidebar -->
-  <aside id="sidebar" class="bg-gradient-to-b from-blue-600 to-blue-500 text-white w-64 flex-shrink-0 static md:static md:z-auto md:translate-x-0 md:relative md:w-64 md:h-auto md:block transition-transform duration-300">
-      <nav class="p-6">
-        <ul class="space-y-4">
-          <li><a href="Dashboard.html" class="block text-white hover:bg-blue-700 p-2 rounded">Dashboard</a></li>
-          <li><a href="integrations.html" class="block text-white hover:bg-blue-700 p-2 rounded">Integrations</a></li>
-          <li><a href="Automations.html" class="block text-white hover:bg-blue-700 p-2 rounded">Automations</a></li>
-          <li><a href="Workflows.html" class="block text-white hover:bg-blue-700 p-2 rounded">Workflows</a></li>
+    <aside id="sidebar" class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="Dashboard.html">Dashboard</a></li>
+          <li><a href="integrations.html">Integrations</a></li>
+          <li><a href="Automations.html">Automations</a></li>
+          <li><a href="Workflows.html">Workflows</a></li>
         </ul>
       </nav>
     </aside>
     <!-- Overlay for mobile -->
-  <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-40 z-40 hidden md:hidden"></div>
+    <div id="sidebarOverlay"></div>
     <!-- Main Content -->
-    <div id="mainContent" class="flex-1 flex flex-col h-full">
+    <div id="mainContent">
       <!-- Header -->
-      <header class="bg-gradient-to-r from-blue-600 to-blue-500 text-white flex items-center justify-between p-4 shadow-md sticky top-0 z-10">
-        <div class="flex items-center gap-4">
-          <button id="menuIcon" class="text-white focus:outline-none md:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
-            </svg>
-          </button>
-          <div class="branding text-xl font-bold text-yellow-400">FlowFate AI</div>
-        </div>
-        <div class="flex items-center gap-4">
-          <div class="text-right cursor-pointer" id="userProfileBtn">
-            <div class="text-lg font-semibold" id="userName">User Name</div>
-            <div class="text-sm text-gray-200">Last seen today at 3:45 PM</div>
+      <header>
+        <div class="branding">FlowFate AI</div>
+        <div class="user-profile">
+          <div class="user-profile-info">
+            <div class="name" id="userName">User Name</div>
+            <div class="last-seen">Last seen today at 3:45 PM</div>
           </div>
           <div id="userProfilePicWrapper">
-            <img src="" alt="Profile Picture" class="w-10 h-10 rounded-full border-2 border-white cursor-pointer hidden" id="userProfilePic" />
-            <div id="userInitial" class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 flex items-center justify-center text-lg font-bold border-2 border-white cursor-pointer">?</div>
+            <img src="" alt="Profile Picture" class="user-profile-pic" id="userProfilePic" style="display:none;" />
+            <div id="userInitial" class="user-profile-pic">?</div>
           </div>
         </div>
+        <button id="menuIcon" style="background:none;border:none;box-shadow:none;padding:0;margin-left:1rem;display:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="32" height="32">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
+          </svg>
+        </button>
       </header>
       <!-- Chat Section -->
-      <main class="flex-1 flex flex-col gap-0 p-0 md:p-4 overflow-hidden">
-        <section class="flex-1 overflow-y-auto px-2 md:px-0" id="chatBox">
-          <div class="flex flex-col space-y-4 py-4" id="messagesContainer">
-            <!-- Messages will be dynamically added here -->
-          </div>
+      <main>
+        <section id="chatBox">
+          <div id="messagesContainer"></div>
         </section>
         <!-- Input Area -->
-        <form class="bg-white p-3 shadow-inner border-t flex items-center sticky bottom-0 z-10" id="messageForm" autocomplete="off">
-          <input type="text" id="userInput" placeholder="Type your message..." class="flex-1 px-4 py-3 text-sm outline-none rounded-l-lg border border-gray-200" required />
-          <button type="submit" class="bg-blue-500 text-white px-6 py-3 text-sm font-medium rounded-r-lg">Send</button>
+        <form id="messageForm" autocomplete="off">
+          <input type="text" id="userInput" placeholder="Type your message..." required />
+          <button type="submit">Send</button>
         </form>
       </main>
     </div>
   </div>
- 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const menuIcon = document.getElementById('menuIcon');
@@ -188,7 +75,7 @@
           // No token: show placeholder or do nothing (no redirect)
           if (userInitial) userInitial.textContent = '?';
           if (userNameDiv) userNameDiv.textContent = 'User Name';
-          if (userProfilePic) userProfilePic.classList.add('hidden');
+          if (userProfilePic) userProfilePic.style.display = 'none';
           return;
         }
         try {
@@ -197,7 +84,7 @@
             localStorage.removeItem('token');
             if (userInitial) userInitial.textContent = '?';
             if (userNameDiv) userNameDiv.textContent = 'User Name';
-            if (userProfilePic) userProfilePic.classList.add('hidden');
+            if (userProfilePic) userProfilePic.style.display = 'none';
             return;
           }
           const json = await res.json();
@@ -207,12 +94,12 @@
           if (userNameDiv) userNameDiv.textContent = userName || 'User Name';
           if (userProfilePic && userProfilePicUrl) {
             userProfilePic.src = userProfilePicUrl;
-            userProfilePic.classList.remove('hidden');
-            userInitial.classList.add('hidden');
+            userProfilePic.style.display = '';
+            userInitial.style.display = 'none';
           } else if (userProfilePic) {
-            userProfilePic.classList.add('hidden');
+            userProfilePic.style.display = 'none';
             userInitial.textContent = userName ? userName.charAt(0).toUpperCase() : '?';
-            userInitial.classList.remove('hidden');
+            userInitial.style.display = '';
           }
         } catch (e) {
           if (userInitial) userInitial.textContent = '?';
@@ -263,9 +150,7 @@
       const messagesContainer = document.getElementById('messagesContainer');
       function appendMessage(content, sender) {
         const message = document.createElement('div');
-        message.className = `max-w-[80%] p-4 rounded-lg shadow ${
-          sender === 'user' ? 'self-end bg-blue-500 text-white' : sender === 'bot' ? 'self-start bg-gray-200 text-gray-900' : 'self-center bg-yellow-50 text-yellow-800'
-        }`;
+        message.className = `message ${sender}`;
         message.innerHTML = content;
         messagesContainer.appendChild(message);
         const chatBox = document.getElementById('chatBox');
@@ -303,10 +188,10 @@
           if (!text) return;
           appendMessage(text, 'user');
           userInput.value = '';
-          appendMessage('<span class="text-gray-400">...</span>', 'bot');
+          appendMessage('<span style="color:#9ca3af;">...</span>', 'bot');
           const reply = await sendMessage(text);
           // Remove the loading message
-          const loadingMsg = messagesContainer.querySelector('.text-gray-400');
+          const loadingMsg = messagesContainer.querySelector('.bot span');
           if (loadingMsg) loadingMsg.parentElement.remove();
           appendMessage(reply, 'bot');
         });
