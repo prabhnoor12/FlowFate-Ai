@@ -105,7 +105,6 @@
       const menuToggleMobile = document.getElementById('menuToggleMobile');
       const sidebar = document.querySelector('.sidebar');
       const searchInput = document.querySelector('.search-input');
-      const integrationCards = document.querySelectorAll('.integration-card');
       const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
 
       // Fetch user's connected integrations
@@ -128,6 +127,7 @@
       }
 
       function updateIntegrationStatus(integrations) {
+        const integrationCards = document.querySelectorAll('.integration-card');
         const connectedIntegrations = new Set(integrations.map(int => int.provider.toLowerCase()));
         integrationCards.forEach(card => {
           const integrationName = card.dataset.integration;
@@ -165,6 +165,7 @@
       // Search functionality
       if (searchInput) {
         searchInput.addEventListener('input', (e) => {
+          const integrationCards = document.querySelectorAll('.integration-card');
           const searchTerm = e.target.value.toLowerCase();
           integrationCards.forEach(card => {
             const title = card.querySelector('.card-title').textContent.toLowerCase();
