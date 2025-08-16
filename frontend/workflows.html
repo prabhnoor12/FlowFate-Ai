@@ -29,33 +29,221 @@
     <h1 class="text-3xl font-bold mb-4">Your Workflows</h1>
     <p class="text-gray-600 mb-8">Manage and review your automation workflows here.</p>
     <!-- Add workflow management UI here -->
+    <div class="flex justify-between mb-4">
+      <input id="searchInput" type="text" placeholder="Search workflows..." class="border rounded px-3 py-2 w-1/2" />
+      <button id="addWorkflowBtn" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold">+ New Workflow</button>
+    </div>
+    <div id="workflowList" class="space-y-4 mb-8"></div>
+    <div id="pagination" class="flex gap-2 justify-center mb-8"></div>
+    <!-- Modal for create/view workflow -->
+    <div id="workflowModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+        <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-400 text-2xl font-bold" style="background:none;border:none;">&times;</button>
+        <h2 id="modalTitle" class="text-xl font-bold mb-4">New Workflow</h2>
+        <form id="workflowForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Name</label>
+            <input id="workflowName" type="text" required class="w-full border rounded px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea id="workflowDesc" class="w-full border rounded px-3 py-2"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Steps (JSON array)</label>
+            <textarea id="workflowDef" class="w-full border rounded px-3 py-2" rows="3" placeholder='[{"integration":"notion","action":"createPage"}]'></textarea>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="workflowShared" type="checkbox" />
+            <label for="workflowShared">Shared</label>
+          </div>
+          <div id="workflowError" class="text-red-600 text-sm hidden"></div>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold w-full">Save Workflow</button>
+        </form>
+        <div id="workflowDetails" class="hidden mt-4"></div>
+      </div>
+    </div>
   </main>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const userInitial = document.getElementById('userInitial');
-      const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
+      const BACKEND_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://flowfate-ai.onrender.com';
       let token = localStorage.getItem('token');
-      let userName = '';
-      async function fetchUserProfile() {
-        if (!token) {
-          window.location.href = 'login.html';
-          return;
-        }
+      let page = 1, pageSize = 5, totalPages = 1, search = '';
+      const workflowList = document.getElementById('workflowList');
+      const pagination = document.getElementById('pagination');
+      const searchInput = document.getElementById('searchInput');
+      const addWorkflowBtn = document.getElementById('addWorkflowBtn');
+      const workflowModal = document.getElementById('workflowModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const workflowForm = document.getElementById('workflowForm');
+      const workflowName = document.getElementById('workflowName');
+      const workflowDesc = document.getElementById('workflowDesc');
+      const workflowDef = document.getElementById('workflowDef');
+      const workflowShared = document.getElementById('workflowShared');
+      const workflowError = document.getElementById('workflowError');
+      const modalTitle = document.getElementById('modalTitle');
+      const workflowDetails = document.getElementById('workflowDetails');
+      let editingWorkflow = null;
+
+      async function fetchWorkflows() {
+        workflowList.innerHTML = '<div class="text-gray-500">Loading...</div>';
         try {
-          const res = await fetch(`${BACKEND_BASE_URL}/api/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-          if (!res.ok) {
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-            return;
-          }
+          const params = new URLSearchParams({ page, pageSize });
+          if (search) params.append('name', search);
+          const res = await fetch(`${BACKEND_BASE_URL}/api/workflows?${params.toString()}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           const json = await res.json();
-          userName = json.data?.name || '';
-          if (userInitial) userInitial.textContent = userName ? userName.charAt(0).toUpperCase() : '?';
+          if (!res.ok) throw new Error(json.error?.message || 'Failed to fetch workflows');
+          const { data, meta } = json;
+          totalPages = meta?.totalPages || 1;
+          renderWorkflows(data || []);
+          renderPagination();
         } catch (e) {
-          if (userInitial) userInitial.textContent = '?';
+          workflowList.innerHTML = '<div class="text-red-600">Could not load workflows.</div>';
         }
       }
-      await fetchUserProfile();
+
+      function renderWorkflows(workflows) {
+        if (!workflows.length) {
+          workflowList.innerHTML = '<div class="text-gray-500">No workflows found.</div>';
+          return;
+        }
+        workflowList.innerHTML = '';
+        workflows.forEach(wf => {
+          const div = document.createElement('div');
+          div.className = 'bg-white rounded shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between';
+          div.innerHTML = `
+            <div>
+              <div class="font-semibold text-lg">${wf.name}</div>
+              <div class="text-gray-500 text-sm">${wf.description || ''}</div>
+              <div class="text-xs text-gray-600 mt-1">Shared: <span class="font-medium">${wf.isShared ? 'Yes' : 'No'}</span> &middot; Steps: ${Array.isArray(wf.definition) ? wf.definition.length : 0}</div>
+            </div>
+            <div class="flex gap-2 mt-2 md:mt-0">
+              <button class="px-3 py-1 bg-blue-600 text-white rounded view-btn" data-id="${wf.id}">View</button>
+              <button class="px-3 py-1 bg-green-600 text-white rounded exec-btn" data-id="${wf.id}">Execute</button>
+              <button class="px-3 py-1 bg-red-500 text-white rounded del-btn" data-id="${wf.id}">Delete</button>
+            </div>
+          `;
+          workflowList.appendChild(div);
+        });
+        // Attach listeners
+        document.querySelectorAll('.view-btn').forEach(btn => btn.onclick = () => openViewWorkflow(btn.dataset.id));
+        document.querySelectorAll('.del-btn').forEach(btn => btn.onclick = () => deleteWorkflow(btn.dataset.id));
+        document.querySelectorAll('.exec-btn').forEach(btn => btn.onclick = () => executeWorkflow(btn.dataset.id));
+      }
+
+      function renderPagination() {
+        pagination.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement('button');
+          btn.textContent = i;
+          btn.className = 'px-3 py-1 rounded ' + (i === page ? 'bg-blue-600 text-white' : 'bg-gray-200');
+          btn.onclick = () => { page = i; fetchWorkflows(); };
+          pagination.appendChild(btn);
+        }
+      }
+
+      searchInput.addEventListener('input', e => {
+        search = e.target.value.trim();
+        page = 1;
+        fetchWorkflows();
+      });
+      addWorkflowBtn.onclick = () => openCreateWorkflow();
+      closeModalBtn.onclick = () => closeWorkflowModal();
+      workflowForm.onsubmit = async e => {
+        e.preventDefault();
+        workflowError.classList.add('hidden');
+        try {
+          const name = workflowName.value.trim();
+          const description = workflowDesc.value.trim();
+          let definition = [];
+          try { definition = JSON.parse(workflowDef.value); } catch { throw new Error('Steps must be valid JSON array'); }
+          if (!Array.isArray(definition) || !definition.length) throw new Error('At least one step required');
+          const isShared = workflowShared.checked;
+          const body = { name, description, definition, isShared };
+          const method = editingWorkflow ? 'PUT' : 'POST';
+          const url = editingWorkflow ? `${BACKEND_BASE_URL}/api/workflows/${editingWorkflow}` : `${BACKEND_BASE_URL}/api/workflows`;
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(body)
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.error?.message || 'Failed to save workflow');
+          closeWorkflowModal();
+          fetchWorkflows();
+        } catch (err) {
+          workflowError.textContent = err.message;
+          workflowError.classList.remove('hidden');
+        }
+      };
+
+      function openCreateWorkflow() {
+        editingWorkflow = null;
+        modalTitle.textContent = 'New Workflow';
+        workflowForm.reset();
+        workflowDef.value = '';
+        workflowDetails.classList.add('hidden');
+        workflowForm.classList.remove('hidden');
+        workflowModal.classList.remove('hidden');
+      }
+      async function openViewWorkflow(id) {
+        editingWorkflow = id;
+        modalTitle.textContent = 'Workflow Details';
+        workflowForm.classList.add('hidden');
+        workflowDetails.classList.remove('hidden');
+        workflowModal.classList.remove('hidden');
+        try {
+          const res = await fetch(`${BACKEND_BASE_URL}/api/workflows/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.error?.message || 'Failed to fetch workflow');
+          const wf = json.data;
+          workflowDetails.innerHTML = `
+            <div><b>Name:</b> ${wf.name}</div>
+            <div><b>Description:</b> ${wf.description || ''}</div>
+            <div><b>Shared:</b> ${wf.isShared ? 'Yes' : 'No'}</div>
+            <div><b>Steps:</b> <pre class="bg-gray-100 rounded p-2">${JSON.stringify(wf.definition, null, 2)}</pre></div>
+            <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded exec-btn" data-id="${wf.id}">Execute Workflow</button>
+          `;
+          document.querySelector('#workflowDetails .exec-btn').onclick = () => executeWorkflow(wf.id);
+        } catch (err) {
+          workflowDetails.innerHTML = `<div class="text-red-600">${err.message}</div>`;
+        }
+      }
+      function closeWorkflowModal() {
+        workflowModal.classList.add('hidden');
+        workflowForm.classList.remove('hidden');
+        workflowDetails.classList.add('hidden');
+        editingWorkflow = null;
+      }
+      async function deleteWorkflow(id) {
+        if (!confirm('Delete this workflow?')) return;
+        try {
+          const res = await fetch(`${BACKEND_BASE_URL}/api/workflows/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error('Failed to delete');
+          fetchWorkflows();
+        } catch {}
+      }
+      async function executeWorkflow(id) {
+        try {
+          const res = await fetch(`${BACKEND_BASE_URL}/api/workflows/${id}/execute`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.error?.message || 'Failed to execute workflow');
+          alert('Workflow executed!\n' + JSON.stringify(json.results, null, 2));
+        } catch (err) {
+          alert('Execution failed: ' + err.message);
+        }
+      }
+      // Initial load
+      fetchWorkflows();
     });
   </script>
 </body>

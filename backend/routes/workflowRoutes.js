@@ -1,14 +1,24 @@
-// backend/routes/workflowRoutes.js
+
 import express from 'express';
-import * as workflowController from '../controllers/workflowController.js';
+import {
+	createWorkflow,
+	listWorkflows,
+	getWorkflowById,
+	updateWorkflow,
+	deleteWorkflow,
+	executeWorkflow,
+	getWorkflowStatus
+} from '../controllers/workflowController.js';
 import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post('/', auth, workflowController.createWorkflow);
-router.get('/', auth, workflowController.listWorkflows);
-router.get('/:id', auth, workflowController.getWorkflowById);
-router.put('/:id', auth, workflowController.updateWorkflow);
-router.delete('/:id', auth, workflowController.deleteWorkflow);
+router.post('/', auth, createWorkflow);
+router.get('/', auth, listWorkflows);
+router.get('/:id', auth, getWorkflowById);
+router.put('/:id', auth, updateWorkflow);
+router.delete('/:id', auth, deleteWorkflow);
+router.post('/:id/execute', auth, executeWorkflow);
+router.get('/:id/status', auth, getWorkflowStatus);
 
 export default router;

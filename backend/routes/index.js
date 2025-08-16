@@ -1,5 +1,4 @@
 import aiRoutes from './aiRoutes.js';
-router.use('/ai', aiRoutes);
 import integrationTodoistRoutes from './integrationTodoistRoutes.js';
 import slackRoutes from './slackRoutes.js';
 import slackEventsRoutes from './slackEventsRoutes.js';
@@ -25,7 +24,9 @@ import calendarRoutes from './calendarRoutes.js';
 import driveRoutes from './driveRoutes.js';
 import reminderRoutes from './reminderRoutes.js';
 
+
 const router = Router();
+router.use('/ai', aiRoutes);
 
 import clickupActionsRoutes from './clickupActionsRoutes.js';
 router.use('/auth', authRoutes);
