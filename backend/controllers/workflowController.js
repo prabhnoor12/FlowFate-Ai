@@ -1,5 +1,3 @@
-
-
 // --- Imports ---
 import { run as runAI } from './openAIController.js';
 import integrationService from '../services/integrationService.js';
@@ -44,6 +42,23 @@ function sanitizeWorkflowInput(data) {
 const workflowStatusMap = new Map();
 // TODO: Add per-user rate limiting for create/update/execute endpoints
 
+// --- In-memory per-user rate limiting (replace with Redis for production) ---
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 10; // max requests per window
+const userRateLimitMap = new Map();
+
+function checkRateLimit(userId, action) {
+  const now = Date.now();
+  if (!userRateLimitMap.has(userId)) userRateLimitMap.set(userId, {});
+  const userLimits = userRateLimitMap.get(userId);
+  if (!userLimits[action]) userLimits[action] = [];
+  // Remove old timestamps
+  userLimits[action] = userLimits[action].filter(ts => now - ts < RATE_LIMIT_WINDOW_MS);
+  if (userLimits[action].length >= RATE_LIMIT_MAX) return false;
+  userLimits[action].push(now);
+  return true;
+}
+
 // --- Controllers ---
 
 /**
@@ -56,6 +71,9 @@ async function createWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
+    if (!checkRateLimit(userId, 'create')) {
+      return sendResponse(res, { status: 'error', error: { message: 'Rate limit exceeded. Try again soon.' } }, 429);
+    }
     const schema = z.object({
       name: z.string().min(2).max(100),
       description: z.string().max(500).optional(),
@@ -84,6 +102,8 @@ async function createWorkflow(req, res, next) {
     logger.error('[Workflow] Create error', err);
     next(err);
   }
+}
+
 /**
  * Execute a workflow: runs all steps in order, returns results and status for each step
  * @param {*} req
@@ -93,8 +113,11 @@ async function createWorkflow(req, res, next) {
 async function executeWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
-    const workflowId = req.params.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
+    if (!checkRateLimit(userId, 'execute')) {
+      return sendResponse(res, { status: 'error', error: { message: 'Rate limit exceeded. Try again soon.' } }, 429);
+    }
+    const workflowId = req.params.id;
     const workflow = await workflowService.getWorkflowById({ userId, id: workflowId });
     if (!workflow) return sendResponse(res, { status: 'error', error: { message: 'Workflow not found' } }, 404);
     const definition = workflow.definition;
@@ -204,6 +227,9 @@ async function updateWorkflow(req, res, next) {
   try {
     const userId = req.user?.id;
     if (!userId) return sendResponse(res, { status: 'error', error: { message: 'Unauthorized' } }, 401);
+    if (!checkRateLimit(userId, 'update')) {
+      return sendResponse(res, { status: 'error', error: { message: 'Rate limit exceeded. Try again soon.' } }, 429);
+    }
     const { id } = req.params;
     if (!id || isNaN(Number(id))) {
       return sendResponse(res, { status: 'error', error: { message: 'Invalid workflow ID' } }, 400);
@@ -249,4 +275,4 @@ async function deleteWorkflow(req, res, next) {
     logger.error('[Workflow] Delete error', err);
     next(err);
   }
-}}
+}
