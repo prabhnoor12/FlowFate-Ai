@@ -7,13 +7,96 @@
   <link rel="stylesheet" href="intergration.css">
 </head>
 <body>
-  <div class="sidebar">
-    <!-- Sidebar content -->
-  </div>
-  <div class="main-content">
-    <input type="text" class="search-input" placeholder="Search integrations...">
-    <div class="integrations-grid">
-      <!-- Integration cards will be populated here -->
+  <div class="main-container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">FlowFate</div>
+        <div class="sidebar-subtitle">AI Automation Platform</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="Dashboard.html" class="sidebar-link">🏠 Dashboard</a>
+        <a href="integrations.html" class="sidebar-link active">🔗 Integrations</a>
+        <a href="aiInterface.html" class="sidebar-link">🤖 AI Interface</a>
+        <a href="Workflows.html" class="sidebar-link">🔄 Workflows</a>
+        <a href="Automations.html" class="sidebar-link">⚡ Automations</a>
+        <div class="sidebar-settings">
+          <a href="userProfile.html" class="sidebar-link">⚙️ Settings</a>
+        </div>
+      </nav>
+    </div>
+    <div class="main-content">
+      <div class="main-area">
+        <div class="integrations-header">
+          <div class="integrations-title">Integrations</div>
+          <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search integrations...">
+          </div>
+        </div>
+        <div class="integrations-grid">
+      <div class="integration-card" data-integration="notion">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">Notion</div>
+        <div class="card-description">Connect your Notion workspace to sync notes, tasks, and databases.</div>
+        <button class="connect-button notion">Connect Notion</button>
+      </div>
+      <div class="integration-card" data-integration="slack">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png" alt="Slack Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">Slack</div>
+        <div class="card-description">Integrate Slack to automate messages, channels, and notifications.</div>
+        <button class="connect-button slack">Connect Slack</button>
+      </div>
+      <div class="integration-card" data-integration="gmail">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.png" alt="Gmail Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">Gmail</div>
+        <div class="card-description">Connect Gmail to automate email sending, reading, and organization.</div>
+        <button class="connect-button gmail">Connect Gmail</button>
+      </div>
+      <div class="integration-card" data-integration="drive">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Drive_logo.png" alt="Drive Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">Google Drive</div>
+        <div class="card-description">Automate file management and sync with Google Drive.</div>
+        <button class="connect-button drive">Connect Drive</button>
+      </div>
+      <div class="integration-card" data-integration="calendar">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.png" alt="Calendar Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">Google Calendar</div>
+        <div class="card-description">Sync and automate events with Google Calendar.</div>
+        <button class="connect-button calendar">Connect Calendar</button>
+      </div>
+      <div class="integration-card" data-integration="clickup">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ClickUp-logo.png" alt="ClickUp Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">ClickUp</div>
+        <div class="card-description">Automate tasks and projects with ClickUp integration.</div>
+        <button class="connect-button clickup">Connect ClickUp</button>
+      </div>
+      <div class="integration-card" data-integration="todoist">
+        <div class="card-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Todoist_icon.png" alt="Todoist Logo" class="integration-logo" style="width:48px;height:48px;">
+          <span class="status-badge" style="display:none;">Connected</span>
+        </div>
+        <div class="card-title">Todoist</div>
+        <div class="card-description">Connect Todoist to automate your to-do lists and productivity.</div>
+        <button class="connect-button todoist">Connect Todoist</button>
+      </div>
+      </div>
     </div>
   </div>
 
