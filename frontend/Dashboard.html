@@ -43,28 +43,27 @@
           <span>Could not load dashboard data. Please try again later.</span>
         </div>
         <div id="dashboard-content" class="hidden">
-          <!-- Notifications Panel -->
-          <div class="notifications-panel" id="notifications-panel">
-            <h3>Notifications</h3>
-            <ul id="notifications-list"></ul>
+          <div class="dashboard-grid">
+            <div class="notifications-panel dashboard-card" id="notifications-panel">
+              <h3>Notifications</h3>
+              <ul id="notifications-list"></ul>
+            </div>
+            <div class="activity-feed dashboard-card" id="activity-feed">
+              <h3>Recent Activity</h3>
+              <ul id="activity-list"></ul>
+            </div>
+            <div class="quick-links dashboard-card">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="Automations.html">View All Automations</a></li>
+                <li><a href="Workflows.html">Explore Workflows</a></li>
+                <li><a href="integrations.html">Manage Integrations</a></li>
+                <li><a href="userProfile.html">Profile Settings</a></li>
+              </ul>
+            </div>
+            <div class="automation-tip dashboard-card" id="automation-tip"></div>
           </div>
-          <!-- Recent Activity Feed -->
-          <div class="activity-feed" id="activity-feed">
-            <h3>Recent Activity</h3>
-            <ul id="activity-list"></ul>
-          </div>
-          <!-- Quick Links -->
-          <div class="quick-links">
-            <h3>Quick Links</h3>
-            <ul>
-              <li><a href="Automations.html">View All Automations</a></li>
-              <li><a href="Workflows.html">Explore Workflows</a></li>
-              <li><a href="integrations.html">Manage Integrations</a></li>
-              <li><a href="userProfile.html">Profile Settings</a></li>
-            </ul>
-          </div>
-          <div class="automation-tip" id="automation-tip"></div>
-          <div class="stats-row">
+          <div class="dashboard-grid">
             <div class="stat-card">
               <div class="stat-label">Working Automations</div>
               <div class="stat-value" id="stat-working">0</div>
@@ -78,17 +77,17 @@
               <div class="stat-value" id="stat-completed">0</div>
             </div>
           </div>
-          <div class="chart-section">
-            <h2 style="font-size:1.2rem;font-weight:600;margin-bottom:1rem;">Automations Overview</h2>
+          <div class="chart-section dashboard-card">
+            <h2>Automations Overview</h2>
             <canvas id="automations-chart" height="100"></canvas>
           </div>
-          <div class="time-tracker">
+          <div class="time-tracker dashboard-card">
             <div>
               <strong>Time Spent on Dashboard:</strong> <span id="time-spent">00:00:00</span>
             </div>
             <button id="reset-timer" style="background:#2563eb;color:#fff;border:none;padding:0.5rem 1rem;border-radius:0.5rem;cursor:pointer;">Reset Timer</button>
           </div>
-          <div class="footer">&copy; 2025 FlowFate AI. All rights reserved.</div>
+          <div class="footer">&copy; 2025 FlowFate AI. All rights reserved. | <a href="help.html" style="color:#2563eb;text-decoration:underline;">Documentation</a></div>
         </div>
       </main>
     </div>
@@ -162,6 +161,9 @@
         if (data?.user?.name) {
           welcomeMessage.textContent = `Welcome, ${data.user.name}!`;
           userInitial.textContent = data.user.name.charAt(0).toUpperCase();
+        } else if (data?.user?.email) {
+          welcomeMessage.textContent = 'Welcome!';
+          userInitial.textContent = data.user.email.charAt(0).toUpperCase();
         } else {
           welcomeMessage.textContent = 'Welcome!';
           userInitial.textContent = '?';

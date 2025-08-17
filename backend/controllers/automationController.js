@@ -1,3 +1,21 @@
+// PATCH /api/automations/:id/status - update only the status field
+export async function updateAutomationStatus(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ status: 'error', message: 'Status is required.' });
+    }
+    // Find and update only the status field
+    const updated = await prisma.automation.update({
+      where: { id },
+      data: { status },
+    });
+    return res.json({ status: 'success', data: updated });
+  } catch (error) {
+    return handleError(res, error, req.id, next, 500, 'Could not update automation status');
+  }
+}
 // Handles user automations (ESM)
 
 import { PrismaClient } from '@prisma/client';
