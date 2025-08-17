@@ -236,28 +236,51 @@
               console.log('Integration name:', integrationName);
               if (integrationName) {
                 let authUrl = '';
-                // Map integration to correct backend endpoint
+                // Map integration to correct backend endpoint (deep analysis)
                 switch (integrationName) {
                   case 'notion':
-                    authUrl = `${BACKEND_BASE_URL}/api/integrations/notion/connect`;
+                    authUrl = `${BACKEND_BASE_URL}/api/notion/connect`;
+                    // Open Notion in popup and listen for postMessage
+                    const notionPopup = window.open(authUrl, 'notion_oauth', 'width=600,height=700');
+                    window.addEventListener('message', function notionListener(event) {
+                      if (event.data && event.data.type === 'notion_oauth_complete') {
+                        notionPopup && notionPopup.close();
+                        fetchUserIntegrations();
+                        window.removeEventListener('message', notionListener);
+                      }
+                    });
+                    return;
+                  case 'slack':
+                    authUrl = `${BACKEND_BASE_URL}/api/slack/connect`;
+                    break;
+                  case 'gmail':
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/gmail/connect`;
+                    break;
+                  case 'drive':
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/drive/connect`;
+                    break;
+                  case 'calendar':
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/calendar/connect`;
                     break;
                   case 'todoist':
-                    // Note: backend route is /api/integrations/todoist/todoist/connect
-                    authUrl = `${BACKEND_BASE_URL}/api/integrations/todoist/todoist/connect`;
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/todoist/connect`;
                     break;
-                  case 'slack':
-                  case 'gmail':
-                  case 'drive':
-                  case 'calendar':
                   case 'clickup':
-                    authUrl = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
+                    authUrl = `${BACKEND_BASE_URL}/api/clickup/connect`;
                     break;
                   default:
                     // fallback for future integrations
                     authUrl = `${BACKEND_BASE_URL}/api/integrations/${integrationName}/connect`;
                 }
-                console.log('Redirecting to:', authUrl);
-                window.location.href = authUrl;
+                // Open all other integrations in a popup for consistency
+                const popup = window.open(authUrl, integrationName + '_oauth', 'width=600,height=700');
+                // Optionally, poll for popup close to refresh integrations
+                const poll = setInterval(() => {
+                  if (popup && popup.closed) {
+                    clearInterval(poll);
+                    fetchUserIntegrations();
+                  }
+                }, 1000);
               }
             }
           }

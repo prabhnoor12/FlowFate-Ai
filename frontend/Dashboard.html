@@ -134,23 +134,32 @@
       const automationTip = document.getElementById('automation-tip');
       const notificationsList = document.getElementById('notifications-list');
       const activityList = document.getElementById('activity-list');
-      const BACKEND_BASE_URL = 'https://flowfate-ai.onrender.com';
+      // Dynamic backend URL
+      const BACKEND_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://flowfate-ai.onrender.com';
       const token = localStorage.getItem('token');
       if (!token) {
         window.location.href = 'login.html';
         return;
       }
+      // Helper to show/hide
+      function show(el) { if (el) el.classList.remove('hidden'); }
+      function hide(el) { if (el) el.classList.add('hidden'); }
       try {
         const res = await fetch(`${BACKEND_BASE_URL}/api/dashboard`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error('Failed to fetch dashboard data');
         const jsonResponse = await res.json();
+        if (!res.ok) {
+          hide(loadingSpinner);
+          show(errorMessage);
+          errorMessage.querySelector('span').textContent = jsonResponse?.error?.message || 'Could not load dashboard data. Please try again later.';
+          return;
+        }
         const data = jsonResponse.data;
-        loadingSpinner.style.display = 'none';
-        dashboardContent.style.display = 'block';
+        hide(loadingSpinner);
+        show(dashboardContent);
         // User info
-        if (data.user && data.user.name) {
+        if (data?.user?.name) {
           welcomeMessage.textContent = `Welcome, ${data.user.name}!`;
           userInitial.textContent = data.user.name.charAt(0).toUpperCase();
         } else {
@@ -158,16 +167,14 @@
           userInitial.textContent = '?';
         }
         // Stats
-        if (data.stats) {
-          statWorking.textContent = data.stats.working ?? 0;
-          statPaused.textContent = data.stats.paused ?? 0;
-          statCompleted.textContent = data.stats.completed ?? 0;
-        } else {
-          statWorking.textContent = statPaused.textContent = statCompleted.textContent = 0;
-        }
+        statWorking.textContent = data?.stats?.working ?? 0;
+        statPaused.textContent = data?.stats?.paused ?? 0;
+        statCompleted.textContent = data?.stats?.completed ?? 0;
         // Chart
-        if (data.stats && (data.stats.working || data.stats.paused || data.stats.completed)) {
-          const ctx = document.getElementById('automations-chart').getContext('2d');
+        const chartSection = document.querySelector('.chart-section');
+        const chartCanvas = document.getElementById('automations-chart');
+        if (chartCanvas && data?.stats && (data.stats.working || data.stats.paused || data.stats.completed)) {
+          const ctx = chartCanvas.getContext('2d');
           new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -182,18 +189,14 @@
               plugins: { legend: { position: 'bottom' } }
             }
           });
-        } else {
-          document.querySelector('.chart-section').innerHTML += '<div style="text-align:center;color:#888;margin-top:1rem;">No automation data to display.</div>';
+        } else if (chartSection) {
+          chartSection.innerHTML += '<div style="text-align:center;color:#888;margin-top:1rem;">No automation data to display.</div>';
         }
-        // Automation tip (optional, from backend or static)
-        if (data.tip) {
-          automationTip.textContent = data.tip;
-        } else {
-          automationTip.textContent = '';
-        }
+        // Automation tip
+        automationTip.textContent = data?.tip || '';
         // Notifications
         notificationsList.innerHTML = '';
-        if (data.notifications && data.notifications.length > 0) {
+        if (Array.isArray(data?.notifications) && data.notifications.length > 0) {
           data.notifications.forEach(n => {
             const li = document.createElement('li');
             li.textContent = `${n.message} (${n.time || ''})`;
@@ -204,7 +207,7 @@
         }
         // Activity feed
         activityList.innerHTML = '';
-        if (data.activity && data.activity.length > 0) {
+        if (Array.isArray(data?.activity) && data.activity.length > 0) {
           data.activity.forEach(a => {
             const li = document.createElement('li');
             li.textContent = `${a.action}: ${a.detail} (${a.time || ''})`;
@@ -214,8 +217,9 @@
           activityList.innerHTML = '<li style="color:#888;">No recent activity to display.</li>';
         }
       } catch (error) {
-        loadingSpinner.style.display = 'none';
-        errorMessage.style.display = 'block';
+        hide(loadingSpinner);
+        show(errorMessage);
+        errorMessage.querySelector('span').textContent = error?.message || 'Could not load dashboard data. Please try again later.';
       }
 
       // Time tracker

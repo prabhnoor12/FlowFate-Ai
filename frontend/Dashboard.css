@@ -1,3 +1,12 @@
+/* Utility for toggling visibility */
+.hidden { display: none !important; }
+
+/* Accessibility improvements */
+.sidebar-link:focus, .sidebar-link:hover, .user-initial:focus, .user-initial:hover, #reset-timer:focus, #reset-timer:hover {
+	outline: 2px solid #2563eb;
+	outline-offset: 2px;
+	filter: brightness(0.95);
+}
 .notifications-panel {
 	background: #fff;
 	border-radius: 0.75rem;

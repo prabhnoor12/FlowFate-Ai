@@ -6,106 +6,104 @@
   <title>User Automations</title>
   <!-- Tailwind removed. Using only custom CSS below. -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style href="Automations.css">
-
-  </style>
+  <link rel="stylesheet" href="Automations.css">
 </head>
 <body>
-<div class="flex h-screen">
+<div class="auto-layout">
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-64 bg-white p-6 shadow-lg hidden md:block">
-    <div class="flex flex-col items-center py-4">
-      <div class="text-2xl font-bold mb-2">FlowFate</div>
-      <div class="text-xs mb-4">AI Automation Platform</div>
+  <aside id="sidebar" class="auto-sidebar">
+    <div class="auto-sidebar-header">
+      <div class="auto-sidebar-title">FlowFate</div>
+      <div class="auto-sidebar-desc">AI Automation Platform</div>
     </div>
-    <nav id="menu" class="flex flex-col gap-2">
-      <a href="Dashboard.html" class="p-2 rounded">🏠 Dashboard</a>
-      <a href="Integrations.html" class="p-2 rounded">🔗 Integrations</a>
-      <a href="aiInterface.html" class="p-2 rounded">🤖 AI Interface</a>
-      <a href="Workflows.html" class="p-2 rounded">🔄 Workflows</a>
-      <a href="Automations.html" class="p-2 rounded bg-gray-200">⚡ Automations</a>
-      <a href="userProfile.html" class="mt-4 border-t pt-4 p-2 rounded">⚙️ Settings</a>
+    <nav id="menu" class="auto-sidebar-menu">
+      <a href="Dashboard.html" class="auto-sidebar-link">🏠 Dashboard</a>
+      <a href="Integrations.html" class="auto-sidebar-link">🔗 Integrations</a>
+      <a href="aiInterface.html" class="auto-sidebar-link">🤖 AI Interface</a>
+      <a href="Workflows.html" class="auto-sidebar-link">🔄 Workflows</a>
+      <a href="Automations.html" class="auto-sidebar-link auto-sidebar-link-active">⚡ Automations</a>
+      <a href="userProfile.html" class="auto-sidebar-link auto-sidebar-link-settings">⚙️ Settings</a>
     </nav>
   </aside>
   <!-- Main Content -->
-  <div class="flex-1 flex flex-col">
+  <div class="auto-main">
     <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 shadow-md">
-      <div class="container flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <button id="menuToggleMobile" aria-label="Open menu" class="md:hidden text-white" style="background:none;border:none;box-shadow:none;margin-right:0.5rem;">
+    <header class="auto-header">
+      <div class="auto-header-container">
+        <div class="auto-header-title-wrap">
+          <button id="menuToggleMobile" aria-label="Open menu" class="auto-header-menu-btn auto-hide-lg" style="background:none;border:none;box-shadow:none;margin-right:0.5rem;">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
           </button>
-          <h1 class="text-xl font-semibold">User Automations</h1>
+          <h1 class="auto-header-title">User Automations</h1>
         </div>
       </div>
     </header>
     <!-- Main Content -->
-    <main class="flex-1 container p-4 relative">
+  <main class="auto-content">
       <section>
-        <h2 class="text-lg font-semibold mb-4 flex items-center justify-between">
-          Active Automations
-          <button id="addAutomationBtn" aria-label="Add automation" class="ml-2 p-2 rounded-full bg-blue-600 text-white shadow-lg" title="Add Automation">
+        <h2 class="auto-section-title">
+          <span>Active Automations</span>
+          <button id="addAutomationBtn" aria-label="Add automation" class="auto-add-btn auto-add-btn-always" title="Add Automation">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
           </button>
         </h2>
         <!-- Search Bar -->
-        <input type="text" id="searchBar" placeholder="Search automations..." class="mb-4 px-4 py-2 border rounded-lg w-full md:w-1/3" />
+  <input type="text" id="searchBar" placeholder="Search automations..." class="auto-search-bar" />
         <!-- Bulk Actions -->
-        <div class="mb-4 flex items-center gap-4">
-          <button id="filterToggle" aria-label="Open filter menu" class="md:hidden flex items-center justify-center" style="width:2.5rem;height:2.5rem;background:#2563eb;color:#fff;border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+        <div class="auto-bulk-actions">
+          <button id="filterToggle" aria-label="Open filter menu" class="auto-filter-toggle" style="width:2.5rem;height:2.5rem;background:#2563eb;color:#fff;border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
           </button>
-          <button id="bulkPause" class="px-4 py-2 bg-yellow-500 text-white rounded">Pause Selected</button>
-          <button id="bulkDelete" class="px-4 py-2 bg-red-500 text-white rounded">Delete Selected</button>
-          <span id="bulkActionStatus" class="ml-2 text-blue-600 text-sm hidden">Processing...</span>
+          <button id="bulkPause" class="auto-bulk-btn auto-bulk-pause">Pause Selected</button>
+          <button id="bulkDelete" class="auto-bulk-btn auto-bulk-delete">Delete Selected</button>
+          <span id="bulkActionStatus" class="auto-bulk-status hidden">Processing...</span>
         </div>
         <!-- Filter Menu -->
-        <div id="filterMenu" class="hidden flex-col gap-4 bg-gray-100 p-4 rounded-lg shadow md:flex md:flex-row md:items-center">
-          <select id="statusFilter" class="w-full md:w-auto px-4 py-2 border rounded-lg">
+  <div id="filterMenu" class="auto-filter-menu hidden" style="display:none;">
+          <select id="statusFilter" class="auto-filter-select">
             <option value="">All Statuses</option>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
           </select>
-          <input type="date" id="dateFilter" class="w-full md:w-auto px-4 py-2 border rounded-lg" />
-          <select id="sortOptions" class="w-full md:w-auto px-4 py-2 border rounded-lg">
+          <input type="date" id="dateFilter" class="auto-filter-date" />
+          <select id="sortOptions" class="auto-filter-select">
             <option value="name">Sort by Name</option>
             <option value="status">Sort by Status</option>
             <option value="updatedAt">Sort by Last Updated</option>
           </select>
         </div>
         <!-- Automation List -->
-        <div id="automationList" class="space-y-4">
-          <p class="text-gray-500">Loading automations...</p>
+        <div id="automationList" class="auto-list">
+          <p class="auto-list-loading">Loading automations...</p>
         </div>
-        <div id="inlineError" class="text-red-600 text-sm mt-2 hidden"></div>
+  <div id="inlineError" class="auto-inline-error hidden"></div>
         <!-- Pagination -->
-        <div id="pagination" class="mt-4 flex justify-center gap-2">
-          <button id="prevPage" class="px-3 py-1 bg-gray-300 text-gray-700 rounded">Previous</button>
-          <span id="currentPage" class="px-3 py-1">1</span>
-          <button id="nextPage" class="px-3 py-1 bg-gray-300 text-gray-700 rounded">Next</button>
+        <div id="pagination" class="auto-pagination">
+          <button id="prevPage" class="auto-page-btn">Previous</button>
+          <span id="currentPage" class="auto-page-current">1</span>
+          <button id="nextPage" class="auto-page-btn">Next</button>
         </div>
       </section>
       <!-- Add Automation Modal -->
-      <div id="automationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-40 hidden" style="background:rgba(0,0,0,0.4);">
-        <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
-          <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-400 text-2xl font-bold" style="background:none;border:none;">&times;</button>
-          <h3 class="text-xl font-bold mb-4">Add New Automation</h3>
-          <form id="automationForm" class="space-y-5">
+  <div id="automationModal" class="auto-modal-bg hidden" style="display:none;">
+        <div class="auto-modal">
+          <button id="closeModalBtn" class="auto-modal-close">&times;</button>
+          <h3 class="auto-modal-title">Add New Automation</h3>
+          <form id="automationForm" class="auto-modal-form">
             <div>
-              <label for="automationTitle" class="block text-sm font-medium mb-1">Title</label>
-              <input id="automationTitle" name="title" type="text" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Automation title" />
+              <label for="automationTitle" class="auto-modal-label">Title</label>
+              <input id="automationTitle" name="title" type="text" required class="auto-modal-input" placeholder="Automation title" />
             </div>
             <div>
-              <label for="integrationDropdown" class="block text-sm font-medium mb-1">Integration</label>
-              <select id="integrationDropdown" name="integration" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              <label for="integrationDropdown" class="auto-modal-label">Integration</label>
+              <select id="integrationDropdown" name="integration" required class="auto-modal-input">
                 <option value="">Select integration</option>
                 <option value="notion">Notion</option>
                 <option value="slack">Slack</option>
@@ -115,44 +113,57 @@
               </select>
             </div>
             <div>
-              <label for="automationDescription" class="block text-sm font-medium mb-1">Description</label>
-              <textarea id="automationDescription" name="description" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="What should this automation do?"></textarea>
+              <label for="automationDescription" class="auto-modal-label">Description</label>
+              <textarea id="automationDescription" name="description" rows="3" class="auto-modal-input" placeholder="What should this automation do?"></textarea>
             </div>
             <div>
-              <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Create Automation</button>
+              <button type="submit" class="auto-modal-submit">Create Automation</button>
             </div>
-            <div id="automationError" class="text-xs text-red-600 mt-1 hidden"></div>
-            <div id="automationSuccess" class="text-xs text-green-600 mt-1 hidden"></div>
+            <div id="automationError" class="auto-modal-error hidden"></div>
+            <div id="automationSuccess" class="auto-modal-success hidden"></div>
           </form>
         </div>
       </div>
     </main>
     <!-- Footer -->
-    <footer class="bg-gray-100 text-center text-sm text-gray-500 p-4">
+  <footer class="auto-footer">
       © 2025 FlowFate AI. All rights reserved.
     </footer>
   </div>
 </div>
 <script>
-// Sidebar mobile toggle
-document.addEventListener('DOMContentLoaded', function() {
-  // Set backend base URL (switch to localhost for local dev)
-  const BACKEND_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://flowfate-ai.onrender.com';
+  // Sidebar mobile toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set backend base URL (switch to localhost for local dev)
+    const BACKEND_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://flowfate-ai.onrender.com';
 
-  const menuToggleMobile = document.getElementById('menuToggleMobile');
-  const sidebar = document.getElementById('sidebar');
-  if (menuToggleMobile && sidebar) {
-    menuToggleMobile.addEventListener('click', function() {
-      sidebar.classList.toggle('md:hidden');
-      sidebar.classList.toggle('md:block');
-    });
-    document.addEventListener('click', function(e) {
-      if (!sidebar.contains(e.target) && e.target !== menuToggleMobile && sidebar.classList.contains('md:block')) {
-        sidebar.classList.remove('md:block');
-        sidebar.classList.add('md:hidden');
-      }
-    });
-  }
+    const menuToggleMobile = document.getElementById('menuToggleMobile');
+    const sidebar = document.getElementById('sidebar');
+    function isMobile() { return window.innerWidth <= 900; }
+    if (menuToggleMobile && sidebar) {
+      menuToggleMobile.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isMobile()) {
+          if (sidebar.style.display === 'block') {
+            sidebar.style.display = 'none';
+          } else {
+            sidebar.style.display = 'block';
+          }
+        }
+      });
+      document.addEventListener('click', function(e) {
+        if (isMobile() && sidebar.style.display === 'block' && !sidebar.contains(e.target) && e.target !== menuToggleMobile) {
+          sidebar.style.display = 'none';
+        }
+      });
+      window.addEventListener('resize', function() {
+        if (!isMobile()) {
+          sidebar.style.display = 'block';
+        } else {
+          sidebar.style.display = 'none';
+        }
+      });
+    }
 
   // State
   let automations = [];
@@ -218,24 +229,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const page = list.slice(start, start + pageSize);
     automationList.innerHTML = '';
     if (page.length === 0) {
-      automationList.innerHTML = '<p class="text-gray-500">No automations found.</p>';
+      automationList.innerHTML = '<p class="auto-list-empty">No automations found.</p>';
       return;
     }
     page.forEach(a => {
       const div = document.createElement('div');
-      div.className = 'bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between';
+      div.className = 'auto-list-item';
       div.innerHTML = `
-        <div class="flex items-center gap-4">
+        <div class="auto-list-item-main">
           <input type="checkbox" class="automation-checkbox" data-id="${a.id}" ${selectedIds.has(a.id) ? 'checked' : ''} />
-          <div>
-            <div class="font-semibold text-lg">${a.title}</div>
-            <div class="text-gray-500 text-sm">${a.description || ''}</div>
-            <div class="text-xs text-gray-600 mt-1">Status: <span class="font-medium">${a.status}</span> &middot; Updated: ${a.updatedAt ? new Date(a.updatedAt).toLocaleString() : ''}</div>
+          <div class="auto-list-item-info">
+            <div class="auto-list-item-title">${a.title}</div>
+            <div class="auto-list-item-desc">${a.description || ''}</div>
+            <div class="auto-list-item-meta">Status: <span class="auto-list-item-status">${a.status}</span> &middot; Updated: ${a.updatedAt ? new Date(a.updatedAt).toLocaleString() : ''}</div>
           </div>
         </div>
-        <div class="flex gap-2 mt-2 md:mt-0">
-          <button class="px-3 py-1 bg-yellow-500 text-white rounded pause-btn" data-id="${a.id}">Pause</button>
-          <button class="px-3 py-1 bg-red-500 text-white rounded delete-btn" data-id="${a.id}">Delete</button>
+        <div class="auto-list-item-actions">
+          <button class="auto-list-item-btn auto-list-item-pause pause-btn" data-id="${a.id}">Pause</button>
+          <button class="auto-list-item-btn auto-list-item-delete delete-btn" data-id="${a.id}">Delete</button>
         </div>
       `;
       automationList.appendChild(div);
@@ -249,12 +260,12 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
     // Pause/Delete listeners
-    document.querySelectorAll('.pause-btn').forEach(btn => {
+  document.querySelectorAll('.auto-list-item-pause').forEach(btn => {
       btn.addEventListener('click', async function() {
         await updateAutomationStatus(this.getAttribute('data-id'), 'paused');
       });
     });
-    document.querySelectorAll('.delete-btn').forEach(btn => {
+  document.querySelectorAll('.auto-list-item-delete').forEach(btn => {
       btn.addEventListener('click', async function() {
         await deleteAutomation(this.getAttribute('data-id'));
       });
@@ -293,15 +304,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Filter menu toggle
   filterToggle.addEventListener('click', function() {
-    filterMenu.classList.toggle('hidden');
+    if (filterMenu.classList.contains('hidden')) {
+      filterMenu.classList.remove('hidden');
+      filterMenu.style.display = 'flex';
+    } else {
+      filterMenu.classList.add('hidden');
+      filterMenu.style.display = 'none';
+    }
   });
 
   // Modal open/close
   addAutomationBtn.addEventListener('click', function() {
     automationModal.classList.remove('hidden');
+    automationModal.style.display = 'flex';
   });
   closeModalBtn.addEventListener('click', function() {
     automationModal.classList.add('hidden');
+    automationModal.style.display = 'none';
     automationForm.reset();
     automationError.classList.add('hidden');
     automationSuccess.classList.add('hidden');
@@ -312,10 +331,9 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
     automationError.classList.add('hidden');
     automationSuccess.classList.add('hidden');
-    const title = automationForm.automationTitle.value.trim();
-    const integration = automationForm.integrationDropdown.value;
-    const description = automationForm.automationDescription.value.trim();
-    // Enforce only one task and one integration (already by form)
+    const title = automationForm.title.value.trim();
+    const integration = automationForm.integration.value;
+    const description = automationForm.description.value.trim();
     if (!title || !integration) {
       automationError.textContent = 'Title and integration are required.';
       automationError.classList.remove('hidden');
@@ -323,13 +341,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     try {
       const token = localStorage.getItem('token');
-  const res = await fetch(`${BACKEND_BASE_URL}/api/automations`, {
+      const res = await fetch(`${BACKEND_BASE_URL}/api/automations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ title, integration, description })
       });
-      if (!res.ok) throw new Error('Failed to create automation');
       const created = await res.json();
+      if (!res.ok) {
+        automationError.textContent = created?.error?.message || 'Failed to create automation';
+        automationError.classList.remove('hidden');
+        return;
+      }
       automationSuccess.textContent = 'Automation created! Asking AI to complete the task...';
       automationSuccess.classList.remove('hidden');
       automationForm.reset();
@@ -344,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           if (!aiRes.ok) throw new Error('AI could not process the automation.');
           automationSuccess.textContent = 'Automation created and AI is working on your task!';
+          fetchAutomations(); // Optionally refresh again after AI
         } catch (aiErr) {
           automationSuccess.textContent = 'Automation created, but AI could not process the task.';
         }
