@@ -1,5 +1,5 @@
 // --- Imports ---
-import { run as runAI } from './openAIController.js';
+import { completeAutomationAI } from './openAIController.js';
 import {
   isIntegrationConnected
 } from '../services/integrationService.js';
