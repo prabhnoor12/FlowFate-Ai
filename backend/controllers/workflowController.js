@@ -1,6 +1,8 @@
 // --- Imports ---
 import { run as runAI } from './openAIController.js';
-import integrationService from '../services/integrationService.js';
+import {
+  isIntegrationConnected
+} from '../services/integrationService.js';
 import * as workflowService from '../services/workflowService.js';
 import sendResponse from '../utils/responseUtil.js';
 import { z } from 'zod';
@@ -90,7 +92,7 @@ async function createWorkflow(req, res, next) {
       return sendResponse(res, { status: 'error', error: { message: validation.error } }, 400);
     }
     for (const step of definition) {
-      const connected = await integrationService.isIntegrationConnected(userId, step.integration);
+  const connected = await isIntegrationConnected(userId, step.integration);
       if (!connected) {
         return sendResponse(res, { status: 'error', error: { message: `Integration ${step.integration} not connected.` } }, 400);
       }
