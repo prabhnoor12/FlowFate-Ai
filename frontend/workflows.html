@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Workflow Dashboard</title>
+    <title>Dynamic Workflow Dashboard (Backend Integrated)</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         /* Custom styles for sidebar transition */
@@ -129,8 +129,12 @@
 
     <script>
         // --- Global State & Utility Functions ---
-        let workflowSteps = []; // Array to hold all workflow step data
+        let workflowSteps = []; // Local cache of workflow step data
         let currentEditingStepId = null; // To track which step's data is being edited in the modal
+
+        // Base URL for your backend API
+        // IMPORTANT: Replace with your actual backend API URL if it's not relative to your frontend.
+        const API_BASE_URL = '/api/workflows'; 
 
         // Utility to show notifications
         function showNotification(message, type = 'success') {
@@ -150,63 +154,118 @@
             }, 3000); // Notification disappears after 3 seconds
         }
 
-        // --- Data Persistence (LocalStorage) ---
-        function saveSteps() {
+        // --- Backend API Calls ---
+
+        /**
+         * Fetches all workflow steps from the backend.
+         * @returns {Array} An array of workflow step objects.
+         */
+        async function fetchStepsFromBackend() {
             try {
-                localStorage.setItem('workflowSteps', JSON.stringify(workflowSteps));
-                showNotification('Workflow saved!', 'success');
+                const response = await fetch(API_BASE_URL);
+                if (!response.ok) {
+                    const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
+                }
+                const data = await response.json();
+                showNotification('Workflow data loaded from backend!', 'success');
+                return data;
             } catch (e) {
-                console.error("Error saving to localStorage:", e);
-                showNotification('Failed to save workflow!', 'error');
+                console.error("Error loading workflow from backend:", e);
+                showNotification('Failed to load workflow data! Check console for details.', 'error');
+                return []; // Return empty array on error
             }
         }
 
-        function loadSteps() {
+        /**
+         * Saves (creates or updates) a single workflow step to the backend.
+         * @param {Object} stepData - The step object to save. If it has an 'id', it's an update; otherwise, it's a create.
+         * @returns {Object|null} The saved step data with its final ID, or null on failure.
+         */
+        async function saveStepToBackend(stepData) {
             try {
-                const savedSteps = localStorage.getItem('workflowSteps');
-                if (savedSteps) {
-                    workflowSteps = JSON.parse(savedSteps);
-                } else {
-                    // Initialize with default steps if no saved data
-                    workflowSteps = [
-                        { id: 1, title: 'Initial Setup', integration: 'User Accounts', description: 'Configure your basic profile and security settings for the system.' },
-                        { id: 2, title: 'Data Import', integration: 'CRM, ERP', description: 'Connect your primary data sources and import initial datasets for processing.' }
-                    ];
+                const method = stepData.id ? 'PUT' : 'POST'; // If ID exists, it's an update (PUT); otherwise, create (POST)
+                const url = stepData.id ? `${API_BASE_URL}/${stepData.id}` : API_BASE_URL;
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(stepData),
+                });
+
+                if (!response.ok) {
+                    const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
                 }
+
+                const savedData = await response.json();
+                showNotification(`Workflow step ${stepData.id ? 'updated' : 'created'} successfully!`, 'success');
+                return savedData;
             } catch (e) {
-                console.error("Error loading from localStorage:", e);
-                showNotification('Failed to load workflow data!', 'error');
-                workflowSteps = []; // Reset to empty if corrupted
+                console.error("Error saving workflow to backend:", e);
+                showNotification('Failed to save workflow step! Check console for details.', 'error');
+                return null;
+            }
+        }
+
+        /**
+         * Deletes a workflow step from the backend.
+         * @param {number} stepId - The ID of the step to delete.
+         * @returns {boolean} True if deletion was successful, false otherwise.
+         */
+        async function deleteStepFromBackend(stepId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${stepId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
+                }
+                showNotification(`Step ${stepId} deleted successfully!`, 'success');
+                return true;
+            } catch (e) {
+                console.error("Error deleting workflow from backend:", e);
+                showNotification('Failed to delete step! Check console for details.', 'error');
+                return false;
             }
         }
 
         // --- DOM Manipulation & Rendering ---
         const workflowCardsContainer = document.getElementById('workflowCardsContainer');
         const addStepCard = document.getElementById('addStepCard');
-        const body = document.body; // Reference to the body for appending modals
+        const body = document.body;
 
-        // Function to open a modal
+        /**
+         * Opens a modal for a specific step ID and populates its form.
+         * @param {number} stepId - The ID of the step to open the modal for.
+         */
         function openModal(stepId) {
             currentEditingStepId = stepId;
             const modal = document.getElementById(`modal${stepId}`);
             if (modal) {
                 const stepData = workflowSteps.find(step => step.id === stepId);
                 if (stepData) {
-                    // Populate modal form fields with current step data
                     const form = modal.querySelector('.modal-form');
                     form.elements.title.value = stepData.title || '';
                     form.elements.integration.value = stepData.integration || '';
                     form.elements.description.value = stepData.description || '';
                     modal.classList.add('open');
                 } else {
-                    showNotification('Step data not found!', 'error');
+                    showNotification('Error: Step data not found for editing!', 'error');
                 }
             } else {
-                showNotification('Modal not found!', 'error');
+                showNotification('Error: Modal not found for this step!', 'error');
             }
         }
 
-        // Function to close a modal
+        /**
+         * Closes a modal for a specific step ID.
+         * @param {number} stepId - The ID of the step whose modal should be closed.
+         */
         function closeModal(stepId) {
             const modal = document.getElementById(`modal${stepId}`);
             if (modal) {
@@ -215,35 +274,33 @@
             }
         }
 
-        // Centralized event listener for modal interactions (closes, saves, deletes)
-        document.addEventListener('click', (event) => {
-            // Close modal button
-            if (event.target.classList.contains('close-modal')) {
+        // Centralized event listener for all dynamic interactions (card clicks, modal buttons)
+        document.addEventListener('click', async (event) => {
+            // Close modal button or clicking on modal overlay
+            if (event.target.classList.contains('close-modal') ||
+               (event.target.classList.contains('modal') && event.target.classList.contains('open'))) {
                 const modal = event.target.closest('.modal');
                 if (modal) {
                     const stepId = parseInt(modal.id.replace('modal', ''));
                     closeModal(stepId);
                 }
             }
-            // Clicking on the modal overlay itself
-            else if (event.target.classList.contains('modal') && event.target.classList.contains('open')) {
-                const stepId = parseInt(event.target.id.replace('modal', ''));
-                closeModal(stepId);
-            }
             // Delete Step button on card
             else if (event.target.classList.contains('delete-step-btn')) {
                 const stepId = parseInt(event.target.dataset.stepId);
-                deleteStep(stepId);
+                if (confirm('Are you sure you want to delete this step? This cannot be undone.')) {
+                    await deleteStep(stepId);
+                }
             }
             // Delete Step button inside modal
             else if (event.target.classList.contains('delete-step-btn-modal')) {
                 const stepId = parseInt(event.target.dataset.stepId);
-                if (confirm('Are you sure you want to delete this step?')) {
-                     deleteStep(stepId);
+                if (confirm('Are you sure you want to delete this step? This cannot be undone.')) {
+                     await deleteStep(stepId);
                 }
             }
-            // Define Step button on card
-            else if (event.target.tagName === 'BUTTON' && event.target.textContent === 'Define Step') {
+            // "Define Step" button on card (opens modal)
+            else if (event.target.tagName === 'BUTTON' && event.target.textContent.includes('Define Step')) {
                 const card = event.target.closest('.bg-white');
                 const stepId = parseInt(card.id.replace('card', ''));
                 openModal(stepId);
@@ -251,37 +308,43 @@
         });
 
         // Handle form submission (Save button inside modal)
-        document.addEventListener('submit', (event) => {
+        document.addEventListener('submit', async (event) => {
             if (event.target.classList.contains('modal-form')) {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault(); // Prevent default browser form submission
                 const form = event.target;
-                const stepId = parseInt(form.dataset.stepId);
-                saveModalData(stepId, form);
+                const stepId = parseInt(form.dataset.stepId); // Get stepId from form's data-step-id
+                await saveModalData(stepId, form);
             }
         });
 
-
         /**
-         * Renders all workflow steps from the workflowSteps array into the DOM.
-         * This function should be called whenever workflowSteps array is modified.
+         * Renders all workflow steps from the 'workflowSteps' array into the DOM.
+         * This function should be called after any modification to 'workflowSteps'
+         * (e.g., after loading, saving, or deleting from the backend).
          */
         function renderAllSteps() {
-            // Remove all existing dynamic cards and modals
+            // Remove all existing dynamic cards (except the static 'Add New Step' card)
             const existingCards = workflowCardsContainer.querySelectorAll('.bg-white:not(#addStepCard)');
             existingCards.forEach(card => card.remove());
 
-            document.querySelectorAll('.modal:not(#modal1):not(#modal2)').forEach(modal => modal.remove()); // Remove dynamic modals
+            // Remove all existing modals from the body
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (modal.id.startsWith('modal')) { // Only remove elements whose ID starts with 'modal'
+                    modal.remove();
+                }
+            });
 
-            // Sort steps by ID to maintain logical order
+            // Sort steps by ID to ensure consistent order (important if backend doesn't guarantee it)
             workflowSteps.sort((a, b) => a.id - b.id);
 
             workflowSteps.forEach(step => {
                 // Create Card Element
                 const card = document.createElement('div');
                 card.id = `card${step.id}`;
-                // Use a different color for dynamic steps for visual distinction, or apply based on step type later
-                const cardBgColor = (step.id === 1 || step.id === 2) ? 'bg-blue-500' : 'bg-purple-500';
-                const buttonBgColor = (step.id === 1) ? 'bg-blue-500' : (step.id === 2 ? 'bg-green-500' : 'bg-purple-500');
+                let buttonBgColor;
+                if (step.id === 1) buttonBgColor = 'bg-blue-500';
+                else if (step.id === 2) buttonBgColor = 'bg-green-500';
+                else buttonBgColor = 'bg-purple-500';
 
                 card.className = `bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-300`;
                 card.innerHTML = `
@@ -290,7 +353,7 @@
                     <button class="mt-4 ${buttonBgColor} hover:opacity-90 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-${buttonBgColor.split('-')[1]}-500 focus:ring-opacity-50">Define Step</button>
                     <button data-step-id="${step.id}" class="delete-step-btn ml-2 mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">Delete</button>
                 `;
-                workflowCardsContainer.insertBefore(card, addStepCard); // Insert before the 'Add New Step' card
+                workflowCardsContainer.insertBefore(card, addStepCard);
 
                 // Create Modal Element
                 const modal = document.createElement('div');
@@ -309,15 +372,15 @@
                         <form data-step-id="${step.id}" class="modal-form">
                             <div class="mb-4">
                                 <label for="title${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Title <span class="text-red-500">*</span></label>
-                                <input type="text" id="title${step.id}" name="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., Data Validation" value="${step.title || ''}" required>
+                                <input type="text" id="title${step.id}" name="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., Step ${step.id} Title" required>
                             </div>
                             <div class="mb-4">
                                 <label for="integration${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Integration</label>
-                                <input type="text" id="integration${step.id}" name="integration" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., Custom Script, Azure Functions" value="${step.integration || ''}">
+                                <input type="text" id="integration${step.id}" name="integration" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., API for Step ${step.id}">
                             </div>
                             <div class="mb-6">
                                 <label for="description${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Description <span class="text-red-500">*</span></label>
-                                <textarea id="description${step.id}" name="description" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Provide a detailed description of this workflow step." required>${step.description || ''}</textarea>
+                                <textarea id="description${step.id}" name="description" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Provide a detailed description of this workflow step." required></textarea>
                             </div>
                             <div class="flex justify-end mt-4">
                                 <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">Save</button>
@@ -327,93 +390,102 @@
                         </form>
                     </div>
                 `;
-                body.appendChild(modal); // Append modal to the body
+                body.appendChild(modal);
             });
         }
 
         /**
-         * Saves data from the modal form into the workflowSteps array.
-         * @param {number} stepId - The ID of the step being saved.
+         * Saves data from the modal form for a specific step to the backend.
+         * This function handles both creating new steps and updating existing ones.
+         * @param {number|null} stepId - The ID of the step being saved/updated. null for new steps initially.
          * @param {HTMLFormElement} form - The form element containing the input data.
          */
-        function saveModalData(stepId, form) {
+        async function saveModalData(stepId, form) {
             const title = form.elements.title.value.trim();
             const integration = form.elements.integration.value.trim();
             const description = form.elements.description.value.trim();
 
             if (!title || !description) {
                 showNotification('Title and Description are required!', 'error');
-                return; // Stop if validation fails
+                return;
             }
 
-            const stepIndex = workflowSteps.findIndex(step => step.id === stepId);
-            if (stepIndex !== -1) {
-                workflowSteps[stepIndex] = {
-                    ...workflowSteps[stepIndex], // Keep existing properties
-                    title: title,
-                    integration: integration,
-                    description: description
-                };
-                saveSteps(); // Save to localStorage
+            let stepDataToSend = {
+                title: title,
+                integration: integration,
+                description: description
+            };
+
+            // If stepId is already assigned (meaning it's an existing step or a newly created one on the frontend),
+            // include it for the PUT request. Otherwise, it's a new POST.
+            if (stepId !== null) {
+                stepDataToSend.id = stepId;
+            }
+
+            const backendResponse = await saveStepToBackend(stepDataToSend);
+
+            if (backendResponse) {
+                // Find the index of the step in the local array using the ID from the backend's response
+                const existingStepIndex = workflowSteps.findIndex(step => step.id === backendResponse.id);
+                
+                if (existingStepIndex === -1) {
+                    workflowSteps.push(backendResponse); // Add new step to local array
+                } else {
+                    workflowSteps[existingStepIndex] = { ...workflowSteps[existingStepIndex], ...backendResponse }; // Update existing step
+                }
                 renderAllSteps(); // Re-render the UI to reflect changes
-                closeModal(stepId); // Close the modal
-            } else {
-                showNotification('Error: Step not found for saving.', 'error');
+                closeModal(backendResponse.id); // Close the modal using the backend-assigned ID
             }
         }
 
         /**
-         * Creates a new workflow step and adds it to the workflowSteps array.
+         * Creates a new workflow step locally, adds it to the workflowSteps array,
+         * renders the UI, and then opens its modal for the user to fill in details.
+         * The actual save to backend happens when the user clicks 'Save' in the modal.
          */
         function createNewStep() {
-            // Find the maximum existing ID and increment for the new one
-            const maxId = workflowSteps.length > 0 ? Math.max(...workflowSteps.map(step => step.id)) : 0;
-            const newStepId = maxId + 1;
+            // Find the maximum existing ID and increment for a temporary frontend ID.
+            // The backend will provide the real ID on first save (POST).
+            const tempId = workflowSteps.length > 0 ? Math.max(...workflowSteps.map(step => step.id)) + 1 : 1;
 
             const newStepData = {
-                id: newStepId,
-                title: '', // Start with empty values
+                id: tempId, // Assign a temporary frontend ID
+                title: 'New Workflow Step', // Default title
                 integration: '',
                 description: ''
             };
 
-            workflowSteps.push(newStepData);
-            saveSteps(); // Save the updated array
-            renderAllSteps(); // Re-render the UI with the new step
-            openModal(newStepId); // Open the modal for the newly created step
+            workflowSteps.push(newStepData); // Add to local array immediately
+            renderAllSteps(); // Re-render to show the new card
+
+            // Now open the modal for this new step, which initially has a temporary ID
+            openModal(tempId);
         }
 
         /**
-         * Deletes a workflow step from the workflowSteps array and the DOM.
+         * Deletes a workflow step from the backend and then updates the UI.
          * @param {number} stepId - The ID of the step to delete.
          */
-        function deleteStep(stepId) {
-            const initialCount = workflowSteps.length;
-            workflowSteps = workflowSteps.filter(step => step.id !== stepId);
-
-            if (workflowSteps.length < initialCount) {
-                // Also remove its modal if open or present
-                const modalToRemove = document.getElementById(`modal${stepId}`);
-                if (modalToRemove) {
-                    modalToRemove.remove();
-                }
-                saveSteps(); // Save the updated array
-                renderAllSteps(); // Re-render to update step numbers/order
-                showNotification(`Step ${stepId} deleted.`, 'success');
-            } else {
-                showNotification('Error: Step not found for deletion.', 'error');
+        async function deleteStep(stepId) {
+            const success = await deleteStepFromBackend(stepId);
+            if (success) {
+                // Remove the step from the local array
+                workflowSteps = workflowSteps.filter(step => step.id !== stepId);
+                renderAllSteps(); // Re-render to update the UI
+                closeModal(stepId); // Ensure modal is closed
             }
         }
 
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSteps(); // Load steps from localStorage
+        // --- Initial Application Setup ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load steps from the backend when the page loads
+            workflowSteps = await fetchStepsFromBackend();
             renderAllSteps(); // Render the initial UI based on loaded data
 
-            // Add event listener to the "Add New Step" card
+            // Attach event listener to the "Add New Step" card
             addStepCard.addEventListener('click', createNewStep);
 
-            // Sidebar toggling (retained)
+            // Sidebar toggling (retained as before)
             const sidebar = document.getElementById('sidebar');
             const openSidebarBtn = document.getElementById('openSidebar');
             const closeSidebarBtn = document.getElementById('closeSidebar');
