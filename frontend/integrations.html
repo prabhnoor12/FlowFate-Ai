@@ -239,7 +239,7 @@
                 // Map integration to correct backend endpoint (deep analysis)
                 switch (integrationName) {
                   case 'notion':
-                    authUrl = `${BACKEND_BASE_URL}/api/notion/connect`;
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/notion/connect`;
                     // Open Notion in popup and listen for postMessage
                     const notionPopup = window.open(authUrl, 'notion_oauth', 'width=600,height=700');
                     window.addEventListener('message', function notionListener(event) {
@@ -251,7 +251,7 @@
                     });
                     return;
                   case 'slack':
-                    authUrl = `${BACKEND_BASE_URL}/api/slack/connect`;
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/slack/connect`;
                     break;
                   case 'gmail':
                     authUrl = `${BACKEND_BASE_URL}/api/integrations/gmail/connect`;
@@ -266,7 +266,7 @@
                     authUrl = `${BACKEND_BASE_URL}/api/integrations/todoist/connect`;
                     break;
                   case 'clickup':
-                    authUrl = `${BACKEND_BASE_URL}/api/clickup/connect`;
+                    authUrl = `${BACKEND_BASE_URL}/api/integrations/clickup/connect`;
                     break;
                   default:
                     // fallback for future integrations

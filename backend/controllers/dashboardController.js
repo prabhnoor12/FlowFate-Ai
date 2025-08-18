@@ -51,7 +51,25 @@ export async function getDashboard(req, res, next) {
     const workflows = getResult(1, []);
     const tasks = getResult(2, []);
     const reminders = getResult(3, []);
-    const workflowStats = getResult(4, { total: 0, success: 0, failed: 0, running: 0 });
+    // Ensure workflowStats includes running, paused, completed for automations
+    let workflowStats = getResult(4, { total: 0, success: 0, failed: 0, running: 0, paused: 0, completed: 0 });
+    // If stats are missing, try to infer from available fields
+    if (workflowStats) {
+      // Map 'success' to 'completed' if not present
+      if (workflowStats.completed === undefined && workflowStats.success !== undefined) {
+        workflowStats.completed = workflowStats.success;
+      }
+      // Map 'running' to 'working' if needed (frontend expects running)
+      if (workflowStats.running === undefined && workflowStats.working !== undefined) {
+        workflowStats.running = workflowStats.working;
+      }
+      // Default paused to 0 if missing
+      if (workflowStats.paused === undefined) {
+        workflowStats.paused = 0;
+      }
+    } else {
+      workflowStats = { running: 0, paused: 0, completed: 0 };
+    }
     const taskStats = getResult(5, { total: 0, completed: 0, pending: 0 });
     const taskCompletionTrend = getResult(6, []);
     const integrationsHealth = getResult(7, []);

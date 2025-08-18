@@ -169,20 +169,22 @@
           userInitial.textContent = '?';
         }
         // Stats
-        statWorking.textContent = data?.stats?.working ?? 0;
-        statPaused.textContent = data?.stats?.paused ?? 0;
-        statCompleted.textContent = data?.stats?.completed ?? 0;
+        // Use workflow stats for automations
+        const workflowStats = data?.stats?.workflows || {};
+        statWorking.textContent = workflowStats.running ?? 0;
+        statPaused.textContent = workflowStats.paused ?? 0;
+        statCompleted.textContent = workflowStats.completed ?? 0;
         // Chart
         const chartSection = document.querySelector('.chart-section');
         const chartCanvas = document.getElementById('automations-chart');
-        if (chartCanvas && data?.stats && (data.stats.working || data.stats.paused || data.stats.completed)) {
+        if (chartCanvas && (workflowStats.running || workflowStats.paused || workflowStats.completed)) {
           const ctx = chartCanvas.getContext('2d');
           new Chart(ctx, {
             type: 'doughnut',
             data: {
               labels: ['Working', 'Paused', 'Completed'],
               datasets: [{
-                data: [data.stats.working || 0, data.stats.paused || 0, data.stats.completed || 0],
+                data: [workflowStats.running || 0, workflowStats.paused || 0, workflowStats.completed || 0],
                 backgroundColor: ['#2563eb', '#fbbf24', '#10b981'],
               }]
             },
