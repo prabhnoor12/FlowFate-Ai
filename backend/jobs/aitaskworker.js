@@ -1,5 +1,6 @@
 
 // --- Modular, extensible integration task handlers ---
+
 import { Queue, Worker } from 'bullmq';
 import { PrismaClient } from '@prisma/client';
 import fetch from 'node-fetch';
@@ -7,12 +8,45 @@ import { createNotionPage, updateNotionPage, appendNotionBlock } from '../utils/
 import { redis } from '../config/redis.js';
 import { isIntegrationConnected, getIntegrationToken } from '../services/integrationService.js';
 import { google } from 'googleapis';
+import logger from '../utils/logger.js';
+
 
 const aiTaskQueue = new Queue('ai-tasks', { connection: redis });
 const prisma = new PrismaClient();
 
 // Handler map for all integrations and task types
 const handlers = {
+  // --- Automations ---
+  async automation_run({ id, input }) {
+    logger.info(`[AITaskWorker] Running automation for task ${id}`);
+    // Example: mark automation as running, then completed
+    try {
+      await prisma.task.update({ where: { id }, data: { status: 'running' } });
+      // TODO: Add actual automation logic here (call services, trigger actions, etc.)
+      // Simulate work
+      await new Promise(res => setTimeout(res, 1000));
+      await prisma.task.update({ where: { id }, data: { status: 'completed', output: { message: 'Automation executed.' } } });
+      logger.info(`[AITaskWorker] Automation completed for task ${id}`);
+    } catch (err) {
+      logger.error(`[AITaskWorker] Automation failed for task ${id}: ${err.message}`);
+      await prisma.task.update({ where: { id }, data: { status: 'failed', output: { error: err.message } } });
+    }
+  },
+  // --- Workflows ---
+  async workflow_run({ id, input }) {
+    logger.info(`[AITaskWorker] Running workflow for task ${id}`);
+    try {
+      await prisma.task.update({ where: { id }, data: { status: 'running' } });
+      // TODO: Add actual workflow logic here (call services, orchestrate steps, etc.)
+      // Simulate work
+      await new Promise(res => setTimeout(res, 1500));
+      await prisma.task.update({ where: { id }, data: { status: 'completed', output: { message: 'Workflow executed.' } } });
+      logger.info(`[AITaskWorker] Workflow completed for task ${id}`);
+    } catch (err) {
+      logger.error(`[AITaskWorker] Workflow failed for task ${id}: ${err.message}`);
+      await prisma.task.update({ where: { id }, data: { status: 'failed', output: { error: err.message } } });
+    }
+  },
   async summarize({ id, input }) {
     const prompt = `Summarize this: ${input.text}`;
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -164,20 +198,23 @@ const handlers = {
   // TODO: Add handlers for Slack, Google Drive, ClickUp, Todoist, etc.
 };
 
-// Main task processor
+
+// Main task processor with logging and error handling
 async function processTask(job) {
   const { id, type, input } = job.data;
+  logger.info(`[AITaskWorker] Processing task ${id} of type ${type}`);
   try {
     if (handlers[type]) {
       await handlers[type]({ id, input });
     } else {
-      // Unknown task type
+      logger.error(`[AITaskWorker] Unknown task type: ${type} for task ${id}`);
       await prisma.task.update({
         where: { id },
         data: { status: 'failed', output: { error: `Unknown task type: ${type}` } },
       });
     }
   } catch (error) {
+    logger.error(`[AITaskWorker] Task ${id} failed: ${error.message}`);
     await prisma.task.update({
       where: { id },
       data: { status: 'failed', output: { error: error.message } },
@@ -185,5 +222,15 @@ async function processTask(job) {
   }
 }
 
-new Worker('ai-tasks', processTask, { connection: redis });
+// Robust worker with error logging
+const worker = new Worker('ai-tasks', processTask, {
+  connection: redis,
+  // Optionally set concurrency, lock duration, etc.
+  concurrency: 5,
+});
+
+worker.on('error', (err) => {
+  logger.error(`[AITaskWorker] Worker error: ${err.message}`);
+});
+
 export { aiTaskQueue };

@@ -187,11 +187,16 @@
           if (!text) return;
           appendMessage(text, 'user');
           userInput.value = '';
-          appendMessage('<span style="color:#9ca3af;">...</span>', 'bot');
+          // Show loading message and keep reference
+          const loadingMsg = document.createElement('div');
+          loadingMsg.className = 'message bot';
+          loadingMsg.innerHTML = '<span style="color:#9ca3af;">...</span>';
+          messagesContainer.appendChild(loadingMsg);
+          const chatBox = document.getElementById('chatBox');
+          chatBox.scrollTop = chatBox.scrollHeight;
+
           const reply = await sendMessage(text);
-          // Remove the loading message
-          const loadingMsg = messagesContainer.querySelector('.bot span');
-          if (loadingMsg) loadingMsg.parentElement.remove();
+          loadingMsg.remove();
           appendMessage(reply, 'bot');
         });
       }

@@ -1,3 +1,139 @@
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: #f8fafc;
+  color: #232b3a;
+}
+
+#layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+#sidebar {
+  width: 220px;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: left 0.3s;
+  z-index: 30;
+  position: static;
+}
+
+#sidebar .sidebar-header {
+  padding: 1.5rem 1rem 1rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+#sidebar .sidebar-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #4fd1c5;
+}
+
+#sidebar .sidebar-desc {
+  font-size: 0.95rem;
+  color: #b0b8c1;
+}
+
+#sidebar nav {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0 0 0;
+  gap: 0.2rem;
+}
+
+#sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  color: #e2e8f0;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  border-radius: 0 1.2rem 1.2rem 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-weight: 500;
+}
+#sidebar nav a:hover,
+#sidebar nav a:focus {
+  background: rgba(79,209,197,0.10);
+  color: #4fd1c5;
+  border-left: 3px solid #4fd1c5;
+}
+#sidebar nav a.active {
+  background: rgba(79,209,197,0.15);
+  color: #4fd1c5;
+  border-left: 3px solid #4fd1c5;
+}
+
+#mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+header {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 8px 0 rgba(24,31,42,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2rem;
+}
+
+.branding {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #232b3a;
+}
+
+@media (max-width: 900px) {
+  #layout {
+    flex-direction: column;
+  }
+  #sidebar {
+    position: fixed;
+    left: -100vw;
+    top: 0;
+    width: 80vw;
+    max-width: 320px;
+    min-height: 100vh;
+    box-shadow: 2px 0 16px rgba(24,31,42,0.10);
+    transition: left 0.3s;
+    z-index: 40;
+  }
+  #sidebar.open {
+    left: 0;
+  }
+  header {
+    padding: 1rem 1rem;
+  }
+  .branding {
+    font-size: 1.1rem;
+  }
+  #mainContent {
+    margin-left: 0;
+  }
+}
+
+footer {
+  text-align: center;
+  color: #b0b8c1;
+  font-size: 0.95rem;
+  padding: 1.5rem 0 0.5rem 0;
+  background: none;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 2rem;
+}
 /* Sidebar overlay for mobile */
 /* Sidebar Overlay */
 #sidebarOverlay {
