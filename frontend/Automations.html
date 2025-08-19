@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automation Management System (Optimized Fit)</title>
+    <title>Automation Management System (Modal Refinement)</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         /* Sidebar styles (from your main app for consistency) */
@@ -29,6 +29,11 @@
         }
         .modal.open {
             display: flex;
+            /* Ensure modal content is scrollable if it exceeds viewport height */
+            /* Add this to the .modal class, not just the inner div */
+            overflow-y: auto; 
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
         }
         /* Notification styles */
         .notification {
@@ -168,7 +173,7 @@
     <div id="notificationContainer"></div>
 
     <div id="automationModal" class="modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full transform transition-all duration-300 scale-100">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm md:max-w-md lg:max-w-lg my-8 transform transition-all duration-300 scale-100">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h3 class="text-2xl font-extrabold text-gray-800" id="automationModalTitle">Automation Details</h3>
                 <button class="close-modal text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100">
@@ -221,8 +226,8 @@
         const notificationContainer = document.getElementById('notificationContainer');
 
         const automationsContainer = document.getElementById('automationsContainer');
-        // We'll dynamically create the addAutomationCard as a template now
-        const addAutomationCardTemplate = `
+        // We'll dynamically create the addAutomationCard from this template
+        const addAutomationCardHTML = `
             <div id="addAutomationCard" class="bg-white rounded-xl shadow-lg p-6 border-dashed border-2 border-gray-400 text-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-all duration-300 transform hover:scale-105">
                 <svg class="h-16 w-16 mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -278,10 +283,10 @@
         function filterAndPaginateItems(items, searchTerm, currentPage, itemsPerPage) {
             const lowerCaseSearchTerm = searchTerm.toLowerCase();
             const filteredItems = items.filter(item => 
-                (item.name && item.name.toLowerCase().includes(lowerCaseSearchTerm)) || // Changed from title to name
+                (item.name && item.name.toLowerCase().includes(lowerCaseSearchTerm)) || 
                 (item.description && item.description.toLowerCase().includes(lowerCaseSearchTerm)) ||
-                (item.action && item.action.toLowerCase().includes(lowerCaseSearchTerm)) || // Search action too
-                (item.trigger && item.trigger.toLowerCase().includes(lowerCaseSearchTerm)) // Search trigger too
+                (item.action && item.action.toLowerCase().includes(lowerCaseSearchTerm)) || 
+                (item.trigger && item.trigger.toLowerCase().includes(lowerCaseSearchTerm)) 
             );
             // Sort by ID before pagination to ensure consistent order across pages
             filteredItems.sort((a, b) => a.id - b.id);
@@ -346,11 +351,10 @@
         /** Fetches all automation tasks from the backend. */
         async function fetchAutomationsFromBackend() {
             showNotification('Loading automations...', 'info');
-            // Clear current content and show spinner
-            automationsContainer.innerHTML = ''; // Clear previous cards
-            automationsContainer.innerHTML = addAutomationCardTemplate; // Insert the static add card template
-            automationsContainer.appendChild(Object.assign(document.createElement('div'), { className: 'content-spinner rounded-full col-span-full' })); // Spinner takes full width
-            noAutomationsMessage.classList.add('hidden'); // Hide empty message while loading
+            // Clear current content, insert the add card and spinner
+            automationsContainer.innerHTML = addAutomationCardHTML; 
+            automationsContainer.appendChild(Object.assign(document.createElement('div'), { className: 'content-spinner rounded-full col-span-full' })); 
+            noAutomationsMessage.classList.add('hidden'); 
             try {
                 const response = await fetch(API_AUTOMATIONS_URL);
                 if (!response.ok) {
@@ -431,8 +435,13 @@
 
         /** Renders all automation tasks with search and pagination. */
         function renderAllAutomations() {
-            // Remove all existing automation cards (except the static 'Add New Automation' card)
-            automationsContainer.querySelectorAll('.automation-card').forEach(card => card.remove());
+            // Remove all existing automation cards (except the static 'Add New Automation' card which is handled by its template)
+            // Ensure we only remove dynamically added cards, not the template
+            automationsContainer.querySelectorAll('.automation-card').forEach(card => {
+                if (card.id !== 'addAutomationCard') {
+                    card.remove();
+                }
+            });
             
             // Remove all existing modals from the body
             document.querySelectorAll('.modal').forEach(modal => {
@@ -477,57 +486,17 @@
                             <button data-automation-id="${automation.id}" class="delete-automation-btn flex-1 min-w-max px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">Delete</button>
                         </div>
                     `;
-                    // Insert the new automation card
-                    automationsContainer.appendChild(card);
-
-                    // Create Modal for Automation Task
-                    const modal = document.createElement('div');
-                    modal.id = `modalAutomation${automation.id}`;
-                    modal.className = 'modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4';
-                    modal.innerHTML = `
-                        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full transform transition-all duration-300 scale-100">
-                            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                                <h3 class="text-2xl font-extrabold text-gray-800">Automation Details</h3>
-                                <button class="close-modal text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <form data-automation-id="${automation.id}" class="automation-modal-form space-y-4">
-                                <div>
-                                    <label for="modalAutomationName${automation.id}" class="block text-gray-700 text-sm font-bold mb-2">Automation Name <span class="text-red-500">*</span></label>
-                                    <input type="text" id="modalAutomationName${automation.id}" name="name" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200" placeholder="e.g., Send Daily Report" required>
-                                </div>
-                                <div>
-                                    <label for="modalAutomationTrigger${automation.id}" class="block text-gray-700 text-sm font-bold mb-2">Trigger</label>
-                                    <input type="text" id="modalAutomationTrigger${automation.id}" name="trigger" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200" placeholder="e.g., Every Monday 9 AM, New Email">
-                                </div>
-                                <div>
-                                    <label for="modalAutomationAction${automation.id}" class="block text-gray-700 text-sm font-bold mb-2">Action <span class="text-red-500">*</span></label>
-                                    <textarea id="modalAutomationAction${automation.id}" name="action" rows="5" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" placeholder="e.g., Send email to team@example.com with subject 'Daily Sales Report' and attachment from GDrive." required></textarea>
-                                </div>
-                                <div class="flex justify-end pt-4 border-t mt-6">
-                                    <button type="submit" class="save-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 mr-3">Save Automation</button>
-                                    <button type="button" class="delete-automation-btn-modal delete-button bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200 mr-3" data-automation-id="${automation.id}">Delete Automation</button>
-                                    <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">Close</button>
-                                </div>
-                            </form>
-                        </div>
-                    `;
-                    body.appendChild(modal);
+                    // Insert the new automation card BEFORE the addAutomationCard
+                    const addCard = document.getElementById('addAutomationCard');
+                    automationsContainer.insertBefore(card, addCard);
                 });
             }
-            // Re-append the static addAutomationCard at the very end to ensure it's always visible
-            // We use appendChild which moves the existing element if it's already in the DOM
+            // Ensure addAutomationCard is always the last element in the container for correct grid flow
             const addCard = document.getElementById('addAutomationCard');
-            if (addCard) { // Check if it already exists in the DOM
+            if(addCard) { // Check if it exists (it should, after the initial render of template)
                 automationsContainer.appendChild(addCard);
-            } else { // If it was somehow completely removed, recreate it
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = addAutomationCardTemplate;
-                automationsContainer.appendChild(tempDiv.firstElementChild);
             }
+
 
             renderPaginationControls(automationsPaginationContainer, totalPages, automationCurrentPage, (newPage) => {
                 automationCurrentPage = newPage;
@@ -654,7 +623,9 @@
 
             // Add Automation Card Listener (This is critical now that it's managed dynamically)
             automationsContainer.addEventListener('click', (event) => {
-                if (event.target.closest('#addAutomationCard')) {
+                // Use closest to check if the click originated from within the addAutomationCard
+                const addCardElement = event.target.closest('#addAutomationCard');
+                if (addCardElement) {
                     createNewAutomation();
                 }
             });
