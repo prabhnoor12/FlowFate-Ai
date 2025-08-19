@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Workflow Dashboard (Backend Integrated)</title>
+    <title>Workflow Management System (Discard Unsaved)</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         /* Custom styles for sidebar transition */
@@ -29,6 +29,7 @@
         .modal.open {
             display: flex; /* Display when open */
         }
+        /* Notification styles */
         .notification {
             position: fixed;
             top: 1rem;
@@ -40,6 +41,7 @@
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
         }
         .notification.show {
             opacity: 1;
@@ -50,14 +52,34 @@
         .notification.error {
             background-color: #ef4444; /* bg-red-500 */
         }
+        .notification.info {
+            background-color: #63b3ed; /* bg-blue-400 */
+        }
+
+        /* Basic spinner for buttons */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            width: 1rem;
+            height: 1rem;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans leading-normal tracking-normal h-screen flex flex-col md:flex-row">
 
     <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 p-5 z-40 md:relative md:translate-x-0 sidebar-closed">
         <div class="flex justify-between items-center mb-10">
-            <h1 class="text-2xl font-bold">My Workflow</h1>
-            <button id="closeSidebar" class="text-white md:hidden focus:outline-none">
+            <h1 class="text-2xl font-bold text-blue-300">My Workflow 🚀</h1>
+            <button id="closeSidebar" class="text-white md:hidden focus:outline-none p-2 rounded-full hover:bg-gray-700">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -65,33 +87,33 @@
         </div>
         <nav>
             <ul>
-                <li class="mb-4">
-                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200">
-                        <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="mb-3">
+                    <a href="#" class="flex items-center py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white">
+                        <svg class="h-5 w-5 mr-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l7 7m-11 2v5a1 1 0 001 1h3"></path>
                         </svg>
                         Dashboard
                     </a>
                 </li>
-                <li class="mb-4">
-                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200">
-                        <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="mb-3">
+                    <a href="#" class="flex items-center py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white">
+                        <svg class="h-5 w-5 mr-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v2m-3-12v5m-3-3h3M3 8v8a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 1 0 00-2 2z"></path>
                         </svg>
                         Automation
                     </a>
                 </li>
-                <li class="mb-4">
-                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200">
-                        <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="mb-3">
+                    <a href="#" class="flex items-center py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white">
+                        <svg class="h-5 w-5 mr-3 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4m-4 4l-4 4"></path>
                         </svg>
                         Integration
                     </a>
                 </li>
-                <li class="mb-4">
-                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200">
-                        <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="mb-3">
+                    <a href="#" class="flex items-center py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white">
+                        <svg class="h-5 w-5 mr-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v13m-3-8h6m-12 0h-2M4 8h2"></path>
                         </svg>
                         AI Interface
@@ -103,23 +125,54 @@
 
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white shadow p-4 flex justify-between items-center md:hidden">
-            <button id="openSidebar" class="text-gray-600 focus:outline-none">
+            <button id="openSidebar" class="text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-200">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
             </button>
-            </header>
+        </header>
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Welcome to your Workflow! 👋</h2>
+            <div id="projectsView">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-6">Your Projects 🗂️</h2>
+                <div id="projectsCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div id="addProjectCard" class="bg-white rounded-xl shadow-lg p-6 border-dashed border-2 border-gray-400 text-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-all duration-300 transform hover:scale-105">
+                        <svg class="h-16 w-16 mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold mt-2">Create New Project</h3>
+                        <p class="text-center text-sm text-gray-500">Organize your workflows.</p>
+                    </div>
+                </div>
+                <div id="noProjectsMessage" class="hidden bg-white p-8 rounded-lg shadow-md mt-8 text-center text-gray-600">
+                    <p class="text-lg mb-4">You don't have any projects yet!</p>
+                    <p>Click "Create New Project" to get started with your first workflow container.</p>
+                </div>
+            </div>
 
-            <div id="workflowCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div id="addStepCard" class="bg-white rounded-lg shadow-md p-6 border-dashed border-2 border-gray-400 text-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-all duration-300">
-                    <svg class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    <h3 class="text-xl font-semibold">Add New Step</h3>
-                    <p class="text-center text-sm">Click to create another workflow step.</p>
+            <div id="workflowView" class="hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-3xl font-extrabold text-gray-800">Workflow Steps for Project: <span id="currentProjectTitle" class="text-blue-600"></span></h2>
+                    <button id="backToProjectsBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
+                        </svg>
+                        Back to Projects
+                    </button>
+                </div>
+                
+                <div id="workflowCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div id="addStepCard" class="bg-white rounded-xl shadow-lg p-6 border-dashed border-2 border-gray-400 text-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-all duration-300 transform hover:scale-105">
+                        <svg class="h-16 w-16 mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold mt-2">Add New Step</h3>
+                        <p class="text-center text-sm text-gray-500">Click to expand your workflow.</p>
+                    </div>
+                </div>
+                 <div id="noStepsMessage" class="hidden bg-white p-8 rounded-lg shadow-md mt-8 text-center text-gray-600">
+                    <p class="text-lg mb-4">This project doesn't have any workflow steps yet!</p>
+                    <p>Click "Add New Step" to define the first task in this workflow.</p>
                 </div>
             </div>
         </main>
@@ -127,24 +180,91 @@
 
     <div id="notificationContainer"></div>
 
+    <div id="projectModal" class="modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full transform transition-all duration-300 scale-100">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h3 class="text-2xl font-extrabold text-gray-800" id="projectModalTitle">Project Details</h3>
+                <button class="close-modal text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form data-project-id="" class="project-modal-form space-y-4">
+                <div>
+                    <label for="projectTitle" class="block text-gray-700 text-sm font-bold mb-2">Project Title <span class="text-red-500">*</span></label>
+                    <input type="text" id="projectTitle" name="title" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-outline" placeholder="e.g., Q3 Marketing Campaign" required>
+                </div>
+                <div>
+                    <label for="projectDescription" class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+                    <textarea id="projectDescription" name="description" rows="4" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 focus:shadow-outline" placeholder="Describe the purpose and goals of this project."></textarea>
+                </div>
+                <div class="flex justify-end pt-4 border-t mt-6">
+                    <button type="submit" class="save-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 mr-3">Save Project</button>
+                    <button type="button" class="delete-project-btn-modal delete-button bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200 mr-3 hidden">Delete Project</button>
+                    <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <script>
-        // --- Global State & Utility Functions ---
-        let workflowSteps = []; // Local cache of workflow step data
-        let currentEditingStepId = null; // To track which step's data is being edited in the modal
+        // --- Global State & API Configuration ---
+        let projects = []; // Local cache of project data
+        let currentProjectId = null; // Tracks the currently open project
+        let workflowSteps = []; // Local cache of workflow step data for the current project
+        let currentEditingEntityId = null; // Tracks which project/step is being edited in its modal
+        let nextTempId = -1; // Used to assign temporary negative IDs for new projects/steps
 
-        // Base URL for your backend API
-        // IMPORTANT: Replace with your actual backend API URL if it's not relative to your frontend.
-        const API_BASE_URL = '/api/workflows'; 
+        // Base URLs for your backend APIs
+        const API_PROJECTS_URL = '/api/projects'; // Example: /api/projects
+        const API_WORKFLOWS_URL = (projectId) => `/api/projects/${projectId}/workflows`; // Example: /api/projects/123/workflows
 
-        // Utility to show notifications
+        // --- UI Elements ---
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const notificationContainer = document.getElementById('notificationContainer');
+
+        const projectsView = document.getElementById('projectsView');
+        const projectsCardsContainer = document.getElementById('projectsCardsContainer');
+        const addProjectCard = document.getElementById('addProjectCard');
+        const noProjectsMessage = document.getElementById('noProjectsMessage'); // Empty state message
+
+        const workflowView = document.getElementById('workflowView');
+        const currentProjectTitle = document.getElementById('currentProjectTitle');
+        const backToProjectsBtn = document.getElementById('backToProjectsBtn');
+        const workflowCardsContainer = document.getElementById('workflowCardsContainer');
+        const addStepCard = document.getElementById('addStepCard');
+        const noStepsMessage = document.getElementById('noStepsMessage'); // Empty state message for steps
+
+        const projectModal = document.getElementById('projectModal');
+        const projectModalTitleElement = document.getElementById('projectModalTitle');
+        const projectModalForm = projectModal.querySelector('.project-modal-form');
+        const deleteProjectModalBtn = projectModal.querySelector('.delete-project-btn-modal');
+        const body = document.body; // Reference to body for appending dynamic modals
+
+        // --- Utility Functions ---
+
+        /**
+         * Shows a temporary notification message to the user.
+         * @param {string} message - The message to display.
+         * @param {string} type - The type of notification ('success', 'error', 'info').
+         */
         function showNotification(message, type = 'success') {
-            const container = document.getElementById('notificationContainer');
+            const container = notificationContainer;
+            // Clear any existing notifications immediately
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.textContent = message;
             container.appendChild(notification);
 
-            // Trigger reflow to ensure transition works
+            // Trigger reflow to ensure CSS transition works
             notification.offsetWidth;
             notification.classList.add('show');
 
@@ -154,73 +274,217 @@
             }, 3000); // Notification disappears after 3 seconds
         }
 
-        // --- Backend API Calls ---
+        /**
+         * Manages the loading state of a button (disables, changes text, adds spinner).
+         * @param {HTMLElement} button - The button element to manage.
+         * @param {boolean} isLoading - True to show loading, false to revert.
+         * @param {string} loadingText - The text to display when loading (e.g., "Saving...").
+         */
+        function setButtonLoading(button, isLoading, loadingText = 'Loading...') {
+            if (!button) return; // Guard clause
+
+            if (isLoading) {
+                button.dataset.originalText = button.textContent; // Store original text
+                button.innerHTML = `<span class="spinner"></span>${loadingText}`;
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                button.textContent = button.dataset.originalText || ''; // Revert to original text
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
 
         /**
-         * Fetches all workflow steps from the backend.
-         * @returns {Array} An array of workflow step objects.
+         * Generic function to open any modal.
+         * @param {HTMLElement} modalElement - The specific modal DOM element to open.
+         * @param {number|string} entityId - The ID of the entity (project or step) being edited.
          */
-        async function fetchStepsFromBackend() {
+        function openGenericModal(modalElement, entityId) {
+            currentEditingEntityId = entityId;
+            modalElement.classList.add('open');
+        }
+
+        /**
+         * Generic function to close any modal.
+         * This function now handles discarding unsaved temporary entities.
+         * @param {HTMLElement} modalElement - The specific modal DOM element to close.
+         */
+        function closeGenericModal(modalElement) {
+            const entityId = currentEditingEntityId; // Get the ID of the entity that was in the modal
+
+            modalElement.classList.remove('open');
+            currentEditingEntityId = null; // Clear tracking
+
+            // If the entity had a temporary ID (negative) and was not saved, remove it
+            if (entityId < 0) { // This means it's a temporary, unsaved entity
+                if (modalElement.id === 'projectModal') {
+                    // It's a temporary project
+                    projects = projects.filter(p => p.id !== entityId);
+                    showNotification('Unsaved project discarded.', 'info');
+                    renderAllProjects();
+                } else if (modalElement.id.startsWith('modalStep')) {
+                    // It's a temporary workflow step
+                    workflowSteps = workflowSteps.filter(s => s.id !== entityId);
+                    showNotification('Unsaved workflow step discarded.', 'info');
+                    renderAllSteps();
+                }
+            }
+        }
+
+        // --- View Management ---
+        function showProjectsView() {
+            projectsView.classList.remove('hidden');
+            workflowView.classList.add('hidden');
+            renderAllProjects(); // Re-render projects when navigating back
+        }
+
+        async function showWorkflowView(projectId) {
+            currentProjectId = projectId;
+            const project = projects.find(p => p.id === projectId);
+            if (!project) {
+                showNotification('Project not found!', 'error');
+                showProjectsView(); // Go back if project not found
+                return;
+            }
+            currentProjectTitle.textContent = project.title;
+
+            projectsView.classList.add('hidden');
+            workflowView.classList.remove('hidden');
+
+            // Fetch workflows specific to this project
+            workflowSteps = await fetchStepsFromBackend(currentProjectId);
+            renderAllSteps();
+        }
+
+        // --- Backend API Calls (Projects) ---
+        async function fetchProjectsFromBackend() {
+            showNotification('Loading projects...', 'info');
             try {
-                const response = await fetch(API_BASE_URL);
+                const response = await fetch(API_PROJECTS_URL);
                 if (!response.ok) {
                     const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
                     throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
                 }
                 const data = await response.json();
-                showNotification('Workflow data loaded from backend!', 'success');
+                showNotification('Projects loaded!', 'success');
                 return data;
             } catch (e) {
-                console.error("Error loading workflow from backend:", e);
-                showNotification('Failed to load workflow data! Check console for details.', 'error');
-                return []; // Return empty array on error
+                console.error("Error loading projects from backend:", e);
+                showNotification(`Failed to load projects! ${e.message}. Check console for details.`, 'error');
+                return [];
             }
         }
 
-        /**
-         * Saves (creates or updates) a single workflow step to the backend.
-         * @param {Object} stepData - The step object to save. If it has an 'id', it's an update; otherwise, it's a create.
-         * @returns {Object|null} The saved step data with its final ID, or null on failure.
-         */
-        async function saveStepToBackend(stepData) {
+        async function saveProjectToBackend(projectData, saveButton) {
+            setButtonLoading(saveButton, true, 'Saving...');
             try {
-                const method = stepData.id ? 'PUT' : 'POST'; // If ID exists, it's an update (PUT); otherwise, create (POST)
-                const url = stepData.id ? `${API_BASE_URL}/${stepData.id}` : API_BASE_URL;
+                const method = projectData.id && projectData.id > 0 ? 'PUT' : 'POST';
+                const url = method === 'PUT' ? `${API_PROJECTS_URL}/${projectData.id}` : API_PROJECTS_URL;
+
+                const payload = { ...projectData };
+                if (method === 'POST') {
+                    delete payload.id; // Backend will assign the real ID
+                }
 
                 const response = await fetch(url, {
                     method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(stepData),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
                 });
 
                 if (!response.ok) {
                     const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
                     throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
                 }
-
                 const savedData = await response.json();
-                showNotification(`Workflow step ${stepData.id ? 'updated' : 'created'} successfully!`, 'success');
+                showNotification(`Project ${method === 'PUT' ? 'updated' : 'created'} successfully!`, 'success');
                 return savedData;
             } catch (e) {
-                console.error("Error saving workflow to backend:", e);
-                showNotification('Failed to save workflow step! Check console for details.', 'error');
+                console.error("Error saving project to backend:", e);
+                showNotification(`Failed to save project! ${e.message}. Check console for details.`, 'error');
                 return null;
+            } finally {
+                setButtonLoading(saveButton, false);
             }
         }
 
-        /**
-         * Deletes a workflow step from the backend.
-         * @param {number} stepId - The ID of the step to delete.
-         * @returns {boolean} True if deletion was successful, false otherwise.
-         */
-        async function deleteStepFromBackend(stepId) {
+        async function deleteProjectFromBackend(projectId, deleteButton) {
+            setButtonLoading(deleteButton, true, 'Deleting...');
             try {
-                const response = await fetch(`${API_BASE_URL}/${stepId}`, {
-                    method: 'DELETE',
+                const response = await fetch(`${API_PROJECTS_URL}/${projectId}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
+                }
+                showNotification(`Project ${projectId} deleted successfully!`, 'success');
+                return true;
+            } catch (e) {
+                console.error("Error deleting project from backend:", e);
+                showNotification(`Failed to delete project! ${e.message}. Check console for details.`, 'error');
+                return false;
+            } finally {
+                setButtonLoading(deleteButton, false);
+            }
+        }
+
+        // --- Backend API Calls (Workflows for a Project) ---
+        async function fetchStepsFromBackend(projectId) {
+            showNotification('Loading workflow steps...', 'info');
+            try {
+                const response = await fetch(API_WORKFLOWS_URL(projectId));
+                if (!response.ok) {
+                    const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
+                }
+                const data = await response.json();
+                showNotification('Workflow steps loaded!', 'success');
+                return data;
+            } catch (e) {
+                console.error("Error loading workflow steps from backend:", e);
+                showNotification(`Failed to load workflow steps! ${e.message}. Check console for details.`, 'error');
+                return [];
+            }
+        }
+
+        async function saveStepToBackend(projectId, stepData, saveButton) {
+            setButtonLoading(saveButton, true, 'Saving...');
+            try {
+                const method = stepData.id && stepData.id > 0 ? 'PUT' : 'POST';
+                const url = method === 'PUT' ? `${API_WORKFLOWS_URL(projectId)}/${stepData.id}` : API_WORKFLOWS_URL(projectId);
+
+                const payload = { ...stepData };
+                if (method === 'POST') {
+                    delete payload.id;
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
                 });
 
+                if (!response.ok) {
+                    const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
+                }
+                const savedData = await response.json();
+                showNotification(`Workflow step ${method === 'PUT' ? 'updated' : 'created'} successfully!`, 'success');
+                return savedData;
+            } catch (e) {
+                console.error("Error saving workflow step to backend:", e);
+                showNotification(`Failed to save workflow step! ${e.message}. Check console for details.`, 'error');
+                return null;
+            } finally {
+                setButtonLoading(saveButton, false);
+            }
+        }
+
+        async function deleteStepFromBackend(projectId, stepId, deleteButton) {
+            setButtonLoading(deleteButton, true, 'Deleting...');
+            try {
+                const response = await fetch(`${API_WORKFLOWS_URL(projectId)}/${stepId}`, { method: 'DELETE' });
                 if (!response.ok) {
                     const errorDetail = await response.json().catch(() => ({ message: response.statusText }));
                     throw new Error(`HTTP error! Status: ${response.status}, Detail: ${errorDetail.message || 'Unknown error'}`);
@@ -228,179 +492,216 @@
                 showNotification(`Step ${stepId} deleted successfully!`, 'success');
                 return true;
             } catch (e) {
-                console.error("Error deleting workflow from backend:", e);
-                showNotification('Failed to delete step! Check console for details.', 'error');
+                console.error("Error deleting workflow step from backend:", e);
+                showNotification(`Failed to delete step! ${e.message}. Check console for details.`, 'error');
                 return false;
+            } finally {
+                setButtonLoading(deleteButton, false);
             }
         }
 
-        // --- DOM Manipulation & Rendering ---
-        const workflowCardsContainer = document.getElementById('workflowCardsContainer');
-        const addStepCard = document.getElementById('addStepCard');
-        const body = document.body;
+        // --- Rendering Functions ---
 
-        /**
-         * Opens a modal for a specific step ID and populates its form.
-         * @param {number} stepId - The ID of the step to open the modal for.
-         */
-        function openModal(stepId) {
-            currentEditingStepId = stepId;
-            const modal = document.getElementById(`modal${stepId}`);
-            if (modal) {
-                const stepData = workflowSteps.find(step => step.id === stepId);
-                if (stepData) {
-                    const form = modal.querySelector('.modal-form');
-                    form.elements.title.value = stepData.title || '';
-                    form.elements.integration.value = stepData.integration || '';
-                    form.elements.description.value = stepData.description || '';
-                    modal.classList.add('open');
-                } else {
-                    showNotification('Error: Step data not found for editing!', 'error');
-                }
+        /** Renders all project cards. */
+        function renderAllProjects() {
+            projectsCardsContainer.querySelectorAll('.project-card:not(#addProjectCard)').forEach(card => card.remove());
+            
+            if (projects.length === 0) {
+                noProjectsMessage.classList.remove('hidden');
             } else {
-                showNotification('Error: Modal not found for this step!', 'error');
-            }
-        }
+                noProjectsMessage.classList.add('hidden');
+                projects.sort((a, b) => a.id - b.id); // Ensure correct order
 
-        /**
-         * Closes a modal for a specific step ID.
-         * @param {number} stepId - The ID of the step whose modal should be closed.
-         */
-        function closeModal(stepId) {
-            const modal = document.getElementById(`modal${stepId}`);
-            if (modal) {
-                modal.classList.remove('open');
-                currentEditingStepId = null; // Clear tracking
-            }
-        }
-
-        // Centralized event listener for all dynamic interactions (card clicks, modal buttons)
-        document.addEventListener('click', async (event) => {
-            // Close modal button or clicking on modal overlay
-            if (event.target.classList.contains('close-modal') ||
-               (event.target.classList.contains('modal') && event.target.classList.contains('open'))) {
-                const modal = event.target.closest('.modal');
-                if (modal) {
-                    const stepId = parseInt(modal.id.replace('modal', ''));
-                    closeModal(stepId);
-                }
-            }
-            // Delete Step button on card
-            else if (event.target.classList.contains('delete-step-btn')) {
-                const stepId = parseInt(event.target.dataset.stepId);
-                if (confirm('Are you sure you want to delete this step? This cannot be undone.')) {
-                    await deleteStep(stepId);
-                }
-            }
-            // Delete Step button inside modal
-            else if (event.target.classList.contains('delete-step-btn-modal')) {
-                const stepId = parseInt(event.target.dataset.stepId);
-                if (confirm('Are you sure you want to delete this step? This cannot be undone.')) {
-                     await deleteStep(stepId);
-                }
-            }
-            // "Define Step" button on card (opens modal)
-            else if (event.target.tagName === 'BUTTON' && event.target.textContent.includes('Define Step')) {
-                const card = event.target.closest('.bg-white');
-                const stepId = parseInt(card.id.replace('card', ''));
-                openModal(stepId);
-            }
-        });
-
-        // Handle form submission (Save button inside modal)
-        document.addEventListener('submit', async (event) => {
-            if (event.target.classList.contains('modal-form')) {
-                event.preventDefault(); // Prevent default browser form submission
-                const form = event.target;
-                const stepId = parseInt(form.dataset.stepId); // Get stepId from form's data-step-id
-                await saveModalData(stepId, form);
-            }
-        });
-
-        /**
-         * Renders all workflow steps from the 'workflowSteps' array into the DOM.
-         * This function should be called after any modification to 'workflowSteps'
-         * (e.g., after loading, saving, or deleting from the backend).
-         */
-        function renderAllSteps() {
-            // Remove all existing dynamic cards (except the static 'Add New Step' card)
-            const existingCards = workflowCardsContainer.querySelectorAll('.bg-white:not(#addStepCard)');
-            existingCards.forEach(card => card.remove());
-
-            // Remove all existing modals from the body
-            document.querySelectorAll('.modal').forEach(modal => {
-                if (modal.id.startsWith('modal')) { // Only remove elements whose ID starts with 'modal'
-                    modal.remove();
-                }
-            });
-
-            // Sort steps by ID to ensure consistent order (important if backend doesn't guarantee it)
-            workflowSteps.sort((a, b) => a.id - b.id);
-
-            workflowSteps.forEach(step => {
-                // Create Card Element
-                const card = document.createElement('div');
-                card.id = `card${step.id}`;
-                let buttonBgColor;
-                if (step.id === 1) buttonBgColor = 'bg-blue-500';
-                else if (step.id === 2) buttonBgColor = 'bg-green-500';
-                else buttonBgColor = 'bg-purple-500';
-
-                card.className = `bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-300`;
-                card.innerHTML = `
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Step ${step.id}: ${step.title || 'Untitled'}</h3>
-                    <p class="text-gray-600">${step.description ? (step.description.length > 100 ? step.description.substring(0, 100) + '...' : step.description) : 'Click to define details.'}</p>
-                    <button class="mt-4 ${buttonBgColor} hover:opacity-90 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-${buttonBgColor.split('-')[1]}-500 focus:ring-opacity-50">Define Step</button>
-                    <button data-step-id="${step.id}" class="delete-step-btn ml-2 mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">Delete</button>
-                `;
-                workflowCardsContainer.insertBefore(card, addStepCard);
-
-                // Create Modal Element
-                const modal = document.createElement('div');
-                modal.id = `modal${step.id}`;
-                modal.className = 'modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4';
-                modal.innerHTML = `
-                    <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-2xl font-bold text-gray-800">Step ${step.id} Details</h3>
-                            <button class="close-modal text-gray-500 hover:text-gray-700 focus:outline-none">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
+                projects.forEach(project => {
+                    const card = document.createElement('div');
+                    card.id = `projectCard${project.id}`;
+                    card.className = `project-card bg-white rounded-xl shadow-lg p-6 cursor-pointer transform hover:scale-102 transition-all duration-300 flex flex-col justify-between`;
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">${project.title || 'Untitled Project'}</h3>
+                            <p class="text-gray-600 text-sm mb-4">${project.description ? (project.description.length > 120 ? project.description.substring(0, 120) + '...' : project.description) : 'Click to define project details.'}</p>
                         </div>
-                        <form data-step-id="${step.id}" class="modal-form">
-                            <div class="mb-4">
-                                <label for="title${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Title <span class="text-red-500">*</span></label>
-                                <input type="text" id="title${step.id}" name="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., Step ${step.id} Title" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="integration${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Integration</label>
-                                <input type="text" id="integration${step.id}" name="integration" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., API for Step ${step.id}">
-                            </div>
-                            <div class="mb-6">
-                                <label for="description${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Description <span class="text-red-500">*</span></label>
-                                <textarea id="description${step.id}" name="description" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Provide a detailed description of this workflow step." required></textarea>
-                            </div>
-                            <div class="flex justify-end mt-4">
-                                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">Save</button>
-                                <button type="button" class="delete-step-btn-modal bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" data-step-id="${step.id}">Delete Step</button>
-                                <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Close</button>
-                            </div>
-                        </form>
-                    </div>
-                `;
-                body.appendChild(modal);
-            });
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button data-project-id="${project.id}" class="open-project-btn flex-1 min-w-max px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">Open Project</button>
+                            <button data-project-id="${project.id}" class="edit-project-btn flex-1 min-w-max px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">Edit</button>
+                            <button data-project-id="${project.id}" class="delete-project-btn flex-1 min-w-max px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">Delete</button>
+                        </div>
+                    `;
+                    projectsCardsContainer.insertBefore(card, addProjectCard);
+                });
+            }
         }
 
-        /**
-         * Saves data from the modal form for a specific step to the backend.
-         * This function handles both creating new steps and updating existing ones.
-         * @param {number|null} stepId - The ID of the step being saved/updated. null for new steps initially.
-         * @param {HTMLFormElement} form - The form element containing the input data.
-         */
-        async function saveModalData(stepId, form) {
+        /** Renders all workflow step cards for the current project. */
+        function renderAllSteps() {
+            workflowCardsContainer.querySelectorAll('.workflow-step-card:not(#addStepCard)').forEach(card => card.remove());
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (modal.id.startsWith('modalStep')) modal.remove(); // Remove old workflow modals
+            });
+
+            if (workflowSteps.length === 0) {
+                noStepsMessage.classList.remove('hidden');
+            } else {
+                noStepsMessage.classList.add('hidden');
+                workflowSteps.sort((a, b) => a.id - b.id); // Ensure correct order
+
+                workflowSteps.forEach(step => {
+                    const card = document.createElement('div');
+                    card.id = `workflowStepCard${step.id}`;
+                    card.className = `workflow-step-card bg-white rounded-xl shadow-lg p-6 cursor-pointer transform hover:scale-102 transition-all duration-300 flex flex-col justify-between`;
+                    
+                    // Color logic for step buttons
+                    let buttonBgColor;
+                    if (step.id % 3 === 1) buttonBgColor = 'bg-blue-500'; // e.g., Step 1, 4, 7...
+                    else if (step.id % 3 === 2) buttonBgColor = 'bg-green-500'; // e.g., Step 2, 5, 8...
+                    else buttonBgColor = 'bg-indigo-500'; // e.g., Step 3, 6, 9...
+
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Step ${step.id}: ${step.title || 'Untitled Step'}</h3>
+                            <p class="text-gray-600 text-sm mb-4">${step.description ? (step.description.length > 120 ? step.description.substring(0, 120) + '...' : step.description) : 'Click to define details for this step.'}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button data-step-id="${step.id}" class="open-step-modal-btn flex-1 min-w-max px-4 py-2 ${buttonBgColor} hover:opacity-90 text-white rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-${buttonBgColor.split('-')[1]}-500 focus:ring-opacity-50 transition duration-200">Define Step</button>
+                            <button data-step-id="${step.id}" class="delete-step-btn flex-1 min-w-max px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">Delete</button>
+                        </div>
+                    `;
+                    workflowCardsContainer.insertBefore(card, addStepCard);
+
+                    // Create Modal for Workflow Step
+                    const modal = document.createElement('div');
+                    modal.id = `modalStep${step.id}`;
+                    modal.className = 'modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4';
+                    modal.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full transform transition-all duration-300 scale-100">
+                            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                                <h3 class="text-2xl font-extrabold text-gray-800">Step ${step.id} Details</h3>
+                                <button class="close-modal text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <form data-step-id="${step.id}" class="workflow-modal-form space-y-4">
+                                <div>
+                                    <label for="stepTitle${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Title <span class="text-red-500">*</span></label>
+                                    <input type="text" id="stepTitle${step.id}" name="title" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-outline" placeholder="e.g., Data Transformation" required>
+                                </div>
+                                <div>
+                                    <label for="stepIntegration${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Integration</label>
+                                    <input type="text" id="stepIntegration${step.id}" name="integration" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:shadow-outline" placeholder="e.g., ETL Tool, API Call">
+                                </div>
+                                <div>
+                                    <label for="stepDescription${step.id}" class="block text-gray-700 text-sm font-bold mb-2">Description <span class="text-red-500">*</span></label>
+                                    <textarea id="stepDescription${step.id}" name="description" rows="5" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 focus:shadow-outline" placeholder="Provide a detailed description of this workflow step, including prerequisites and expected outcomes." required></textarea>
+                                </div>
+                                <div class="flex justify-end pt-4 border-t mt-6">
+                                    <button type="submit" class="save-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 mr-3">Save Step</button>
+                                    <button type="button" class="delete-step-btn-modal delete-button bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200 mr-3" data-step-id="${step.id}">Delete Step</button>
+                                    <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">Close</button>
+                                </div>
+                            </form>
+                        </div>
+                    `;
+                    body.appendChild(modal);
+                });
+            }
+        }
+
+        // --- Event Handlers ---
+
+        /** Opens the project modal for creating or editing a project. */
+        function openProjectModal(projectId = null) {
+            currentEditingEntityId = projectId;
+            projectModalForm.dataset.projectId = projectId; // Store ID on the form
+
+            // Reset form and hide delete button by default for new project
+            projectModalForm.reset();
+            deleteProjectModalBtn.classList.add('hidden'); 
+
+            if (projectId && projectId > 0) { // Existing project with a real ID
+                const project = projects.find(p => p.id === projectId);
+                if (project) {
+                    projectModalTitleElement.textContent = `Edit Project: ${project.title || 'Untitled'}`;
+                    projectModalForm.elements.title.value = project.title || '';
+                    projectModalForm.elements.description.value = project.description || '';
+                    deleteProjectModalBtn.classList.remove('hidden'); // Show delete button for real projects
+                } else {
+                    showNotification('Project data not found for editing!', 'error');
+                    return;
+                }
+            } else { // New project or unsaved temporary project
+                projectModalTitleElement.textContent = 'Create New Project';
+                projectModalForm.elements.title.value = 'New Project'; // Default title for new projects
+            }
+            openGenericModal(projectModal, projectId);
+        }
+
+        /** Creates a new project locally and opens its modal. */
+        function createNewProject() {
+            // Assign a unique temporary negative ID for frontend representation
+            const newTempId = nextTempId--; 
+            const newProjectData = { id: newTempId, title: 'New Project', description: '' };
+            projects.push(newProjectData);
+            renderAllProjects();
+            openProjectModal(newTempId);
+        }
+
+        /** Saves data from project modal to backend. */
+        async function saveProjectModalData(form) {
+            const projectId = parseInt(form.dataset.projectId); // Can be temp or real ID
+            const saveButton = form.querySelector('.save-button');
+            const title = form.elements.title.value.trim();
+            const description = form.elements.description.value.trim();
+
+            if (!title) {
+                showNotification('Project Title is required!', 'error');
+                return;
+            }
+
+            let projectDataToSend = { title, description };
+            if (projectId > 0) { // Only add ID for existing (real) projects
+                projectDataToSend.id = projectId;
+            }
+
+            const backendResponse = await saveProjectToBackend(projectDataToSend, saveButton);
+
+            if (backendResponse) {
+                // Find and replace/add the project in the local array with the backend's definitive data
+                projects = projects.filter(p => p.id !== projectId); // Remove by old ID (temp or real)
+                projects.push(backendResponse); // Add the project with the backend-assigned ID
+                
+                renderAllProjects();
+                closeGenericModal(projectModal);
+            }
+        }
+
+        /** Deletes a project from backend and updates UI. */
+        async function deleteProject(projectId) {
+            const deleteButton = document.querySelector(`.delete-project-btn[data-project-id="${projectId}"]`) || deleteProjectModalBtn;
+
+            if (projectId < 0) { // Temporary project, not saved yet
+                showNotification('This unsaved project is being removed.', 'info');
+                projects = projects.filter(p => p.id !== projectId);
+                renderAllProjects();
+                closeGenericModal(projectModal);
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete Project ${projectId} and all its workflows? This cannot be undone.`)) {
+                const success = await deleteProjectFromBackend(projectId, deleteButton);
+                if (success) {
+                    projects = projects.filter(p => p.id !== projectId);
+                    renderAllProjects();
+                    closeGenericModal(projectModal);
+                }
+            }
+        }
+
+        /** Saves data from workflow step modal to backend. */
+        async function saveWorkflowStepModalData(form) {
+            const stepId = parseInt(form.dataset.stepId);
+            const saveButton = form.querySelector('.save-button');
             const title = form.elements.title.value.trim();
             const integration = form.elements.integration.value.trim();
             const description = form.elements.description.value.trim();
@@ -410,100 +711,154 @@
                 return;
             }
 
-            let stepDataToSend = {
-                title: title,
-                integration: integration,
-                description: description
-            };
-
-            // If stepId is already assigned (meaning it's an existing step or a newly created one on the frontend),
-            // include it for the PUT request. Otherwise, it's a new POST.
-            if (stepId !== null) {
+            let stepDataToSend = { title, integration, description };
+            if (stepId > 0) { // Only include ID for existing (real) steps
                 stepDataToSend.id = stepId;
             }
 
-            const backendResponse = await saveStepToBackend(stepDataToSend);
+            const backendResponse = await saveStepToBackend(currentProjectId, stepDataToSend, saveButton);
 
             if (backendResponse) {
-                // Find the index of the step in the local array using the ID from the backend's response
-                const existingStepIndex = workflowSteps.findIndex(step => step.id === backendResponse.id);
+                // Remove the old step (especially if it was a temp ID) and add the new one from backend
+                workflowSteps = workflowSteps.filter(step => step.id !== stepId); // Remove by old ID (temp or real)
+                workflowSteps.push(backendResponse); // Add the step with the backend-assigned ID
                 
-                if (existingStepIndex === -1) {
-                    workflowSteps.push(backendResponse); // Add new step to local array
-                } else {
-                    workflowSteps[existingStepIndex] = { ...workflowSteps[existingStepIndex], ...backendResponse }; // Update existing step
-                }
-                renderAllSteps(); // Re-render the UI to reflect changes
-                closeModal(backendResponse.id); // Close the modal using the backend-assigned ID
+                renderAllSteps(); // Re-render the UI to reflect changes and correct IDs
+                closeGenericModal(document.getElementById(`modalStep${backendResponse.id}`)); // Close using real ID
             }
         }
 
-        /**
-         * Creates a new workflow step locally, adds it to the workflowSteps array,
-         * renders the UI, and then opens its modal for the user to fill in details.
-         * The actual save to backend happens when the user clicks 'Save' in the modal.
-         */
-        function createNewStep() {
-            // Find the maximum existing ID and increment for a temporary frontend ID.
-            // The backend will provide the real ID on first save (POST).
-            const tempId = workflowSteps.length > 0 ? Math.max(...workflowSteps.map(step => step.id)) + 1 : 1;
-
-            const newStepData = {
-                id: tempId, // Assign a temporary frontend ID
-                title: 'New Workflow Step', // Default title
-                integration: '',
-                description: ''
-            };
-
-            workflowSteps.push(newStepData); // Add to local array immediately
-            renderAllSteps(); // Re-render to show the new card
-
-            // Now open the modal for this new step, which initially has a temporary ID
-            openModal(tempId);
+        /** Creates a new workflow step locally and opens its modal. */
+        function createNewWorkflowStep() {
+            // Assign a unique temporary negative ID for frontend representation
+            const newTempId = nextTempId--; 
+            const newStepData = { id: newTempId, title: 'New Workflow Step', integration: '', description: '' };
+            workflowSteps.push(newStepData);
+            renderAllSteps();
+            openModal(newTempId); // This calls the openModal for a workflow step
         }
 
-        /**
-         * Deletes a workflow step from the backend and then updates the UI.
-         * @param {number} stepId - The ID of the step to delete.
-         */
+        /** Deletes a workflow step from backend and updates UI. */
         async function deleteStep(stepId) {
-            const success = await deleteStepFromBackend(stepId);
-            if (success) {
-                // Remove the step from the local array
+            const deleteButton = document.querySelector(`.delete-step-btn[data-step-id="${stepId}"]`) || document.querySelector(`.delete-step-btn-modal[data-step-id="${stepId}"]`);
+
+            if (stepId < 0) { // Temporary step, not saved yet
+                showNotification('This unsaved step is being removed.', 'info');
                 workflowSteps = workflowSteps.filter(step => step.id !== stepId);
-                renderAllSteps(); // Re-render to update the UI
-                closeModal(stepId); // Ensure modal is closed
+                renderAllSteps();
+                closeGenericModal(document.getElementById(`modalStep${stepId}`));
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete Step ${stepId}? This cannot be undone.`)) {
+                const success = await deleteStepFromBackend(currentProjectId, stepId, deleteButton);
+                if (success) {
+                    workflowSteps = workflowSteps.filter(step => step.id !== stepId);
+                    renderAllSteps();
+                    closeGenericModal(document.getElementById(`modalStep${stepId}`));
+                }
             }
         }
 
         // --- Initial Application Setup ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // Load steps from the backend when the page loads
-            workflowSteps = await fetchStepsFromBackend();
-            renderAllSteps(); // Render the initial UI based on loaded data
+            // Fetch and render projects on initial load
+            projects = await fetchProjectsFromBackend();
+            
+            // Initialize nextTempId based on existing project and workflow step IDs
+            // This ensures temporary IDs don't clash with any real backend IDs
+            const maxRealProjectId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) : 0;
+            const maxRealStepId = workflowSteps.length > 0 ? Math.max(...workflowSteps.map(s => s.id)) : 0; // Assuming workflowSteps could be pre-populated if not empty
+            nextTempId = -(Math.max(maxRealProjectId, maxRealStepId) + 1); // Start temporary IDs from a negative number (e.g., -1, -2, -3...)
 
-            // Attach event listener to the "Add New Step" card
-            addStepCard.addEventListener('click', createNewStep);
+            showProjectsView(); // Start by showing projects view by default
 
-            // Sidebar toggling (retained as before)
-            const sidebar = document.getElementById('sidebar');
-            const openSidebarBtn = document.getElementById('openSidebar');
-            const closeSidebarBtn = document.getElementById('closeSidebar');
-
-            openSidebarBtn.addEventListener('click', () => {
-                sidebar.classList.remove('sidebar-closed');
-                sidebar.classList.add('sidebar-open');
-            });
-            closeSidebarBtn.addEventListener('click', () => {
-                sidebar.classList.remove('sidebar-open');
-                sidebar.classList.add('sidebar-closed');
-            });
-
+            // Sidebar toggling
+            openSidebarBtn.addEventListener('click', () => { sidebar.classList.remove('sidebar-closed'); sidebar.classList.add('sidebar-open'); });
+            closeSidebarBtn.addEventListener('click', () => { sidebar.classList.remove('sidebar-open'); sidebar.classList.add('sidebar-closed'); });
             window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('sidebar-closed', 'sidebar-open');
-                } else {
-                    sidebar.classList.add('sidebar-closed');
+                if (window.innerWidth >= 768) { sidebar.classList.remove('sidebar-closed', 'sidebar-open'); }
+                else { sidebar.classList.add('sidebar-closed'); }
+            });
+
+            // --- Centralized Event Listeners for Dynamic Elements (using event delegation) ---
+            // Projects View Events
+            projectsCardsContainer.addEventListener('click', async (event) => {
+                const target = event.target;
+                const card = target.closest('.project-card'); // Use a class for dynamic project cards
+                if (!card || card.id === 'addProjectCard') return; // Ignore add card or clicks outside valid cards
+
+                const projectId = parseInt(card.id.replace('projectCard', ''));
+
+                if (target.classList.contains('open-project-btn')) {
+                    showWorkflowView(projectId);
+                } else if (target.classList.contains('edit-project-btn')) {
+                    openProjectModal(projectId);
+                } else if (target.classList.contains('delete-project-btn')) {
+                    deleteProject(projectId);
+                }
+            });
+
+            // Add Project Card Listener
+            addProjectCard.addEventListener('click', createNewProject);
+
+            // Project Modal Form Submission
+            projectModalForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                await saveProjectModalData(event.target);
+            });
+
+            // Project Modal Delete Button
+            deleteProjectModalBtn.addEventListener('click', async () => {
+                const projectId = parseInt(projectModalForm.dataset.projectId);
+                await deleteProject(projectId);
+            });
+
+
+            // Workflow View Navigation
+            backToProjectsBtn.addEventListener('click', showProjectsView);
+
+            // Workflow Step Cards Events
+            workflowCardsContainer.addEventListener('click', async (event) => {
+                const target = event.target;
+                const card = target.closest('.workflow-step-card'); // Use a class for dynamic workflow step cards
+                if (!card || card.id === 'addStepCard') return; // Ignore add card or clicks outside valid cards
+
+                const stepId = parseInt(card.id.replace('workflowStepCard', ''));
+
+                if (target.classList.contains('open-step-modal-btn')) {
+                    openModal(stepId); // This calls the openModal for a workflow step
+                } else if (target.classList.contains('delete-step-btn')) {
+                    deleteStep(stepId);
+                }
+            });
+
+            // Add Workflow Step Card Listener
+            addStepCard.addEventListener('click', createNewWorkflowStep);
+
+            // Workflow Step Modal Form Submission
+            document.addEventListener('submit', async (event) => {
+                if (event.target.classList.contains('workflow-modal-form')) {
+                    event.preventDefault();
+                    const form = event.target;
+                    const stepId = parseInt(form.dataset.stepId);
+                    await saveWorkflowStepModalData(form);
+                }
+            });
+
+            // Close Any Modal (Project or Workflow) via button or overlay click
+            document.addEventListener('click', (event) => {
+                if (event.target.classList.contains('close-modal')) {
+                    const modalElement = event.target.closest('.modal');
+                    if (modalElement) {
+                        closeGenericModal(modalElement);
+                    }
+                } else if (event.target.classList.contains('modal') && event.target.classList.contains('open')) {
+                    // Clicking on the modal overlay itself
+                    const modalElement = event.target;
+                     if (modalElement) {
+                        closeGenericModal(modalElement);
+                    }
                 }
             });
         });
