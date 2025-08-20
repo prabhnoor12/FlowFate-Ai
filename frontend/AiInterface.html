@@ -1,1 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Base layout for full screen */
+        body {
+            display: flex;
+            height: 100vh; /* Full viewport height */
+            overflow: hidden; /* Prevent body scroll */
+            background-color: #f3f4f6; /* bg-gray-100 */
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
 
+        /* Sidebar styles */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+            z-index: 50; /* Ensure sidebar is on top */
+            background-color: #1f2937; /* A bit lighter than before, for a subtle difference bg-gray-800 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+
+        /* Mobile specific sidebar behavior */
+        @media (max-width: 767px) {
+            .sidebar {
+                position: fixed; /* Crucial for sliding over content */
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 260px; /* Fixed width for mobile sidebar */
+                transform: translateX(-100%); /* Hidden by default */
+            }
+            .sidebar-open {
+                transform: translateX(0); /* Slides in */
+            }
+            /* Overlay for when mobile sidebar is open */
+            .main-content-overlay {
+                position: fixed;
+                inset: 0;
+                background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+                z-index: 40; /* Below sidebar, above main content */
+                display: none; /* Hidden by default */
+            }
+            .main-content-overlay.active {
+                display: block;
+            }
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .notification.success { background-color: #48bb78; }
+        .notification.error { background-color: #ef4444; }
+        .notification.info { background-color: #63b3ed; }
+
+        /* Chat window specific styles for a clean, WhatsApp-like feel */
+        .chat-area-main-container { /* This wraps the chat window and input */
+            flex: 1; /* Takes up remaining space */
+            display: flex;
+            flex-direction: column; /* Stack chat window and input vertically */
+            padding: 1.5rem; /* Overall padding for the chat interface */
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+
+        .chat-container {
+            flex-grow: 1; /* Takes all available space between header and input */
+            display: flex;
+            flex-direction: column; /* Stacks messages */
+            overflow-y: auto; /* Enable vertical scrolling */
+            scroll-behavior: smooth;
+            background-color: #ffffff; /* bg-white */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            padding: 1.5rem; /* Inner padding for chat messages */
+        }
+
+        /* Wrapper for each message bubble to control alignment */
+        .chat-message-wrapper {
+            display: flex; 
+            margin-bottom: 0.5rem; /* Spacing between message wrappers */
+        }
+
+        .chat-message-bubble {
+            max-width: 75%; /* Slightly less than 80% to look better on wide screens */
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            line-height: 1.5; /* Adjusted line height */
+            white-space: pre-wrap; /* Preserve whitespace and wrap */
+            word-break: break-word; /* Break long words */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* subtle shadow */
+        }
+
+        .chat-message-bubble.user {
+            background-color: #dbeafe; /* bg-blue-100 */
+            color: #1e40af; /* text-blue-800 */
+            margin-left: auto; /* PUSHES BUBBLE TO THE RIGHT */
+            border-bottom-right-radius: 0.25rem; /* Slightly flatten bottom right corner */
+        }
+
+        .chat-message-bubble.bot {
+            background-color: #ecfdf5; /* bg-green-50 */
+            color: #065f46; /* text-green-800 */
+            margin-right: auto; /* PUSHES BUBBLE TO THE LEFT */
+            border-bottom-left-radius: 0.25rem; /* Slightly flatten bottom left corner */
+        }
+
+        .chat-input-area {
+            background-color: #ffffff; /* bg-white */
+            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+            margin-top: 1.5rem; /* Space between chat window and input */
+        }
+
+        .chat-input {
+            background-color: #ffffff;
+            border: 1px solid #d1d5db; /* gray-300 */
+            color: #374151; /* gray-700 */
+            resize: none;
+            overflow-y: hidden;
+            min-height: 48px;
+            max-height: 150px;
+            padding-right: 48px;
+            padding-left: 1rem; /* Added explicit padding-left */
+            padding-top: 0.75rem; /* Added explicit padding-top */
+            padding-bottom: 0.75rem; /* Added explicit padding-bottom */
+        }
+
+        /* Spinner for loading messages */
+        .loading-dots {
+            display: flex;
+            justify-content: flex-start; /* Align left like bot messages */
+            align-items: center;
+            height: 20px;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem; /* Consistent spacing */
+            padding: 0.75rem 1rem; /* Matches bubble padding */
+            background-color: #f0fdf4; /* bg-green-50 */
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            max-width: fit-content; /* Only take content width */
+        }
+        .loading-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin: 0 3px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            opacity: 0;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 p-6 md:relative md:translate-x-0 sidebar-closed">
+        <div class="flex justify-between items-center mb-10 border-b border-gray-700 pb-4">
+            <h1 class="text-2xl font-extrabold text-blue-300 tracking-wider">My Workflow 🚀</h1>
+            <button id="closeSidebar" class="text-white md:hidden focus:outline-none p-2 rounded-full hover:bg-gray-700 transition duration-200">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <nav>
+            <ul>
+                <li class="mb-3">
+                    <a href="index.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white font-medium">
+                        <svg class="h-5 w-5 mr-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l7 7m-11 2v5a1 1 0 001 1h3"></path>
+                        </svg>
+                        Projects
+                    </a>
+                </li>
+                <li class="mb-3">
+                    <a href="automation.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white font-medium">
+                        <svg class="h-5 w-5 mr-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v2m-3-12v5m-3-3h3M3 8v8a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 1 0 00-2 2z"></path>
+                        </svg>
+                        Automation
+                    </a>
+                </li>
+                 <li class="mb-3">
+                    <a href="dashboard.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-gray-700 transition duration-200 ease-in-out text-gray-300 hover:text-white font-medium">
+                        <svg class="h-5 w-5 mr-3 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18M3 18h18"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="mb-3">
+                    <a href="interface.html" class="flex items-center py-2.5 px-4 rounded-lg bg-gray-700 text-white font-medium">
+                        <svg class="h-5 w-5 mr-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v13m-3-8h6m-12 0h-2M4 8h2"></path>
+                        </svg>
+                        AI Interface
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="chat-area-main-container">
+        <header class="bg-white shadow p-4 flex items-center justify-between md:hidden rounded-xl mb-6">
+            <button id="openSidebar" class="text-gray-600 focus:outline-none p-2 rounded-md hover:bg-gray-200 transition duration-200">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <h2 class="text-2xl font-extrabold text-gray-800">AI Chat</h2>
+            <div class="w-6 h-6"></div> </header>
+
+        <main class="flex-1 flex flex-col bg-gray-200 rounded-xl p-4">
+            <div id="chatWindow" class="chat-container">
+                <div class="chat-message-wrapper">
+                    <div class="chat-message-bubble bot">Hello! I'm here to help you with simple tasks. How can I assist you today?</div>
+                </div>
+                <div id="loadingMessage" class="chat-message-wrapper hidden">
+                    <div class="loading-dots"><span></span><span></span><span></span></div>
+                </div>
+            </div>
+
+            <div class="chat-input-area relative flex items-end rounded-b-xl">
+                <textarea id="chatInput" class="chat-input flex-1 p-3 pl-4 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200" placeholder="Ask me to summarize, explain, generate ideas..."></textarea>
+                <button id="sendButton" class="absolute right-6 bottom-3.5 p-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <div id="mainContentOverlay" class="main-content-overlay"></div>
+
+    <div id="notificationContainer" class="z-50"></div>
+
+    <script>
+        // --- Global State & API Configuration ---
+        // IMPORTANT: Ensure this endpoint is correctly configured on your backend
+        const API_CHAT_ENDPOINT = '/api/chat'; 
+        let currentChatMessages = []; // Stores the current conversation history
+        let isGeneratingResponse = false; // Flag to prevent multiple requests
+
+        // --- UI Elements ---
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const mainContentOverlay = document.getElementById('mainContentOverlay');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const loadingMessage = document.getElementById('loadingMessage'); // The loading dots element
+        const notificationContainer = document.getElementById('notificationContainer');
+
+        // --- Utility Functions ---
+
+        /** Shows a temporary notification message to the user. */
+        function showNotification(message, type = 'success') {
+            const container = notificationContainer;
+            while (container.firstChild) { container.removeChild(container.firstChild); }
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            notification.offsetWidth;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.addEventListener('transitionend', () => notification.remove(), { once: true });
+            }, 3000);
+        }
+
+        /** Auto-resizes the textarea based on content. */
+        function autoResizeTextarea() {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = chatInput.scrollHeight + 'px';
+        }
+
+        /** Scrolls the chat window to the bottom. */
+        function scrollToBottom() {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        /** Renders a new message bubble in the chat window. */
+        function renderMessage(message, sender) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `chat-message-wrapper`; // Wrapper for alignment
+
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `chat-message-bubble ${sender}`;
+            messageBubble.textContent = message; // Use textContent for safety
+
+            messageWrapper.appendChild(messageBubble);
+            // Insert before the loadingMessage, which should always be the last static element
+            chatWindow.insertBefore(messageWrapper, loadingMessage); 
+            scrollToBottom();
+        }
+
+        /** Starts a new clean conversation. */
+        function startNewChat() {
+            currentChatMessages = [];
+            // Clear all chat bubbles except the loading message which is a template
+            chatWindow.querySelectorAll('.chat-message-wrapper').forEach(wrapper => {
+                if (wrapper.id !== 'loadingMessage') {
+                    wrapper.remove();
+                }
+            });
+            // Re-render initial welcome message only if it's not present
+            if (!chatWindow.querySelector('.chat-message-bubble.bot')) { // Prevent multiple welcome messages
+                const initialWelcomeWrapper = document.createElement('div');
+                initialWelcomeWrapper.className = 'chat-message-wrapper';
+                const initialWelcomeBubble = document.createElement('div');
+                initialWelcomeBubble.className = 'chat-message-bubble bot';
+                initialWelcomeBubble.textContent = "Hello! I'm here to help you with simple tasks. How can I assist you today?";
+                initialWelcomeWrapper.appendChild(initialWelcomeBubble);
+                chatWindow.insertBefore(initialWelcomeWrapper, loadingMessage);
+            }
+
+            chatInput.value = '';
+            autoResizeTextarea();
+            showNotification('Chat session reset!', 'info');
+            scrollToBottom();
+        }
+
+        // --- Backend API Call for Chat ---
+
+        /** Sends a message to the backend's OpenAI endpoint and handles response. */
+        async function sendMessageToBackend(message) {
+            if (isGeneratingResponse) {
+                showNotification('Please wait for the AI response.', 'info');
+                return;
+            }
+            if (!message.trim()) { // Don't send empty messages
+                return;
+            }
+
+            // 1. User input shows up immediately
+            renderMessage(message, 'user');
+            currentChatMessages.push({ role: "user", content: message });
+            chatInput.value = ''; // Clear input field immediately
+            autoResizeTextarea(); // Reset textarea height
+
+            loadingMessage.classList.remove('hidden'); // Show loading dots
+            sendButton.disabled = true; // Disable send button
+            isGeneratingResponse = true;
+
+            try {
+                const response = await fetch(API_CHAT_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ messages: currentChatMessages }), // Send full history
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`Backend Error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                const botResponse = data.response; // Assuming your backend returns { response: "AI message" }
+
+                renderMessage(botResponse, 'bot');
+                currentChatMessages.push({ role: "assistant", content: botResponse }); // Add bot response to history
+
+            } catch (e) {
+                console.error("Error sending message to backend:", e);
+                showNotification(`Error: ${e.message}. Could not get AI response.`, 'error');
+                renderMessage("I apologize, but I couldn't get a response. Please try again.", 'bot'); // Show error to user
+            } finally {
+                loadingMessage.classList.add('hidden'); // Hide loading dots
+                sendButton.disabled = false; // Re-enable send button
+                scrollToBottom();
+                chatInput.focus(); // Keep focus on input for continued conversation
+            }
+        }
+
+        // --- Event Listeners ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar toggle for mobile
+            openSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.add('sidebar-open');
+                mainContentOverlay.classList.add('active');
+            });
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('sidebar-open');
+                mainContentOverlay.classList.remove('active');
+            });
+            // Close sidebar when clicking on the overlay
+            mainContentOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('sidebar-open');
+                mainContentOverlay.classList.remove('active');
+            });
+            // Close sidebar if window resizes to desktop view while sidebar is open
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) { // md breakpoint in Tailwind
+                    sidebar.classList.remove('sidebar-open'); 
+                    mainContentOverlay.classList.remove('active');
+                }
+            });
+
+
+            // Chat Input & Send Button
+            chatInput.addEventListener('input', autoResizeTextarea);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // Only send on Enter, not Shift+Enter
+                    e.preventDefault(); // Prevent new line
+                    sendMessageToBackend(chatInput.value); // Pass the value directly
+                }
+            });
+            sendButton.addEventListener('click', () => {
+                sendMessageToBackend(chatInput.value); // Pass the value directly
+            });
+
+            // Initial setup
+            startNewChat(); // Start with a fresh chat on page load
+        });
+    </script>
+</body>
+</html>
