@@ -1,5 +1,0 @@
-{"level":"info","message":"[Scheduler] Notion sync scheduler started","timestamp":"2025-08-01T12:18:48.092Z"}
-{"level":"info","message":"[Scheduler] Notion sync scheduler started","timestamp":"2025-08-01T13:29:07.359Z"}
-{"level":"info","message":"[Scheduler] Triggering Notion sync job","timestamp":"2025-08-01T13:30:00.027Z"}
-{"level":"info","message":"[SyncJob] Starting Notion sync job","timestamp":"2025-08-01T13:30:00.029Z"}
-{"level":"info","message":"[SyncJob] Notion sync job complete","timestamp":"2025-08-01T13:30:00.030Z"}
