@@ -48,6 +48,40 @@ model Session {
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
+model Settings {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Automation {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  workflow    Json
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Workflow {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  steps       Json    // Array of steps, each step can be a task/action
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+}
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"

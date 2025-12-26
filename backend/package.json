@@ -15,7 +15,8 @@
   "dependencies": {
     "@prisma/client": "^7.2.0",
     "bcryptjs": "^3.0.3",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "joi": "^18.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.11",
