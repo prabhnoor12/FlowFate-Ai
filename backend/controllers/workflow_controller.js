@@ -1,8 +1,7 @@
 // workflow_controller.js
 // Handles CRUD operations for user-created workflows (multi-step tasks)
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const workflowService = require('../services/workflow_service');
 const Joi = require('joi');
 const { AppError } = require('../utils/error_handling');
 const logger = require('../utils/logger');
@@ -20,20 +19,7 @@ exports.getWorkflows = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { page = 1, pageSize = 10, search = '' } = req.query;
-    const skip = (Number(page) - 1) * Number(pageSize);
-    const where = {
-      userId,
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-    };
-    const [workflows, total] = await Promise.all([
-      prisma.workflow.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: Number(pageSize) }),
-      prisma.workflow.count({ where }),
-    ]);
+    const { workflows, total } = await workflowService.getWorkflows(userId, { page, pageSize, search });
     res.json({ workflows, total, page: Number(page), pageSize: Number(pageSize) });
   } catch (err) {
     logger.error('Failed to fetch workflows', { error: err });
@@ -48,7 +34,7 @@ exports.getWorkflowById = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const workflow = await prisma.workflow.findFirst({ where: { id: Number(id), userId } });
+    const workflow = await workflowService.getWorkflowById(userId, id);
     if (!workflow) {
       return next(new AppError('Workflow not found', 404));
     }
@@ -70,9 +56,7 @@ exports.createWorkflow = async (req, res, next) => {
       logger.warn('Validation failed for createWorkflow', { error });
       return next(new AppError('Validation error', 400, error.details.map(d => d.message)));
     }
-    const workflow = await prisma.workflow.create({
-      data: { ...value, userId },
-    });
+    const workflow = await workflowService.createWorkflow(userId, value);
     res.status(201).json(workflow);
   } catch (err) {
     logger.error('Failed to create workflow', { error: err });
@@ -92,10 +76,7 @@ exports.updateWorkflow = async (req, res, next) => {
       logger.warn('Validation failed for updateWorkflow', { error });
       return next(new AppError('Validation error', 400, error.details.map(d => d.message)));
     }
-    const workflow = await prisma.workflow.update({
-      where: { id: Number(id), userId },
-      data: value,
-    });
+    const workflow = await workflowService.updateWorkflow(userId, id, value);
     res.json(workflow);
   } catch (err) {
     logger.error('Failed to update workflow', { error: err });
@@ -112,7 +93,6 @@ exports.patchWorkflow = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    // Allow partial update, but validate known fields
     const patchSchema = Joi.object({
       name: Joi.string().min(2).max(100),
       description: Joi.string().max(500).allow('', null),
@@ -123,10 +103,7 @@ exports.patchWorkflow = async (req, res, next) => {
       logger.warn('Validation failed for patchWorkflow', { error });
       return next(new AppError('Validation error', 400, error.details.map(d => d.message)));
     }
-    const workflow = await prisma.workflow.update({
-      where: { id: Number(id), userId },
-      data: value,
-    });
+    const workflow = await workflowService.patchWorkflow(userId, id, value);
     res.json(workflow);
   } catch (err) {
     logger.error('Failed to patch workflow', { error: err });
@@ -144,7 +121,7 @@ exports.deleteWorkflow = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    await prisma.workflow.delete({ where: { id: Number(id), userId } });
+    await workflowService.deleteWorkflow(userId, id);
     res.json({ message: 'Workflow deleted' });
   } catch (err) {
     logger.error('Failed to delete workflow', { error: err });
@@ -162,18 +139,10 @@ exports.duplicateWorkflow = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const workflow = await prisma.workflow.findFirst({ where: { id: Number(id), userId } });
-    if (!workflow) {
+    const copy = await workflowService.duplicateWorkflow(userId, id);
+    if (!copy) {
       return next(new AppError('Workflow not found', 404));
     }
-    const copy = await prisma.workflow.create({
-      data: {
-        name: workflow.name + ' (Copy)',
-        description: workflow.description,
-        steps: workflow.steps,
-        userId,
-      },
-    });
     res.status(201).json(copy);
   } catch (err) {
     logger.error('Failed to duplicate workflow', { error: err });

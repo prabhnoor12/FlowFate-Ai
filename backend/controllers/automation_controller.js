@@ -3,11 +3,13 @@
 /**
  * Get a single automation by ID (for viewing/editing)
  */
+const automationService = require('../services/automation_service');
+
 exports.getAutomationById = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const automation = await prisma.automation.findFirst({ where: { id: Number(id), userId } });
+    const automation = await automationService.getAutomationById(userId, id);
     if (!automation) {
       return next(new AppError('Automation not found', 404));
     }
@@ -25,18 +27,10 @@ exports.duplicateAutomation = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const automation = await prisma.automation.findFirst({ where: { id: Number(id), userId } });
-    if (!automation) {
+    const copy = await automationService.duplicateAutomation(userId, id);
+    if (!copy) {
       return next(new AppError('Automation not found', 404));
     }
-    const copy = await prisma.automation.create({
-      data: {
-        name: automation.name + ' (Copy)',
-        description: automation.description,
-        workflow: automation.workflow,
-        userId,
-      },
-    });
     res.status(201).json(copy);
   } catch (err) {
     logger.error('Failed to duplicate automation', { error: err });
@@ -56,20 +50,7 @@ exports.getAutomations = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { page = 1, pageSize = 10, search = '' } = req.query;
-    const skip = (Number(page) - 1) * Number(pageSize);
-    const where = {
-      userId,
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-    };
-    const [automations, total] = await Promise.all([
-      prisma.automation.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: Number(pageSize) }),
-      prisma.automation.count({ where }),
-    ]);
+    const { automations, total } = await automationService.getAutomations(userId, { page, pageSize, search });
     res.json({ automations, total, page: Number(page), pageSize: Number(pageSize) });
   } catch (err) {
     logger.error('Failed to fetch automations', { error: err });
@@ -94,9 +75,7 @@ exports.createAutomation = async (req, res, next) => {
       logger.warn('Validation failed for createAutomation', { error });
       return next(new AppError('Validation error', 400, error.details.map(d => d.message)));
     }
-    const automation = await prisma.automation.create({
-      data: { ...value, userId },
-    });
+    const automation = await automationService.createAutomation(userId, value);
     res.status(201).json(automation);
   } catch (err) {
     logger.error('Failed to create automation', { error: err });
@@ -116,10 +95,7 @@ exports.updateAutomation = async (req, res, next) => {
       logger.warn('Validation failed for updateAutomation', { error });
       return next(new AppError('Validation error', 400, error.details.map(d => d.message)));
     }
-    const automation = await prisma.automation.update({
-      where: { id: Number(id), userId },
-      data: value,
-    });
+    const automation = await automationService.updateAutomation(userId, id, value);
     res.json(automation);
   } catch (err) {
     logger.error('Failed to update automation', { error: err });
@@ -147,10 +123,7 @@ exports.patchAutomation = async (req, res, next) => {
       logger.warn('Validation failed for patchAutomation', { error });
       return next(new AppError('Validation error', 400, error.details.map(d => d.message)));
     }
-    const automation = await prisma.automation.update({
-      where: { id: Number(id), userId },
-      data: value,
-    });
+    const automation = await automationService.patchAutomation(userId, id, value);
     res.json(automation);
   } catch (err) {
     logger.error('Failed to patch automation', { error: err });
@@ -168,7 +141,7 @@ exports.deleteAutomation = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    await prisma.automation.delete({ where: { id: Number(id), userId } });
+    await automationService.deleteAutomation(userId, id);
     res.json({ message: 'Automation deleted' });
   } catch (err) {
     logger.error('Failed to delete automation', { error: err });

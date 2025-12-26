@@ -32,7 +32,7 @@ exports.register = catchAsync(async (req, res, next) => {
 	if (existingUsername) {
 		return next(new AppError('Username already taken', 409));
 	}
-	const hashedPassword = await bcrypt.hash(password, 12);
+	    return email.trim().toLowerCase();
 	const user = await prisma.user.create({
 		data: {
 			username,
@@ -42,11 +42,11 @@ exports.register = catchAsync(async (req, res, next) => {
 		}
 	});
 	const token = generateToken({ id: user.id, email: user.email, role: user.role });
-	// Set token in HTTP-only cookie for extra security
+	    const { username, password, email, role } = req.body;
 	res.cookie('token', token, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'lax',
+	    email = normalizeEmail(email);
 		maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 	});
 	res.status(201).json({
@@ -83,11 +83,11 @@ exports.login = catchAsync(async (req, res, next) => {
 		data: { user: { id: user.id, username: user.username, email: user.email, role: user.role }, token }
 	});
 });
-
+	    const { email, password } = req.body;
 // Example protected route (production-ready with Prisma)
 exports.profile = catchAsync(async (req, res, next) => {
 	// req.user is set by auth middleware
-	const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+	    email = normalizeEmail(email);
 	if (!user) {
 		return next(new AppError('User not found', 404));
 	}
@@ -113,7 +113,7 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
 		const normalizedEmail = normalizeEmail(email);
 		const existingEmail = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 		if (existingEmail && existingEmail.id !== req.user.id) {
-			return next(new AppError('Email already registered', 409));
+	    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
 		}
 		updates.email = normalizedEmail;
 	}
