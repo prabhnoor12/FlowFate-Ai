@@ -1,6 +1,15 @@
+const OpenAI = require('openai');
+
+let openai;
+if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+    });
+} else if (process.env.NODE_ENV !== 'test') {
+    console.warn('OPENAI_API_KEY is not set. OpenAI services will not be available.');
+}
+
 const prisma = require('../prisma/db');
-const { Configuration, OpenAIApi } = require('openai');
-const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
 
 function previewPromptService({ prompt, input = '', context = '' }) {
 	if (!prompt) throw new Error('Prompt is required for preview');

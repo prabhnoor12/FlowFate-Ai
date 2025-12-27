@@ -39,11 +39,16 @@ const { PrismaClient } = require('@prisma/client');
 const { AppError } = require('../utils/error_handling');
 const logger = require('../utils/logger');
 const Joi = require('joi');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
-const openai = new OpenAIApi(new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-}));
+let openai;
+if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+    });
+} else if (process.env.NODE_ENV !== 'test') {
+    console.warn('OPENAI_API_KEY is not set. OpenAI services will not be available in openai_controller.');
+}
 
 /**
  * Run a single-step automation using OpenAI

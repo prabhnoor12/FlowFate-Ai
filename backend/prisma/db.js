@@ -1,29 +1,20 @@
 const { PrismaClient } = require('@prisma/client');
-const sinon = require('sinon');
 
 let prisma;
 
 if (process.env.NODE_ENV === 'test') {
   // Mock Prisma client for tests
   prisma = {
-    user: {
-      findUnique: sinon.stub(),
-      create: sinon.stub(),
-      update: sinon.stub(),
-      delete: sinon.stub(),
-    },
     automation: {
-      findFirst: sinon.stub(),
-      findMany: sinon.stub(),
-      create: sinon.stub(),
-      update: sinon.stub(),
-      delete: sinon.stub(),
-      count: sinon.stub(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
     },
-    // Add other models here as needed
+    // Add other models and their methods as needed
   };
 } else {
-  // Real Prisma client for development/production
   prisma = new PrismaClient();
 }
 

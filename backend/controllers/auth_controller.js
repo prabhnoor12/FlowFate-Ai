@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const prisma = require('../prisma/db');
+const { AppError, catchAsync } = require('../utils/error_handling');
+const { generateToken } = require('../utils/token');
 
 function normalizeEmail(email) {
 	return email.trim().toLowerCase();

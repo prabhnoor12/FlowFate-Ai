@@ -1,9 +1,8 @@
-const { PrismaClient } = require('@prisma/client');
-const { AppError, catchAsync } = require('../utils/error_handling');
+const prisma = require('../prisma/db');
+
 const Joi = require('joi');
-
-const prisma = new PrismaClient();
-
+const catchAsync = require('../utils/error_handling').catchAsync;
+const { AppError } = require('../utils/error_handling');
 const DEFAULT_SETTINGS = { theme: 'light', notifications: true, language: 'en' };
 
 const settingsSchema = Joi.object({
