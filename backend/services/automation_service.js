@@ -1,5 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+const prisma = require('../prisma/db');
 
 async function getAutomationById(userId, id) {
 	return await prisma.automation.findFirst({ where: { id: Number(id), userId } });

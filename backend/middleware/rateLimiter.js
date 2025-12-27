@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const MemoryStore = require('express-rate-limit').MemoryStore;
 
 // Custom store to ban IPs after repeated abuse
@@ -39,7 +39,7 @@ const limiter = rateLimit({
 	legacyHeaders: false,
 	keyGenerator: (req) => {
 		// Use IP + user-agent for stricter uniqueness
-		return req.ip + (req.headers['user-agent'] || '');
+		return ipKeyGenerator(req) + (req.headers['user-agent'] || '');
 	},
 	store: new BanStore(),
 	handler: (req, res, next, options) => {

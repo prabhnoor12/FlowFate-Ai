@@ -38,7 +38,7 @@ exports.duplicateAutomation = async (req, res, next) => {
   }
 };
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
 const Joi = require('joi');
 const { AppError } = require('../utils/error_handling');
 const logger = require('../utils/logger');

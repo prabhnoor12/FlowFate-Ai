@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma/db');
 const { generateToken, verifyToken } = require('../utils/token');
 
 async function createSessionService({ userId, userAgent }) {

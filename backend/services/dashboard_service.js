@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma/db');
 
 async function getDashboardSummary(userId) {
 	const [automationCount, workflowCount, sessionCount, recentAutomations, recentWorkflows, recentSessions, allAutomations, allWorkflows] = await Promise.all([

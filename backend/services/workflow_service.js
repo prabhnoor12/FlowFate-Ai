@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma/db');
 
 async function getWorkflows(userId, { page = 1, pageSize = 10, search = '' }) {
 	const skip = (Number(page) - 1) * Number(pageSize);

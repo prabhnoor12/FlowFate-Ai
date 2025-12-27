@@ -35,7 +35,7 @@ exports.getUsageStats = async (req, res, next) => {
   }
 };
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
 const { AppError } = require('../utils/error_handling');
 const logger = require('../utils/logger');
 const Joi = require('joi');

@@ -1,3 +1,4 @@
+
 // Prisma schema for FlowFate-Ai backend
 generator client {
   provider = "prisma-client-js"
@@ -5,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql" // Change to your DB type if needed
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -17,6 +17,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts     Post[]
+  sessions  Session[]
+  settings  Settings[]
+  automations Automation[]
+  workflows Workflow[]
 }
 
 model Post {
@@ -80,13 +84,4 @@ model Workflow {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-}
 
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-
-datasource db {
-  provider = "postgresql"
-}
